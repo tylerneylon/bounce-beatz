@@ -1,6 +1,6 @@
 --[[ pong-love/main.lua
 
-TODO Put a nice description here.
+This is the classic game pong.
 
 --]]
 
@@ -8,10 +8,18 @@ TODO Put a nice description here.
 -- Internal drawing functions.
 -- These accept input coordinates in our custom coord system.
 
-local function draw_rect(x, y, w, h)
+local function draw_rect(x, y, w, h, color)
+
+  -- Set the color.
+  color = color or {255, 255, 255}
+  love.graphics.setColor(color)
+
+  -- Convert coordinates.
   local win_w, win_h = love.graphics.getDimensions()
   x, y = (x + 1) * win_w / 2, (y + 1) * win_h / 2
   w, h = w * win_w / 2, h * win_h / 2
+
+  -- Draw the rectangle.
   love.graphics.rectangle('fill', x, y, w, h)
 end
 
@@ -46,9 +54,11 @@ end
 
 -- We use a coordinate system where (0, 0) is the middle of the screen, (-1, -1)
 -- is the lower-left corner, and (1, 1) is the upper-right corner.
-local ball = {x = 0, y = 0, dx = -1, dy = 0.6}
+local ball = {x = 0, y = 0, dx = -0.01, dy = 0.006}
 
 local players = {Player:new(-0.8), Player:new(0.8)}
+
+local blue = {0, 255, 255}
 
 -- Love-based functions.
 
@@ -57,8 +67,8 @@ function love.load()
 end
 
 function love.update(dt)
-  -- This function runs once every go.
-  -- Update state here; dt is the time delta in seconds.
+  ball.x = ball.x + ball.dx
+  ball.y = ball.y + ball.dy
 end
 
 function love.draw()
@@ -66,4 +76,9 @@ function love.draw()
     p:draw()
   end
   draw_center_line()
+
+  -- Draw the ball.
+  local w, h = 0.02, 0.02
+  local x, y = ball.x - w / 2, ball.y - h / 2
+  draw_rect(x, y, w, h, blue)
 end
