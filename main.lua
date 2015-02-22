@@ -16,6 +16,9 @@ local players  -- This will be set up in love.load.
 
 local blue = {0, 255, 255}
 
+-- Sounds; loaded in love.load.
+local ball_hit
+
 -- Internal drawing functions.
 -- These accept input coordinates in our custom coord system.
 
@@ -101,7 +104,10 @@ function Player:update(dt)
   if math.abs(self.x - ball.x) < (self.w + ball.w) / 2 and
      math.abs(self.y - ball.y) < (self.h + ball.h) / 2 and
      sign(ball.dx) == sign(self.x) then
+
     ball.dx = -1 * ball.dx
+
+    ball_hit:play()
 
     -- hit_pt is in the range [-1, 1]
     local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
@@ -120,6 +126,8 @@ end
 function love.load()
   new_ball()
   players = {Player:new(-0.8), Player:new(0.8)}
+
+  ball_hit = love.audio.newSource('audio/ball_hit.wav', 'static')
 end
 
 function love.update(dt)
