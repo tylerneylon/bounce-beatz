@@ -5,6 +5,16 @@ This is the classic game pong.
 --]]
 
 
+-- Internal globals.
+
+-- We use a coordinate system where (0, 0) is the middle of the screen, (-1, -1)
+-- is the lower-left corner, and (1, 1) is the upper-right corner.
+local ball = {x = 0, y = 0, dx = -0.01, dy = 0.006, w = 0.02, h = 0.02}
+
+local players  -- This will be set up in love.load.
+
+local blue = {0, 255, 255}
+
 -- Internal drawing functions.
 -- These accept input coordinates in our custom coord system.
 
@@ -34,6 +44,14 @@ local function draw_center_line()
   end
 end
 
+
+-- Supporting functions.
+
+local function sign(x)
+  if x > 0 then return 1 end
+  return -1
+end
+
 -- Define the Player class.
 
 local Player = {w = 0.05, h = 0.4}
@@ -53,28 +71,35 @@ function Player:update(dt)
   local min, max = -1 + self.h / 2, 1 - self.h / 2
   if self.y < min then self.y, self.dy = min, 0 end
   if self.y > max then self.y, self.dy = max, 0 end
+
+  -- Check for a ball collision.
+  -- The sign check is to enforce one collision event at a time.
+  if math.abs(self.x - ball.x) < (self.w + ball.w) / 2 and
+     math.abs(self.y - ball.y) < (self.h + ball.h) / 2 and
+     sign(ball.dx) == sign(self.x) then
+    ball.dx = -1 * ball.dx
+
+    -- hit_pt is in the range [-1, 1]
+    local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
+    ball.dy = 0.02 * hit_pt
+  end
 end
 
-
--- Internal globals.
-
--- We use a coordinate system where (0, 0) is the middle of the screen, (-1, -1)
--- is the lower-left corner, and (1, 1) is the upper-right corner.
-local ball = {x = 0, y = 0, dx = -0.01, dy = 0.006}
-
-local players = {Player:new(-0.8), Player:new(0.8)}
-
-local blue = {0, 255, 255}
 
 -- Love-based functions.
 
 function love.load()
-  -- This function runs once and first.
+  players = {Player:new(-0.8), Player:new(0.8)}
 end
 
 function love.update(dt)
   ball.x = ball.x + ball.dx
   ball.y = ball.y + ball.dy
+
+  if ball.y < (-1 + ball.h / 2) then ball.dy = -1 * ball.dy end
+  if ball.y > ( 1 - ball.h / 2) then ball.dy = -1 * ball.dy end
+
+  -- Move the players. This also handles ball collisions.
   for _, p in pairs(players) do
     p:update(dt)
   end
@@ -87,7 +112,7 @@ function love.draw()
   draw_center_line()
 
   -- Draw the ball.
-  local w, h = 0.02, 0.02
+  local w, h = ball.w, ball.h
   local x, y = ball.x - w / 2, ball.y - h / 2
   draw_rect(x, y, w, h, blue)
 end
