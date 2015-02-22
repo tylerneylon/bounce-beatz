@@ -27,26 +27,32 @@ local function draw_center_line()
   local w = 0.03
   local num_bars = 12
   local h = 2 / num_bars / 2  -- First 2 = win height.
-  local y = 1
+  local y = -1 + h
   for i = 1, num_bars do
     draw_rect(-w / 2, y, w, h)
-    y = y - 2 * h
+    y = y + 2 * h
   end
 end
 
 -- Define the Player class.
 
-local Player = {}
+local Player = {w = 0.05, h = 0.4}
 
 function Player:new(x)
-  local p = {x = x, y = 0, score = 0}
+  local p = {x = x, y = 0, score = 0, dy = 0}
   return setmetatable(p, {__index = self})
 end
 
 function Player:draw()
-  local w = 0.05 -- The player width.
-  local h = 0.4  -- The player height (full screen is 2.0).
+  local w, h = self.w, self.h
   draw_rect(self.x - w / 2, self.y - h / 2, w, h)
+end
+
+function Player:update(dt)
+  self.y = self.y + self.dy * dt
+  local min, max = -1 + self.h / 2, 1 - self.h / 2
+  if self.y < min then self.y, self.dy = min, 0 end
+  if self.y > max then self.y, self.dy = max, 0 end
 end
 
 
@@ -69,6 +75,9 @@ end
 function love.update(dt)
   ball.x = ball.x + ball.dx
   ball.y = ball.y + ball.dy
+  for _, p in pairs(players) do
+    p:update(dt)
+  end
 end
 
 function love.draw()
@@ -81,4 +90,45 @@ function love.draw()
   local w, h = 0.02, 0.02
   local x, y = ball.x - w / 2, ball.y - h / 2
   draw_rect(x, y, w, h, blue)
+end
+
+-- This is the player movement speed.
+local player_dy = 4
+
+function love.keypressed(key, isrepeat)
+  -- We don't care about auto-repeat key siganls.
+  if isrepeat then return end
+
+  -- The controls are: [QA for player 1] [PL for player 2].
+  local dy = player_dy
+  local actions = {
+    q = {p = players[1], dy = -dy},
+    a = {p = players[1], dy =  dy},
+    p = {p = players[2], dy = -dy},
+    l = {p = players[2], dy =  dy}
+  }
+
+  local action = actions[key]
+  if not action then return end
+
+  action.p.dy = action.dy
+end
+
+function love.keyreleased(key)
+  local dy = player_dy
+  local actions = {
+    q = {p = players[1], dy = -dy},
+    a = {p = players[1], dy =  dy},
+    p = {p = players[2], dy = -dy},
+    l = {p = players[2], dy =  dy}
+  }
+
+  local action = actions[key]
+  if not action then return end
+
+  -- Ignore key releases that are not active, such as the player pressing
+  -- down on Q, down on A, then releasing Q. A is still active.
+  if action.p.dy ~= action.dy then return end
+
+  action.p.dy = 0
 end
