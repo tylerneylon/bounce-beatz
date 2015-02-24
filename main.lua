@@ -2,6 +2,12 @@
 
 This is the classic game pong.
 
+TODO:
+ * Set up ball as a class.
+ * Draw the score in a more classic huge-pixely manner.
+ * Add power-ups.
+ * Add levels.
+
 --]]
 
 
@@ -105,13 +111,14 @@ function Player:update(dt)
      math.abs(self.y - ball.y) < (self.h + ball.h) / 2 and
      sign(ball.dx) == sign(self.x) then
 
-    ball.dx = -1 * ball.dx
+    -- Effect a slight speed-up with each player bounce.
+    ball.dx = -1.14 * ball.dx
 
     sounds.ball_hit:play()
 
     -- hit_pt is in the range [-1, 1]
     local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
-    ball.dy = 0.02 * hit_pt
+    ball.dy = 0.03 * hit_pt
   end
 end
 
@@ -136,8 +143,8 @@ function love.update(dt)
   ball.x = ball.x + ball.dx
   ball.y = ball.y + ball.dy
 
-  if ball.y < (-1 + ball.h / 2) then ball.dy = -1 * ball.dy end
-  if ball.y > ( 1 - ball.h / 2) then ball.dy = -1 * ball.dy end
+  if ball.y < (-1 + ball.h / 2) then ball.dy =  1 * math.abs(ball.dy) end
+  if ball.y > ( 1 - ball.h / 2) then ball.dy = -1 * math.abs(ball.dy) end
 
   if ball.x >  1 then players[1]:score_up() end
   if ball.x < -1 then players[2]:score_up() end
