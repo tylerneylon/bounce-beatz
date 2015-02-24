@@ -43,6 +43,12 @@ local function draw_rect(x, y, w, h, color)
   love.graphics.rectangle('fill', x, y, w, h)
 end
 
+local function draw_rect_w_mid_pt(mid_x, mid_y, w, h, color)
+  local x = mid_x - w / 2
+  local y = mid_y - h / 2
+  draw_rect(x, y, w, h, color)
+end
+
 local function draw_str(s, x, y, limit, align)
   local win_w, win_h = love.graphics.getDimensions()
   x, y = (x + 1) * win_w / 2, (y + 1) * win_h / 2
@@ -54,12 +60,12 @@ local function draw_str(s, x, y, limit, align)
 end
 
 local function draw_center_line()
-  local w = 0.03
+  local w = 0.02
   local num_bars = 12
   local h = 2 / num_bars / 2  -- First 2 = win height.
-  local y = -1 + h
+  local y = -1 + h * 1.5
   for i = 1, num_bars do
-    draw_rect(-w / 2, y, w, h)
+    draw_rect_w_mid_pt(0, y, w, h)
     y = y + 2 * h
   end
 end
@@ -92,7 +98,7 @@ end
 
 function Player:draw()
   local w, h = self.w, self.h
-  draw_rect(self.x - w / 2, self.y - h / 2, w, h)
+  draw_rect_w_mid_pt(self.x, self.y, w, h)
 
   local score_str = tostring(self.score)
   local align = sign(self.x) == 1 and 'right' or 'left'
@@ -162,9 +168,7 @@ function love.draw()
   draw_center_line()
 
   -- Draw the ball.
-  local w, h = ball.w, ball.h
-  local x, y = ball.x - w / 2, ball.y - h / 2
-  draw_rect(x, y, w, h, blue)
+  draw_rect_w_mid_pt(ball.x, ball.y, ball.w, ball.h, blue)
 end
 
 -- This is the player movement speed.
