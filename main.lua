@@ -20,10 +20,12 @@ TODO:
 local ball
 local players  -- This will be set up in love.load.
 
-local blue = {0, 255, 255}
+local cyan = {0, 255, 255}
 
 -- Sounds; loaded in love.load.
 local sounds = {}
+
+local border_size = 0.025
 
 -- Internal drawing functions.
 -- These accept input coordinates in our custom coord system.
@@ -59,11 +61,20 @@ local function draw_str(s, x, y, limit, align)
   love.graphics.printf(s, x, y, limit, align)
 end
 
+local function draw_borders()
+  -- Draw the top and bottom boundaries.
+  -- Without these, in some cases, the player may have trouble
+  -- understanding where the window limits are.
+  for y = -1, 1, 2 do
+    draw_rect_w_mid_pt(0, y, 2, 2 * border_size)
+  end
+end
+
 local function draw_center_line()
   local w = 0.02
   local num_bars = 12
-  local h = 2 / num_bars / 2  -- First 2 = win height.
-  local y = -1 + h * 1.5
+  local h = 2 / (2 * num_bars + 1)
+  local y = -1 + 1.5 * h
   for i = 1, num_bars do
     draw_rect_w_mid_pt(0, y, w, h)
     y = y + 2 * h
@@ -107,7 +118,8 @@ end
 
 function Player:update(dt)
   self.y = self.y + self.dy * dt
-  local min, max = -1 + self.h / 2, 1 - self.h / 2
+  local d = self.h / 2 + border_size
+  local min, max = -1 + d, 1 - d
   if self.y < min then self.y, self.dy = min, 0 end
   if self.y > max then self.y, self.dy = max, 0 end
 
@@ -118,7 +130,7 @@ function Player:update(dt)
      sign(ball.dx) == sign(self.x) then
 
     -- Effect a slight speed-up with each player bounce.
-    ball.dx = -1.14 * ball.dx
+    ball.dx = -1.12 * ball.dx
 
     sounds.ball_hit:play()
 
@@ -149,8 +161,9 @@ function love.update(dt)
   ball.x = ball.x + ball.dx
   ball.y = ball.y + ball.dy
 
-  if ball.y < (-1 + ball.h / 2) then ball.dy =  1 * math.abs(ball.dy) end
-  if ball.y > ( 1 - ball.h / 2) then ball.dy = -1 * math.abs(ball.dy) end
+  local d = ball.h / 2 + border_size
+  if ball.y < (-1 + d) then ball.dy =  1 * math.abs(ball.dy) end
+  if ball.y > ( 1 - d) then ball.dy = -1 * math.abs(ball.dy) end
 
   if ball.x >  1 then players[1]:score_up() end
   if ball.x < -1 then players[2]:score_up() end
@@ -162,13 +175,16 @@ function love.update(dt)
 end
 
 function love.draw()
+  draw_borders()
+  
   for _, p in pairs(players) do
     p:draw()
   end
+
   draw_center_line()
 
   -- Draw the ball.
-  draw_rect_w_mid_pt(ball.x, ball.y, ball.w, ball.h, blue)
+  draw_rect_w_mid_pt(ball.x, ball.y, ball.w, ball.h, cyan)
 end
 
 -- This is the player movement speed.
