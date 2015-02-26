@@ -71,4 +71,12 @@ font[9] = {{ 0, 1, 0 },
            { 0, 0, 1 },
            { 0, 1, 0 }}
 
+-- Make digits visible via string keys as well.
+
+for k, v in pairs(font) do
+  if type(k) == 'number' then
+    font[tostring(k)] = v
+  end
+end
+
 return font

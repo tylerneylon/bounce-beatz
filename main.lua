@@ -11,7 +11,16 @@ TODO:
 --]]
 
 
+--------------------------------------------------------------------------------
+-- Require modules.
+--------------------------------------------------------------------------------
+
+local font = require 'font'
+
+
+--------------------------------------------------------------------------------
 -- Internal globals.
+--------------------------------------------------------------------------------
 
 -- We use a coordinate system where (0, 0) is the middle of the screen, (-1, -1)
 -- is the lower-left corner, and (1, 1) is the upper-right corner.
@@ -30,6 +39,7 @@ local border_size = 0.025
 -- Internal drawing functions.
 -- These accept input coordinates in our custom coord system.
 
+-- x, y is the lower-left corner of the rectangle.
 local function draw_rect(x, y, w, h, color)
 
   -- Set the color.
@@ -38,18 +48,85 @@ local function draw_rect(x, y, w, h, color)
 
   -- Convert coordinates.
   local win_w, win_h = love.graphics.getDimensions()
-  x, y = (x + 1) * win_w / 2, (y + 1) * win_h / 2
+  -- We invert y here since love.graphics treats the top as y=0,
+  -- and we treat the bottom as y=0.
+  x, y = (x + 1) * win_w / 2, (1 - y) * win_h / 2
   w, h = w * win_w / 2, h * win_h / 2
+
+  -- Shift y since love.graphics draws from the upper-left corner.
+  y = y - h
 
   -- Draw the rectangle.
   love.graphics.rectangle('fill', x, y, w, h)
 end
 
 local function draw_rect_w_mid_pt(mid_x, mid_y, w, h, color)
+  -- Set (x, y) to the lower-left corner of the rectangle.
   local x = mid_x - w / 2
   local y = mid_y - h / 2
   draw_rect(x, y, w, h, color)
 end
+
+
+--------------------------------------------------------------------------------
+-- Font-drawing functions.
+--------------------------------------------------------------------------------
+
+-- TODO Consider moving the font-drawing functions out,
+--      or perhaps moving all drawing functions together.
+
+local font_block_size = 0.01
+
+local function get_str_size(s)
+  local w = 0
+  local h = 0
+  for i = 1, #s do
+    local c = s:sub(i, i)
+    local char_data = font[c]
+    if char_data == nil then
+      print('Warning: no font data for character ' .. c)
+    else
+      local c_height = #char_data
+      if c_height > h then h = c_height end
+      local c_width = #char_data[1]
+      w = w + c_width
+      if i > 1 then w = w + 1 end  -- For the inter-char space.
+    end
+  end
+  return w * font_block_size, h * font_block_size
+end
+
+local function draw_boxy_char(c, x, y)
+  local w, h = get_str_size(c)
+  local char_data = font[c]
+  for row = 1, #char_data do
+    for col = 1, #char_data[1] do
+      if char_data[row][col] == 1 then
+        local this_x = x + (col - 1) * font_block_size
+        local this_y = y + (h - row) * font_block_size
+        draw_rect(this_x, this_y, font_block_size, font_block_size)
+      end
+    end
+  end
+end
+
+-- Both x_align and y_align are expected to be either
+-- 0, 0.5, or 1 for near-0, centered, or near-1 alignment.
+local function draw_boxy_str(s, x, y, x_align, y_align)
+  local w, h = get_str_size(s)
+  x = x - w * font_block_size * x_align
+  y = y - h * font_block_size * y_align
+  for i = 1, #s do
+    local c = s:sub(i, i)
+    draw_boxy_char(c, x, y)
+    x = x + get_str_size(c) + font_block_size
+  end
+end
+
+
+--------------------------------------------------------------------------------
+-- Drawing functions.
+--------------------------------------------------------------------------------
 
 local function draw_str(s, x, y, limit, align)
   local win_w, win_h = love.graphics.getDimensions()
@@ -197,10 +274,10 @@ function love.keypressed(key, isrepeat)
   -- The controls are: [QA for player 1] [PL for player 2].
   local dy = player_dy
   local actions = {
-    q = {p = players[1], dy = -dy},
-    a = {p = players[1], dy =  dy},
-    p = {p = players[2], dy = -dy},
-    l = {p = players[2], dy =  dy}
+    q = {p = players[1], dy =  dy},
+    a = {p = players[1], dy = -dy},
+    p = {p = players[2], dy =  dy},
+    l = {p = players[2], dy = -dy}
   }
 
   local action = actions[key]
@@ -212,10 +289,10 @@ end
 function love.keyreleased(key)
   local dy = player_dy
   local actions = {
-    q = {p = players[1], dy = -dy},
-    a = {p = players[1], dy =  dy},
-    p = {p = players[2], dy = -dy},
-    l = {p = players[2], dy =  dy}
+    q = {p = players[1], dy =  dy},
+    a = {p = players[1], dy = -dy},
+    p = {p = players[2], dy =  dy},
+    l = {p = players[2], dy = -dy}
   }
 
   local action = actions[key]
