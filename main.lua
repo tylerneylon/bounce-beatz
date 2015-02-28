@@ -79,7 +79,7 @@ end
 -- TODO Consider moving the font-drawing functions out,
 --      or perhaps moving all drawing functions together.
 
-local font_block_size = 0.01
+local font_block_size = 0.02
 
 local function get_str_size(s)
   local w = 0
@@ -166,6 +166,7 @@ end
 -- Supporting functions.
 
 local function new_ball()
+  local size = 0.04
   local dx_sign = math.random(2) * 2 - 3
   local dy_sign = math.random(2) * 2 - 3
   local dx = 0.01
@@ -175,7 +176,7 @@ local function new_ball()
   ball = {x = 0, y = 0,
           dx = dx  * dx_sign,
           dy = 0.006 * dy_sign,
-          w = 0.02, h = 0.02}
+          w = size, h = size}
 end
 
 local function sign(x)
