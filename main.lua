@@ -4,9 +4,13 @@ This is the classic game pong.
 
 TODO:
  * Set up ball as a class.
- * Draw the score in a more classic huge-pixely manner.
+ * Try out acceleration in player movements.
+ * Support overlapping sound effects.
  * Add power-ups.
  * Add levels.
+
+Done!
+ * Draw the score in a more classic huge-pixely manner.
 
 --]]
 
@@ -93,7 +97,7 @@ local function get_str_size(s)
       if i > 1 then w = w + 1 end  -- For the inter-char space.
     end
   end
-  return w * font_block_size, h * font_block_size
+  return w, h
 end
 
 local function draw_boxy_char(c, x, y)
@@ -119,7 +123,7 @@ local function draw_boxy_str(s, x, y, x_align, y_align)
   for i = 1, #s do
     local c = s:sub(i, i)
     draw_boxy_char(c, x, y)
-    x = x + get_str_size(c) + font_block_size
+    x = x + (get_str_size(c) + 1) * font_block_size
   end
 end
 
@@ -164,8 +168,12 @@ end
 local function new_ball()
   local dx_sign = math.random(2) * 2 - 3
   local dy_sign = math.random(2) * 2 - 3
+  local dx = 0.01
+  --[[ Use this to help debug the score counters.
+  dx = 1
+  --]]
   ball = {x = 0, y = 0,
-          dx = 0.01  * dx_sign,
+          dx = dx  * dx_sign,
           dy = 0.006 * dy_sign,
           w = 0.02, h = 0.02}
 end
@@ -190,7 +198,13 @@ function Player:draw()
 
   local score_str = tostring(self.score)
   local align = sign(self.x) == 1 and 'right' or 'left'
-  draw_str(score_str, sign(self.x), 0.8, 0.2, align)
+
+  local sgn = sign(self.x)
+  local str_x = 0.98 * sgn
+  local x_align = (sgn + 1) / 2  -- Map to 0 or 1.
+  draw_boxy_str(score_str,       -- str
+                str_x, -0.9,     -- x, y
+                x_align, 0.0)    -- x_align, y_align
 end
 
 function Player:update(dt)
