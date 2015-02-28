@@ -34,6 +34,7 @@ local ball
 local players  -- This will be set up in love.load.
 
 local cyan = {0, 255, 255}
+local gray = {120, 120, 120}
 
 -- Sounds; loaded in love.load.
 local sounds = {}
@@ -100,7 +101,7 @@ local function get_str_size(s)
   return w, h
 end
 
-local function draw_boxy_char(c, x, y)
+local function draw_boxy_char(c, x, y, color)
   local w, h = get_str_size(c)
   local char_data = font[c]
   for row = 1, #char_data do
@@ -108,7 +109,7 @@ local function draw_boxy_char(c, x, y)
       if char_data[row][col] == 1 then
         local this_x = x + (col - 1) * font_block_size
         local this_y = y + (h - row) * font_block_size
-        draw_rect(this_x, this_y, font_block_size, font_block_size)
+        draw_rect(this_x, this_y, font_block_size, font_block_size, color)
       end
     end
   end
@@ -116,13 +117,13 @@ end
 
 -- Both x_align and y_align are expected to be either
 -- 0, 0.5, or 1 for near-0, centered, or near-1 alignment.
-local function draw_boxy_str(s, x, y, x_align, y_align)
+local function draw_boxy_str(s, x, y, x_align, y_align, color)
   local w, h = get_str_size(s)
   x = x - w * font_block_size * x_align
   y = y - h * font_block_size * y_align
   for i = 1, #s do
     local c = s:sub(i, i)
-    draw_boxy_char(c, x, y)
+    draw_boxy_char(c, x, y, color)
     x = x + (get_str_size(c) + 1) * font_block_size
   end
 end
@@ -157,7 +158,7 @@ local function draw_center_line()
   local h = 2 / (2 * num_bars + 1)
   local y = -1 + 1.5 * h
   for i = 1, num_bars do
-    draw_rect_w_mid_pt(0, y, w, h)
+    draw_rect_w_mid_pt(0, y, w, h, gray)
     y = y + 2 * h
   end
 end
@@ -205,7 +206,8 @@ function Player:draw()
   local x_align = (sgn + 1) / 2  -- Map to 0 or 1.
   draw_boxy_str(score_str,       -- str
                 str_x, -0.9,     -- x, y
-                x_align, 0.0)    -- x_align, y_align
+                x_align, 0.0,    -- x_align, y_align
+                gray)            -- color
 end
 
 function Player:update(dt)
