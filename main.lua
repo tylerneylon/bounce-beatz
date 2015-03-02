@@ -190,7 +190,7 @@ end
 local Player = {w = 0.05, h = 0.4}
 
 function Player:new(x)
-  local p = {x = x, y = 0, score = 0, dy = 0}
+  local p = {x = x, y = 0, score = 0, dy = 0, ddy = 0}
   return setmetatable(p, {__index = self})
 end
 
@@ -210,12 +210,23 @@ function Player:draw()
                 gray)            -- color
 end
 
+function Player:stop_at(y)
+  self.y   = y
+  self.dy  = 0
+  self.ddy = 0
+end
+
 function Player:update(dt)
-  self.y = self.y + self.dy * dt
+
+  -- Movement.
+  self.y = self.y + self.dy * dt + (self.ddy / 2) * dt ^ 2
+  self.dy = self.dy + self.ddy * dt
+
   local d = self.h / 2 + border_size
   local min, max = -1 + d, 1 - d
-  if self.y < min then self.y, self.dy = min, 0 end
-  if self.y > max then self.y, self.dy = max, 0 end
+
+  if self.y < min then self:stop_at(min) end
+  if self.y > max then self:stop_at(max) end
 
   -- Check for a ball collision.
   -- The sign check is to enforce one collision event at a time.
@@ -282,34 +293,35 @@ function love.draw()
 end
 
 -- This is the player movement speed.
-local player_dy = 4
+local player_ddy = 16
+local player_dy  = 2.5
 
 function love.keypressed(key, isrepeat)
   -- We don't care about auto-repeat key siganls.
   if isrepeat then return end
 
   -- The controls are: [QA for player 1] [PL for player 2].
-  local dy = player_dy
   local actions = {
-    q = {p = players[1], dy =  dy},
-    a = {p = players[1], dy = -dy},
-    p = {p = players[2], dy =  dy},
-    l = {p = players[2], dy = -dy}
+    q = {p = players[1], sign =  1},
+    a = {p = players[1], sign = -1},
+    p = {p = players[2], sign =  1},
+    l = {p = players[2], sign = -1}
   }
 
   local action = actions[key]
   if not action then return end
 
-  action.p.dy = action.dy
+  local pl = action.p
+  pl.ddy = action.sign * player_ddy
+  pl.dy  = action.sign * player_dy
 end
 
 function love.keyreleased(key)
-  local dy = player_dy
   local actions = {
-    q = {p = players[1], dy =  dy},
-    a = {p = players[1], dy = -dy},
-    p = {p = players[2], dy =  dy},
-    l = {p = players[2], dy = -dy}
+    q = {p = players[1], sign =  1},
+    a = {p = players[1], sign = -1},
+    p = {p = players[2], sign =  1},
+    l = {p = players[2], sign = -1}
   }
 
   local action = actions[key]
@@ -317,7 +329,8 @@ function love.keyreleased(key)
 
   -- Ignore key releases that are not active, such as the player pressing
   -- down on Q, down on A, then releasing Q. A is still active.
-  if action.p.dy ~= action.dy then return end
+  local pl = action.p
+  if sign(pl.ddy) ~= action.sign then return end
 
-  action.p.dy = 0
+  pl:stop_at(pl.y)
 end
