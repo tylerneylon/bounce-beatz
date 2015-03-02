@@ -3,9 +3,13 @@
 This is the classic game pong.
 
 TODO:
- * Set up ball as a class.
- * Try out acceleration in player movements.
+ * Improve collision detection so balls can't go
+   through players.
+ * Switch player 1 from QA to QS.
  * Support overlapping sound effects.
+ * Split into modules: ball, player, draw, font.
+ * Add a title screen.
+ * Split into 1p and 2p modes.
  * Add power-ups.
  * Add levels.
 
@@ -164,28 +168,66 @@ local function draw_center_line()
 end
 
 
+--------------------------------------------------------------------------------
 -- Supporting functions.
-
-local function new_ball()
-  local size = 0.04
-  local dx_sign = math.random(2) * 2 - 3
-  local dy_sign = math.random(2) * 2 - 3
-  local dx = 0.01
-  --[[ Use this to help debug the score counters.
-  dx = 1
-  --]]
-  ball = {x = 0, y = 0,
-          dx = dx  * dx_sign,
-          dy = 0.006 * dy_sign,
-          w = size, h = size}
-end
+--------------------------------------------------------------------------------
 
 local function sign(x)
   if x > 0 then return 1 end
   return -1
 end
 
--- Define the Player class.
+
+--------------------------------------------------------------------------------
+-- The Ball class.
+--------------------------------------------------------------------------------
+
+local Ball = {size = 0.04}
+
+function Ball:new()
+  local dx_sign  = math.random(2) * 2 - 3
+  local dy_sign  = math.random(2) * 2 - 3
+  local start_dx = 0.6
+  local start_dy = 0.4
+
+  --[[ Use this to help debug the score counters.
+  start_dx = 1
+  --]]
+
+  local ball = {x  = 0,
+                y  = 0,
+                dx = start_dx * dx_sign,
+                dy = start_dy * dy_sign,
+                w  = self.size,
+                h  = self.size}
+  return setmetatable(ball, {__index = self})
+end
+
+-- hit_pt is expected to be in the range [-1, 1], and determines the
+-- angle that the ball bounces away at.
+function Ball:bounce(hit_pt)
+  assert(type(hit_pt) == 'number')
+  -- Effect a slight speed-up with each player bounce.
+  self.dx = -1.12 * self.dx
+  self.dy =  2    * hit_pt
+  sounds.ball_hit:play()
+end
+
+function Ball:update(dt)
+  self.x = self.x + self.dx * dt
+  self.y = self.y + self.dy * dt
+
+  local d = self.h / 2 + border_size
+  if self.y < (-1 + d) then self.dy =  1 * math.abs(self.dy) end
+  if self.y > ( 1 - d) then self.dy = -1 * math.abs(self.dy) end
+
+  if self.x >  1 then players[1]:score_up() end
+  if self.x < -1 then players[2]:score_up() end
+end
+
+--------------------------------------------------------------------------------
+-- The Player class.
+--------------------------------------------------------------------------------
 
 local Player = {w = 0.05, h = 0.4}
 
@@ -234,28 +276,24 @@ function Player:update(dt)
      math.abs(self.y - ball.y) < (self.h + ball.h) / 2 and
      sign(ball.dx) == sign(self.x) then
 
-    -- Effect a slight speed-up with each player bounce.
-    ball.dx = -1.12 * ball.dx
-
-    sounds.ball_hit:play()
-
     -- hit_pt is in the range [-1, 1]
     local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
-    ball.dy = 0.03 * hit_pt
+    ball:bounce(hit_pt)
+
   end
 end
 
 function Player:score_up()
   sounds.point:play()
   self.score = self.score + 1
-  new_ball()
+  ball = Ball:new()
 end
 
 
 -- Love-based functions.
 
 function love.load()
-  new_ball()
+  ball    = Ball:new()
   players = {Player:new(-0.8), Player:new(0.8)}
 
   sounds.ball_hit = love.audio.newSource('audio/ball_hit.wav', 'static')
@@ -263,15 +301,8 @@ function love.load()
 end
 
 function love.update(dt)
-  ball.x = ball.x + ball.dx
-  ball.y = ball.y + ball.dy
-
-  local d = ball.h / 2 + border_size
-  if ball.y < (-1 + d) then ball.dy =  1 * math.abs(ball.dy) end
-  if ball.y > ( 1 - d) then ball.dy = -1 * math.abs(ball.dy) end
-
-  if ball.x >  1 then players[1]:score_up() end
-  if ball.x < -1 then players[2]:score_up() end
+  -- Move the ball.
+  ball:update(dt)
 
   -- Move the players. This also handles ball collisions.
   for _, p in pairs(players) do
@@ -289,6 +320,7 @@ function love.draw()
   draw_center_line()
 
   -- Draw the ball.
+  -- TODO Move this into the Ball class.
   draw_rect_w_mid_pt(ball.x, ball.y, ball.w, ball.h, cyan)
 end
 
