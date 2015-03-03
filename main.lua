@@ -339,6 +339,7 @@ function love.keypressed(key, isrepeat)
     p = {p = players[2], sign =  1},
     l = {p = players[2], sign = -1}
   }
+  actions.s = actions.a
 
   local action = actions[key]
   if not action then return end
@@ -355,6 +356,7 @@ function love.keyreleased(key)
     p = {p = players[2], sign =  1},
     l = {p = players[2], sign = -1}
   }
+  actions.s = actions.a
 
   local action = actions[key]
   if not action then return end
