@@ -5,7 +5,6 @@ This is the classic game pong.
 TODO:
  * Improve collision detection so balls can't go
    through players.
- * Switch player 1 from QA to QS.
  * Support overlapping sound effects.
  * Split into modules: ball, player, draw, font.
  * Add a title screen.
@@ -191,7 +190,7 @@ function Ball:new()
   local start_dy = 0.4
 
   --[[ Use this to help debug the score counters.
-  start_dx = 1
+  start_dx = 100
   --]]
 
   local ball = {x  = 0,
