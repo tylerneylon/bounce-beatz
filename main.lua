@@ -3,8 +3,6 @@
 This is the classic game pong.
 
 TODO:
- * Improve collision detection so balls can't go
-   through players.
  * Support overlapping sound effects.
  * Split into modules: ball, player, draw, font.
  * Add a title screen.
@@ -14,6 +12,10 @@ TODO:
 
 Done!
  * Draw the score in a more classic huge-pixely manner.
+ * Improve collision detection so balls can't go
+   through players. Note: This isn't perfect but I believe it's robust
+   enough that in actual human play the ball won't pass through a player.
+   (Because it will never be going fast enough to hit a bug.)
 
 --]]
 
@@ -191,11 +193,14 @@ function Ball:new()
   local start_dy = 0.4
 
   --[[ Use this to help debug the score counters.
-  start_dx = 100
+  start_dx =  5
+  start_dy =  0
   --]]
 
   local ball = {x  = 0,
                 y  = 0,
+                old_x = 0,
+                old_y = 0,
                 dx = start_dx * dx_sign,
                 dy = start_dy * dy_sign,
                 w  = self.size,
@@ -263,13 +268,16 @@ end
 
 function Player:handle_if_hit(ball)
 
-  --[[
+  assert(ball.old_x)
+  assert(ball.old_y)
+
+  ---[[
   local box = {mid_x = self.x, mid_y = self.y,
                half_w = (self.w + ball.w) / 2,
                half_h = (self.h + ball.h) / 2}
   local ball_line = {x1 = ball.old_x, y1 = ball.old_y,
                      x2 = ball.x,     y2 = ball.y}
-  local did_hit = box_hits_line(box, ball_line)
+  local did_hit = hit_test.box_and_line(box, ball_line)
 
   -- This sign check is to enforce one collision event at a time.
   did_hit = did_hit and sign(ball.dx) == sign(self.x)
@@ -277,11 +285,12 @@ function Player:handle_if_hit(ball)
   if did_hit then
     -- hit_pt is in the range [-1, 1]
     local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
+    ball.x = self.x
     ball:bounce(hit_pt)
   end
   --]]
 
-  ---[[
+  --[[
   if math.abs(self.x - ball.x) < (self.w + ball.w) / 2 and
      math.abs(self.y - ball.y) < (self.h + ball.h) / 2 and
      sign(ball.dx) == sign(self.x) then
@@ -294,7 +303,7 @@ end
 
 function Player:update(dt, ball)
   -- Movement.
-  self.y = self.y + self.dy * dt + (self.ddy / 2) * dt ^ 2
+  self.y  = self.y  + self.dy  * dt + (self.ddy / 2) * dt ^ 2
   self.dy = self.dy + self.ddy * dt
 
   local d = self.h / 2 + border_size
