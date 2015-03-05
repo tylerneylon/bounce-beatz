@@ -22,7 +22,8 @@ Done!
 -- Require modules.
 --------------------------------------------------------------------------------
 
-local font = require 'font'
+local font     = require 'font'
+local hit_test = require 'hit_test'
 
 
 --------------------------------------------------------------------------------
@@ -213,6 +214,9 @@ function Ball:bounce(hit_pt)
 end
 
 function Ball:update(dt)
+  self.old_x = self.x
+  self.old_y = self.y
+
   self.x = self.x + self.dx * dt
   self.y = self.y + self.dy * dt
 
@@ -257,8 +261,38 @@ function Player:stop_at(y)
   self.ddy = 0
 end
 
-function Player:update(dt)
+function Player:handle_if_hit(ball)
 
+  --[[
+  local box = {mid_x = self.x, mid_y = self.y,
+               half_w = (self.w + ball.w) / 2,
+               half_h = (self.h + ball.h) / 2}
+  local ball_line = {x1 = ball.old_x, y1 = ball.old_y,
+                     x2 = ball.x,     y2 = ball.y}
+  local did_hit = box_hits_line(box, ball_line)
+
+  -- This sign check is to enforce one collision event at a time.
+  did_hit = did_hit and sign(ball.dx) == sign(self.x)
+
+  if did_hit then
+    -- hit_pt is in the range [-1, 1]
+    local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
+    ball:bounce(hit_pt)
+  end
+  --]]
+
+  ---[[
+  if math.abs(self.x - ball.x) < (self.w + ball.w) / 2 and
+     math.abs(self.y - ball.y) < (self.h + ball.h) / 2 and
+     sign(ball.dx) == sign(self.x) then
+    -- hit_pt is in the range [-1, 1]
+    local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
+    ball:bounce(hit_pt)
+  end
+  --]]
+end
+
+function Player:update(dt, ball)
   -- Movement.
   self.y = self.y + self.dy * dt + (self.ddy / 2) * dt ^ 2
   self.dy = self.dy + self.ddy * dt
@@ -269,17 +303,7 @@ function Player:update(dt)
   if self.y < min then self:stop_at(min) end
   if self.y > max then self:stop_at(max) end
 
-  -- Check for a ball collision.
-  -- The sign check is to enforce one collision event at a time.
-  if math.abs(self.x - ball.x) < (self.w + ball.w) / 2 and
-     math.abs(self.y - ball.y) < (self.h + ball.h) / 2 and
-     sign(ball.dx) == sign(self.x) then
-
-    -- hit_pt is in the range [-1, 1]
-    local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
-    ball:bounce(hit_pt)
-
-  end
+  self:handle_if_hit(ball)
 end
 
 function Player:score_up()
@@ -305,7 +329,7 @@ function love.update(dt)
 
   -- Move the players. This also handles ball collisions.
   for _, p in pairs(players) do
-    p:update(dt)
+    p:update(dt, ball)
   end
 end
 
