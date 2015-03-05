@@ -150,7 +150,7 @@ end
 -- line_segment is a table with keys x1, y1, x2, y2
 function hit_test.box_and_line(box, line_segment)
   for border in box_borders(box) do
-    if line_segments_hit(line_segment, border) then
+    if hit_test.line_segments(line_segment, border) then
       return true
     end
   end

@@ -14,8 +14,10 @@ package.path = '../?.lua;' .. package.path
 local hit_test = require 'hit_test'
 
 --------------------------------------------------------------------------------
--- Test non-parallel lines.
+-- # Test hit_test.line_segments.
 --------------------------------------------------------------------------------
+
+-- ## Test non-parallel lines.
 
 --[[ Test case: (yes hit)
 
@@ -95,9 +97,7 @@ line1 = {x1 = -1, y1 = -1, x2 = 1, y2 =  1}
 line2 = {x1 =  2, y1 =  1, x2 = 3, y2 = -1}
 assert(not hit_test.line_segments(line1, line2))
 
---------------------------------------------------------------------------------
--- Test points and parallel lines.
---------------------------------------------------------------------------------
+-- ## Test points and parallel lines.
 
 -- Same line segment.
 line1 = {x1 = -1, y1 = 1, x2 = 1, y2 = 1}
@@ -168,6 +168,22 @@ line1 = {x1 = 0, y1 = 0, x2 = 1, y2 = 1}
 line2 = {x1 = 2, y1 = 3, x2 = 3, y2 = 4}
 assert(not hit_test.line_segments(line1, line2))
 
+--------------------------------------------------------------------------------
+-- # Test hit_test.box_and_line.
+--------------------------------------------------------------------------------
+
+box  = {mid_x = 0, mid_y = 0, half_w = 1, half_h = 1}
+line = {x1 = 0, y1 = 0, x2 = 1, y2 = 1}
+assert(hit_test.box_and_line(box, line))
+
+box  = {mid_x = 0, mid_y = 0, half_w = 1, half_h = 1}
+line = {x1 = 2, y1 = 2, x2 = 3, y2 = 2}
+assert(not hit_test.box_and_line(box, line))
+
+--------------------------------------------------------------------------------
+-- # End of all tests.
+--------------------------------------------------------------------------------
 
 -- If we get this far, then everything has passed! w00t
 print('Woohoo!\npassed')
+
