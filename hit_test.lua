@@ -8,6 +8,13 @@ local hit_test = {}
 
 
 --------------------------------------------------------------------------------
+-- Internal globals.
+--------------------------------------------------------------------------------
+
+local do_dbg_print = false
+
+
+--------------------------------------------------------------------------------
 -- Internal functions.
 --------------------------------------------------------------------------------
 
@@ -30,7 +37,8 @@ local function max(...)
 end
 
 -- This is an iterator over the line segments bordering a box.
-function box_borders(box)
+-- box is expected to have keys mid_{x,y} and half_{w,h}.
+local function box_borders(box)
 
   -- This maps zero to a given output; otherwise it's the identity.
   local function s_map(start, zero_repl)
@@ -62,6 +70,15 @@ function box_borders(box)
   end
 end
 
+local function pr_line(line, prefix)
+  prefix = prefix or ''
+  if #prefix > 0 then prefix = prefix .. ': ' end
+  print(string.format('%s(%g, %g) -> (%g, %g)',
+                      prefix,
+                      line.x1, line.y1,
+                      line.x2, line.y2))
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -80,7 +97,16 @@ function hit_test.line_segments(line1, line2)
   -- Special handling for parallel lines / points.
   if dx1 * dy2 == dx2 * dy1 then
     local ax, ay = dx1, dy1  -- a = vector in dir of lines
+    -- Avoid allowing a to be the zero vector.
+    if (ax == 0 and ay == 0) then ax, ay = dx2, dy2 end
+    if (ax == 0 and ay == 0) then ax, ay =   1,   0 end
     local bx, by = -ay, ax   -- b = vector orth to a
+
+    if do_dbg_print then
+      pr_line(line1, 'line1')
+      pr_line(line2, 'line2')
+      print('ax =', ax, 'ay =', ay)
+    end
 
     -- If <b, p1> ~= <b, p2>, then they don't meet.
     if bx * x1 + by * y1 ~= bx * x2 + by * y2 then
@@ -91,21 +117,27 @@ function hit_test.line_segments(line1, line2)
     local from1 =         ax *  x1 + ay *  y1
     local   to1 = from1 + ax * dx1 + ay * dy1
     local from2 =         ax *  x2 + ay *  y2
-    local   to2 = from1 + ax * dx2 + ay * dy2
+    local   to2 = from2 + ax * dx2 + ay * dy2
 
-    return (not max(from1, to1) < min(from2, to2) and
-            not max(from2, to2) < min(from1, to1))
+    if do_dbg_print then
+      print('from/to pairs:')
+      print(from1, to1, from2, to2)
+    end
+
+    return (not (max(from1, to1) < min(from2, to2)) and
+            not (max(from2, to2) < min(from1, to1)))
   end
 
+  local t1, t2
   if dx1 == 0 then
     -- If either dx2 or dy1 were 0, then the above if would have handled it.
-    local t2 = (x1 - x2) / dx2
-    local t1 = (y2 - y1 + t2 * dy2) / dy1
+    t2 = (x1 - x2) / dx2
+    t1 = (y2 - y1 + t2 * dy2) / dy1
   else
     -- If w == 0, then the above if would have handled it.
     local w  = dx2 * dy1 / dx1 - dy2
-    local t2 = (y2 - y1 - (x2 - x1) * dy1 / dx1) / w
-    local t1 = (x2 - x1 + t2 * dx2) / dx1
+    t2 = (y2 - y1 - (x2 - x1) * dy1 / dx1) / w
+    t1 = (x2 - x1 + t2 * dx2) / dx1
   end
 
   return (0 <= t1 and t1 <= 1 and
