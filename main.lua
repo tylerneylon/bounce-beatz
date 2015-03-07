@@ -193,7 +193,7 @@ function Ball:new()
   local start_dy = 0.4
 
   --[[ Use this to help debug the score counters.
-  start_dx =  5
+  start_dx =  0.1
   start_dy =  0
   --]]
 
@@ -210,15 +210,30 @@ end
 
 -- hit_pt is expected to be in the range [-1, 1], and determines the
 -- angle that the ball bounces away at.
-function Ball:bounce(hit_pt)
+-- bounce_pt is the x-coord at which the ball bounces.
+function Ball:bounce(hit_pt, bounce_pt)
   assert(type(hit_pt) == 'number')
+
+  self.x = bounce_pt - (self.x - bounce_pt)
+
   -- Effect a slight speed-up with each player bounce.
-  self.dx = -1.12 * self.dx
-  self.dy =  2    * hit_pt
+  local speedup = 1.12
+  self.dx = -speedup * self.dx
+  self.dy =        2 * hit_pt
+
+  local max_dx = 10
+  if math.abs(self.dx) > max_dx then
+    self.dx = sign(self.dx) * max_dx
+  end
+
+  self.did_bounce = true
+
   sounds.ball_hit:play()
 end
 
 function Ball:update(dt)
+  self.did_bounce = false  -- Track if we bounced this cycle already.
+
   self.old_x = self.x
   self.old_y = self.y
 
@@ -228,7 +243,12 @@ function Ball:update(dt)
   local d = self.h / 2 + border_size
   if self.y < (-1 + d) then self.dy =  1 * math.abs(self.dy) end
   if self.y > ( 1 - d) then self.dy = -1 * math.abs(self.dy) end
+end
 
+-- This is outside of Ball:update so that balls can interact with
+-- the players (bounce) before we check for a score going up. Fast balls
+-- can appear (x-wise) to go through a player when they're really bouncing.
+function Ball:handle_score_up()
   if self.x >  1 then players[1]:score_up() end
   if self.x < -1 then players[2]:score_up() end
 end
@@ -271,7 +291,6 @@ function Player:handle_if_hit(ball)
   assert(ball.old_x)
   assert(ball.old_y)
 
-  ---[[
   local box = {mid_x = self.x, mid_y = self.y,
                half_w = (self.w + ball.w) / 2,
                half_h = (self.h + ball.h) / 2}
@@ -282,23 +301,17 @@ function Player:handle_if_hit(ball)
   -- This sign check is to enforce one collision event at a time.
   did_hit = did_hit and sign(ball.dx) == sign(self.x)
 
+  -- Avoid double bounces; a high-speed ball can go from one side to the other
+  -- in a single dx, which may trigger both bounce code paths.
+  did_hit = did_hit and not ball.did_bounce
+
   if did_hit then
     -- hit_pt is in the range [-1, 1]
     local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
-    ball.x = self.x
-    ball:bounce(hit_pt)
-  end
-  --]]
 
-  --[[
-  if math.abs(self.x - ball.x) < (self.w + ball.w) / 2 and
-     math.abs(self.y - ball.y) < (self.h + ball.h) / 2 and
-     sign(ball.dx) == sign(self.x) then
-    -- hit_pt is in the range [-1, 1]
-    local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
-    ball:bounce(hit_pt)
+    local bounce_pt = self.x - sign(self.x) * (self.w + ball.w) / 2
+    ball:bounce(hit_pt, bounce_pt)
   end
-  --]]
 end
 
 function Player:update(dt, ball)
@@ -333,6 +346,7 @@ function love.load()
 end
 
 function love.update(dt)
+
   -- Move the ball.
   ball:update(dt)
 
@@ -340,6 +354,9 @@ function love.update(dt)
   for _, p in pairs(players) do
     p:update(dt, ball)
   end
+
+  -- Handle any scoring that may have occurred.
+  ball:handle_score_up()
 end
 
 function love.draw()
