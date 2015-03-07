@@ -3,12 +3,16 @@
 This is the classic game pong.
 
 TODO:
+ * New sound for edge hits.
  * Support overlapping sound effects.
  * Split into modules: ball, player, draw, font.
  * Add a title screen.
  * Split into 1p and 2p modes.
  * Add power-ups.
  * Add levels.
+ * More points for longer-lasting balls,
+   with visual cues to help be aware of it.
+ * Spin.
 
 Done!
  * Draw the score in a more classic huge-pixely manner.
@@ -18,6 +22,23 @@ Done!
    (Because it will never be going fast enough to hit a bug.)
 
 --]]
+
+
+--------------------------------------------------------------------------------
+-- Parameters.
+--------------------------------------------------------------------------------
+
+-- These are listed first for easier access.
+
+-- Controls default new-ball behavior; set this to false for normal operation.
+local in_dbg_ball_mode = false
+local dbg_start_dx = 0.5
+local dbg_start_dy = 0
+
+-- If dbg_cycles_per_frame = 1, then it's full speed (normal operation), if
+-- it's = 2, then we're at half speed, etc.
+local dbg_cycles_per_frame = 1
+local dbg_frame_offset = 0
 
 
 --------------------------------------------------------------------------------
@@ -192,10 +213,9 @@ function Ball:new()
   local start_dx = 0.6
   local start_dy = 0.4
 
-  --[[ Use this to help debug the score counters.
-  start_dx =  0.1
-  start_dy =  0
-  --]]
+  if in_dbg_ball_mode then
+    start_dx, start_dy = dbg_start_dx, dbg_start_dy
+  end
 
   local ball = {x  = 0,
                 y  = 0,
@@ -232,6 +252,7 @@ function Ball:bounce(hit_pt, bounce_pt)
 end
 
 function Ball:update(dt)
+
   self.did_bounce = false  -- Track if we bounced this cycle already.
 
   self.old_x = self.x
@@ -288,30 +309,44 @@ end
 
 function Player:handle_if_hit(ball)
 
+
   assert(ball.old_x)
   assert(ball.old_y)
 
+  -- We only need to check for collisions with incoming balls.
+  if sign(self.x) ~= sign(ball.dx) then return end
+
+  local half_w, half_h = (self.w + ball.w) / 2, (self.h + ball.h) / 2
   local box = {mid_x = self.x, mid_y = self.y,
-               half_w = (self.w + ball.w) / 2,
-               half_h = (self.h + ball.h) / 2}
+               half_w = half_w, half_h = half_h}
   local ball_line = {x1 = ball.old_x, y1 = ball.old_y,
                      x2 = ball.x,     y2 = ball.y}
-  local did_hit = hit_test.box_and_line(box, ball_line)
 
-  -- This sign check is to enforce one collision event at a time.
-  did_hit = did_hit and sign(ball.dx) == sign(self.x)
+  --print(string.format('box: mid=(%g, %g) half_size=(%g, %g)', box.mid_x, box.mid_y, box.half_w, box.half_h))
+  --print(string.format('line: (%g, %g) -> (%g, %g)', ball_line.x1, ball_line.y1, ball_line.x2, ball_line.y2))
+
+  if not hit_test.box_and_line(box, ball_line) then return end
 
   -- Avoid double bounces; a high-speed ball can go from one side to the other
   -- in a single dx, which may trigger both bounce code paths.
-  did_hit = did_hit and not ball.did_bounce
+  if ball.did_bounce then return end
+  
+  -- hit_pt is in the range [-1, 1]
+  local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
+  local bounce_pt = self.x - sign(self.x) * (self.w + ball.w) / 2
 
-  if did_hit then
-    -- hit_pt is in the range [-1, 1]
-    local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
+  -- Check for edge hits; this is when the ball hits the smaller player edge.
+  local ball_x = (ball.old_x + ball.x) / 2
+  local ball_y = (ball.old_y + ball.y) / 2
+  local x_off = math.abs(ball_x - self.x) / half_w
+  local y_off = math.abs(ball_y - self.y) / half_h
 
-    local bounce_pt = self.x - sign(self.x) * (self.w + ball.w) / 2
-    ball:bounce(hit_pt, bounce_pt)
+  if y_off > x_off then 
+    hit_pt = sign(hit_pt) * 1.3
+    bounce_pt = ball.x
   end
+
+  ball:bounce(hit_pt, bounce_pt)
 end
 
 function Player:update(dt, ball)
@@ -346,6 +381,9 @@ function love.load()
 end
 
 function love.update(dt)
+  -- Support debug slow-down.
+  dbg_frame_offset = (dbg_frame_offset + 1) % dbg_cycles_per_frame
+  if dbg_frame_offset ~= 0 then return end
 
   -- Move the ball.
   ball:update(dt)

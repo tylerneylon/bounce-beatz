@@ -149,6 +149,13 @@ end
 -- box is a table with keys mid_x, mid_y, half_w, half_h
 -- line_segment is a table with keys x1, y1, x2, y2
 function hit_test.box_and_line(box, line_segment)
+  -- Check if either endpoint is inside the box.
+  if math.abs(line_segment.x1 - box.mid_x) < box.half_w and
+     math.abs(line_segment.y1 - box.mid_y) < box.half_h then
+    return true
+  end
+
+  -- Check if the line intersects any of the border lines.
   for border in box_borders(box) do
     if hit_test.line_segments(line_segment, border) then
       return true

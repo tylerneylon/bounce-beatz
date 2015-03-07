@@ -180,6 +180,11 @@ box  = {mid_x = 0, mid_y = 0, half_w = 1, half_h = 1}
 line = {x1 = 2, y1 = 2, x2 = 3, y2 = 2}
 assert(not hit_test.box_and_line(box, line))
 
+-- Test a line segment entirely within the box.
+box  = {mid_x = 0, mid_y = 0, half_w = 5, half_h = 5}
+line = {x1 = 2, y1 = 2, x2 = 3, y2 = 3}
+assert(hit_test.box_and_line(box, line))
+
 --------------------------------------------------------------------------------
 -- # End of all tests.
 --------------------------------------------------------------------------------
