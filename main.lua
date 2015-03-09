@@ -2,17 +2,29 @@
 
 This is the classic game pong.
 
-TODO:
- * New sound for edge hits.
- * Support overlapping sound effects.
- * Split into modules: ball, player, draw, font.
- * Add a title screen.
- * Split into 1p and 2p modes.
- * Add power-ups.
- * Add levels.
- * More points for longer-lasting balls,
-   with visual cues to help be aware of it.
- * Spin.
+# Roadmap
+
+Anytime items
+
+[ ] Support overlapping sound effects
+[ ] Split into modules (ball, player, draw, font)
+
+Phase I   : Human vs human gameplay (1P battle)
+
+[ ] New sound for edge hits
+[ ] Spin
+[ ] More points for long-lasting balls
+
+Phase I.(half) : title and menu screen
+
+[ ] Add a title screen
+[ ] Add a play-mode menu
+
+Phase II  : Human vs computer AI    (2P battle)
+
+Phase III : Levels                  (Beats)
+
+[ ] Add power-ups.
 
 Done!
  * Draw the score in a more classic huge-pixely manner.
