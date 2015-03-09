@@ -1,0 +1,108 @@
+--[[ pong-love/draw.lua
+
+Drawing functions. Surprise!
+
+These drawing functions accept coordinates in a custom system where
+[-1, -1] is the lower-left corner, and [1, 1] is the upper-right, like this:
+
+
+ (-1,  1) ------ (1,  1)
+
+    |               |
+    |               |
+    |   le screen   |
+    |               |
+    |               |
+    
+ (-1, -1) ------ (1, -1)
+
+
+--]]
+
+local draw = {}
+
+
+--------------------------------------------------------------------------------
+-- Parameters.
+--------------------------------------------------------------------------------
+
+draw.border_size = 0.025
+
+
+--------------------------------------------------------------------------------
+-- Colors.
+--------------------------------------------------------------------------------
+
+draw.cyan = {0, 255, 255}
+draw.gray = {120, 120, 120}
+
+
+--------------------------------------------------------------------------------
+-- General drawing functions.
+--------------------------------------------------------------------------------
+
+-- x, y is the lower-left corner of the rectangle.
+function draw.rect(x, y, w, h, color)
+
+  -- Set the color.
+  color = color or {255, 255, 255}
+  love.graphics.setColor(color)
+
+  -- Convert coordinates.
+  local win_w, win_h = love.graphics.getDimensions()
+  -- We invert y here since love.graphics treats the top as y=0,
+  -- and we treat the bottom as y=0.
+  x, y = (x + 1) * win_w / 2, (1 - y) * win_h / 2
+  w, h = w * win_w / 2, h * win_h / 2
+
+  -- Shift y since love.graphics draws from the upper-left corner.
+  y = y - h
+
+  -- Draw the rectangle.
+  love.graphics.rectangle('fill', x, y, w, h)
+end
+
+function draw.rect_w_mid_pt(mid_x, mid_y, w, h, color)
+  -- Set (x, y) to the lower-left corner of the rectangle.
+  local x = mid_x - w / 2
+  local y = mid_y - h / 2
+  draw.rect(x, y, w, h, color)
+end
+
+function draw.str(s, x, y, limit, align)
+  local win_w, win_h = love.graphics.getDimensions()
+  x, y = (x + 1) * win_w / 2, (y + 1) * win_h / 2
+  limit = limit * win_w / 2
+
+  if align == 'right' then x = x - limit end
+
+  love.graphics.printf(s, x, y, limit, align)
+end
+
+
+--------------------------------------------------------------------------------
+-- Pong-specific drawing functions.
+--------------------------------------------------------------------------------
+
+function draw.borders()
+  -- Draw the top and bottom boundaries.
+  -- Without these, in some cases, the player may have trouble
+  -- understanding where the window limits are.
+  for y = -1, 1, 2 do
+    draw.rect_w_mid_pt(0, y, 2, 2 * draw.border_size)
+  end
+end
+
+function draw.center_line()
+  local w = 0.02
+  local num_bars = 12
+  local h = 2 / (2 * num_bars + 1)
+  local y = -1 + 1.5 * h
+  for i = 1, num_bars do
+    draw.rect_w_mid_pt(0, y, w, h, draw.gray)
+    y = y + 2 * h
+  end
+end
+
+return draw
+

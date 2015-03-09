@@ -1,6 +1,6 @@
 --[[ font.lua
 
-Data for a ridiculously simple font
+Data and drawing functions for a ridiculously simple font
 designed to be used in pong-love, the pong clone.
 
 This font has a fixed height of 5 units but is

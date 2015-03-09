@@ -37,7 +37,7 @@ Done!
 
 
 --------------------------------------------------------------------------------
--- Parameters.
+-- Debug parameters.
 --------------------------------------------------------------------------------
 
 -- These are listed first for easier access.
@@ -57,6 +57,7 @@ local dbg_frame_offset = 0
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local draw     = require 'draw'
 local font     = require 'font'
 local hit_test = require 'hit_test'
 
@@ -72,44 +73,8 @@ local hit_test = require 'hit_test'
 local ball
 local players  -- This will be set up in love.load.
 
-local cyan = {0, 255, 255}
-local gray = {120, 120, 120}
-
 -- Sounds; loaded in love.load.
 local sounds = {}
-
-local border_size = 0.025
-
--- Internal drawing functions.
--- These accept input coordinates in our custom coord system.
-
--- x, y is the lower-left corner of the rectangle.
-local function draw_rect(x, y, w, h, color)
-
-  -- Set the color.
-  color = color or {255, 255, 255}
-  love.graphics.setColor(color)
-
-  -- Convert coordinates.
-  local win_w, win_h = love.graphics.getDimensions()
-  -- We invert y here since love.graphics treats the top as y=0,
-  -- and we treat the bottom as y=0.
-  x, y = (x + 1) * win_w / 2, (1 - y) * win_h / 2
-  w, h = w * win_w / 2, h * win_h / 2
-
-  -- Shift y since love.graphics draws from the upper-left corner.
-  y = y - h
-
-  -- Draw the rectangle.
-  love.graphics.rectangle('fill', x, y, w, h)
-end
-
-local function draw_rect_w_mid_pt(mid_x, mid_y, w, h, color)
-  -- Set (x, y) to the lower-left corner of the rectangle.
-  local x = mid_x - w / 2
-  local y = mid_y - h / 2
-  draw_rect(x, y, w, h, color)
-end
 
 
 --------------------------------------------------------------------------------
@@ -148,7 +113,7 @@ local function draw_boxy_char(c, x, y, color)
       if char_data[row][col] == 1 then
         local this_x = x + (col - 1) * font_block_size
         local this_y = y + (h - row) * font_block_size
-        draw_rect(this_x, this_y, font_block_size, font_block_size, color)
+        draw.rect(this_x, this_y, font_block_size, font_block_size, color)
       end
     end
   end
@@ -164,41 +129,6 @@ local function draw_boxy_str(s, x, y, x_align, y_align, color)
     local c = s:sub(i, i)
     draw_boxy_char(c, x, y, color)
     x = x + (get_str_size(c) + 1) * font_block_size
-  end
-end
-
-
---------------------------------------------------------------------------------
--- Drawing functions.
---------------------------------------------------------------------------------
-
-local function draw_str(s, x, y, limit, align)
-  local win_w, win_h = love.graphics.getDimensions()
-  x, y = (x + 1) * win_w / 2, (y + 1) * win_h / 2
-  limit = limit * win_w / 2
-
-  if align == 'right' then x = x - limit end
-
-  love.graphics.printf(s, x, y, limit, align)
-end
-
-local function draw_borders()
-  -- Draw the top and bottom boundaries.
-  -- Without these, in some cases, the player may have trouble
-  -- understanding where the window limits are.
-  for y = -1, 1, 2 do
-    draw_rect_w_mid_pt(0, y, 2, 2 * border_size)
-  end
-end
-
-local function draw_center_line()
-  local w = 0.02
-  local num_bars = 12
-  local h = 2 / (2 * num_bars + 1)
-  local y = -1 + 1.5 * h
-  for i = 1, num_bars do
-    draw_rect_w_mid_pt(0, y, w, h, gray)
-    y = y + 2 * h
   end
 end
 
@@ -274,7 +204,7 @@ function Ball:update(dt)
   self.x = self.x + self.dx * dt
   self.y = self.y + self.dy * dt
 
-  local d = self.h / 2 + border_size
+  local d = self.h / 2 + draw.border_size
   if self.y < (-1 + d) then self.dy =  1 * math.abs(self.dy) end
   if self.y > ( 1 - d) then self.dy = -1 * math.abs(self.dy) end
 end
@@ -300,7 +230,7 @@ end
 
 function Player:draw()
   local w, h = self.w, self.h
-  draw_rect_w_mid_pt(self.x, self.y, w, h)
+  draw.rect_w_mid_pt(self.x, self.y, w, h)
 
   local score_str = tostring(self.score)
   local align = sign(self.x) == 1 and 'right' or 'left'
@@ -311,7 +241,7 @@ function Player:draw()
   draw_boxy_str(score_str,       -- str
                 str_x, -0.9,     -- x, y
                 x_align, 0.0,    -- x_align, y_align
-                gray)            -- color
+                draw.gray)       -- color
 end
 
 function Player:stop_at(y)
@@ -369,7 +299,7 @@ function Player:update(dt, ball)
   self.y  = self.y  + self.dy  * dt + (self.ddy / 2) * dt ^ 2
   self.dy = self.dy + self.ddy * dt
 
-  local d = self.h / 2 + border_size
+  local d = self.h / 2 + draw.border_size
   local min, max = -1 + d, 1 - d
 
   if self.y < min then self:stop_at(min) end
@@ -417,17 +347,17 @@ function love.update(dt)
 end
 
 function love.draw()
-  draw_borders()
+  draw.borders()
   
   for _, p in pairs(players) do
     p:draw()
   end
 
-  draw_center_line()
+  draw.center_line()
 
   -- Draw the ball.
   -- TODO Move this into the Ball class.
-  draw_rect_w_mid_pt(ball.x, ball.y, ball.w, ball.h, cyan)
+  draw.rect_w_mid_pt(ball.x, ball.y, ball.w, ball.h, draw.cyan)
 end
 
 -- This is the player movement speed.
