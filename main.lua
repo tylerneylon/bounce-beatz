@@ -11,7 +11,7 @@ Anytime items
 
 Phase I   : Human vs human gameplay (1P battle)
 
-[ ] New sound for edge hits
+[x] New sound for edge hits
 [ ] Spin
 [ ] More points for long-lasting balls
 
@@ -243,7 +243,7 @@ end
 -- hit_pt is expected to be in the range [-1, 1], and determines the
 -- angle that the ball bounces away at.
 -- bounce_pt is the x-coord at which the ball bounces.
-function Ball:bounce(hit_pt, bounce_pt)
+function Ball:bounce(hit_pt, bounce_pt, is_edge_hit)
   assert(type(hit_pt) == 'number')
 
   self.x = bounce_pt - (self.x - bounce_pt)
@@ -260,7 +260,8 @@ function Ball:bounce(hit_pt, bounce_pt)
 
   self.did_bounce = true
 
-  sounds.ball_hit:play()
+  local sound = is_edge_hit and sounds.ball_edge_hit or sounds.ball_hit
+  sound:play()
 end
 
 function Ball:update(dt)
@@ -353,12 +354,14 @@ function Player:handle_if_hit(ball)
   local x_off = math.abs(ball_x - self.x) / half_w
   local y_off = math.abs(ball_y - self.y) / half_h
 
-  if y_off > x_off then 
+  local is_edge_hit = y_off > x_off
+
+  if is_edge_hit then
     hit_pt = sign(hit_pt) * 1.3
     bounce_pt = ball.x
   end
 
-  ball:bounce(hit_pt, bounce_pt)
+  ball:bounce(hit_pt, bounce_pt, is_edge_hit)
 end
 
 function Player:update(dt, ball)
@@ -388,8 +391,12 @@ function love.load()
   ball    = Ball:new()
   players = {Player:new(-0.8), Player:new(0.8)}
 
-  sounds.ball_hit = love.audio.newSource('audio/ball_hit.wav', 'static')
-  sounds.point    = love.audio.newSource('audio/point.wav',    'static')
+  local sound_names = {'ball_hit', 'ball_edge_hit', 'point'}
+
+  for _, name in pairs(sound_names) do
+    local filename = 'audio/' .. name .. '.wav'
+    sounds[name] = love.audio.newSource(filename, 'static')
+  end
 end
 
 function love.update(dt)
