@@ -78,62 +78,6 @@ local sounds = {}
 
 
 --------------------------------------------------------------------------------
--- Font-drawing functions.
---------------------------------------------------------------------------------
-
--- TODO Consider moving the font-drawing functions out,
---      or perhaps moving all drawing functions together.
-
-local font_block_size = 0.02
-
-local function get_str_size(s)
-  local w = 0
-  local h = 0
-  for i = 1, #s do
-    local c = s:sub(i, i)
-    local char_data = font[c]
-    if char_data == nil then
-      print('Warning: no font data for character ' .. c)
-    else
-      local c_height = #char_data
-      if c_height > h then h = c_height end
-      local c_width = #char_data[1]
-      w = w + c_width
-      if i > 1 then w = w + 1 end  -- For the inter-char space.
-    end
-  end
-  return w, h
-end
-
-local function draw_boxy_char(c, x, y, color)
-  local w, h = get_str_size(c)
-  local char_data = font[c]
-  for row = 1, #char_data do
-    for col = 1, #char_data[1] do
-      if char_data[row][col] == 1 then
-        local this_x = x + (col - 1) * font_block_size
-        local this_y = y + (h - row) * font_block_size
-        draw.rect(this_x, this_y, font_block_size, font_block_size, color)
-      end
-    end
-  end
-end
-
--- Both x_align and y_align are expected to be either
--- 0, 0.5, or 1 for near-0, centered, or near-1 alignment.
-local function draw_boxy_str(s, x, y, x_align, y_align, color)
-  local w, h = get_str_size(s)
-  x = x - w * font_block_size * x_align
-  y = y - h * font_block_size * y_align
-  for i = 1, #s do
-    local c = s:sub(i, i)
-    draw_boxy_char(c, x, y, color)
-    x = x + (get_str_size(c) + 1) * font_block_size
-  end
-end
-
-
---------------------------------------------------------------------------------
 -- Supporting functions.
 --------------------------------------------------------------------------------
 
@@ -238,7 +182,7 @@ function Player:draw()
   local sgn = sign(self.x)
   local str_x = 0.98 * sgn
   local x_align = (sgn + 1) / 2  -- Map to 0 or 1.
-  draw_boxy_str(score_str,       -- str
+  font.draw_str(score_str,       -- str
                 str_x, -0.9,     -- x, y
                 x_align, 0.0,    -- x_align, y_align
                 draw.gray)       -- color

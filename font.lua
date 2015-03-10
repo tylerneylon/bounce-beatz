@@ -1,6 +1,6 @@
 --[[ font.lua
 
-Data and drawing functions for a ridiculously simple font
+Data and drawing functions for a ridiculously simple boxy font
 designed to be used in pong-love, the pong clone.
 
 This font has a fixed height of 5 units but is
@@ -10,6 +10,26 @@ width.
 --]]
 
 local font = {}
+
+
+--------------------------------------------------------------------------------
+-- Parameters.
+--------------------------------------------------------------------------------
+
+-- This size is expressed in the custom coord system of the draw module.
+font.block_size = 0.02
+
+
+--------------------------------------------------------------------------------
+-- Require modules.
+--------------------------------------------------------------------------------
+
+local draw     = require 'draw'
+
+
+--------------------------------------------------------------------------------
+-- Font data.
+--------------------------------------------------------------------------------
 
 font[0] = {{ 1, 1, 1 },
            { 1, 0, 1 },
@@ -78,5 +98,57 @@ for k, v in pairs(font) do
     font[tostring(k)] = v
   end
 end
+
+
+--------------------------------------------------------------------------------
+-- Font-drawing functions.
+--------------------------------------------------------------------------------
+
+function font.get_str_size(s)
+  local w = 0
+  local h = 0
+  for i = 1, #s do
+    local c = s:sub(i, i)
+    local char_data = font[c]
+    if char_data == nil then
+      print('Warning: no font data for character ' .. c)
+    else
+      local c_height = #char_data
+      if c_height > h then h = c_height end
+      local c_width = #char_data[1]
+      w = w + c_width
+      if i > 1 then w = w + 1 end  -- For the inter-char space.
+    end
+  end
+  return w, h
+end
+
+function font.draw_char(c, x, y, color)
+  local w, h = font.get_str_size(c)
+  local char_data = font[c]
+  for row = 1, #char_data do
+    for col = 1, #char_data[1] do
+      if char_data[row][col] == 1 then
+        local this_x = x + (col - 1) * font.block_size
+        local this_y = y + (h - row) * font.block_size
+        draw.rect(this_x, this_y, font.block_size, font.block_size, color)
+      end
+    end
+  end
+end
+
+-- Both x_align and y_align are expected to be either
+-- 0, 0.5, or 1 for near-0, centered, or near-1 alignment.
+function font.draw_str(s, x, y, x_align, y_align, color)
+  local w, h = font.get_str_size(s)
+  x = x - w * font.block_size * x_align
+  y = y - h * font.block_size * y_align
+  for i = 1, #s do
+    local c = s:sub(i, i)
+    font.draw_char(c, x, y, color)
+    x = x + (font.get_str_size(c) + 1) * font.block_size
+  end
+end
+
 
 return font
