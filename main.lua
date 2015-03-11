@@ -37,29 +37,15 @@ Done!
 
 
 --------------------------------------------------------------------------------
--- Debug parameters.
---------------------------------------------------------------------------------
-
--- These are listed first for easier access.
-
--- Controls default new-ball behavior; set this to false for normal operation.
-local in_dbg_ball_mode = false
-local dbg_start_dx = 0.5
-local dbg_start_dy = 0
-
--- If dbg_cycles_per_frame = 1, then it's full speed (normal operation), if
--- it's = 2, then we're at half speed, etc.
-local dbg_cycles_per_frame = 1
-local dbg_frame_offset = 0
-
-
---------------------------------------------------------------------------------
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local Ball     = require 'ball'
+local dbg      = require 'dbg'
 local draw     = require 'draw'
 local font     = require 'font'
 local hit_test = require 'hit_test'
+local sounds   = require 'sounds'
 
 
 --------------------------------------------------------------------------------
@@ -73,9 +59,6 @@ local hit_test = require 'hit_test'
 local ball
 local players  -- This will be set up in love.load.
 
--- Sounds; loaded in love.load.
-local sounds = {}
-
 
 --------------------------------------------------------------------------------
 -- Supporting functions.
@@ -86,80 +69,6 @@ local function sign(x)
   return -1
 end
 
-
---------------------------------------------------------------------------------
--- The Ball class.
---------------------------------------------------------------------------------
-
-local Ball = {size = 0.04}
-
-function Ball:new()
-  local dx_sign  = math.random(2) * 2 - 3
-  local dy_sign  = math.random(2) * 2 - 3
-  local start_dx = 0.6
-  local start_dy = 0.4
-
-  if in_dbg_ball_mode then
-    start_dx, start_dy = dbg_start_dx, dbg_start_dy
-  end
-
-  local ball = {x  = 0,
-                y  = 0,
-                old_x = 0,
-                old_y = 0,
-                dx = start_dx * dx_sign,
-                dy = start_dy * dy_sign,
-                w  = self.size,
-                h  = self.size}
-  return setmetatable(ball, {__index = self})
-end
-
--- hit_pt is expected to be in the range [-1, 1], and determines the
--- angle that the ball bounces away at.
--- bounce_pt is the x-coord at which the ball bounces.
-function Ball:bounce(hit_pt, bounce_pt, is_edge_hit)
-  assert(type(hit_pt) == 'number')
-
-  self.x = bounce_pt - (self.x - bounce_pt)
-
-  -- Effect a slight speed-up with each player bounce.
-  local speedup = 1.12
-  self.dx = -speedup * self.dx
-  self.dy =        2 * hit_pt
-
-  local max_dx = 10
-  if math.abs(self.dx) > max_dx then
-    self.dx = sign(self.dx) * max_dx
-  end
-
-  self.did_bounce = true
-
-  local sound = is_edge_hit and sounds.ball_edge_hit or sounds.ball_hit
-  sound:play()
-end
-
-function Ball:update(dt)
-
-  self.did_bounce = false  -- Track if we bounced this cycle already.
-
-  self.old_x = self.x
-  self.old_y = self.y
-
-  self.x = self.x + self.dx * dt
-  self.y = self.y + self.dy * dt
-
-  local d = self.h / 2 + draw.border_size
-  if self.y < (-1 + d) then self.dy =  1 * math.abs(self.dy) end
-  if self.y > ( 1 - d) then self.dy = -1 * math.abs(self.dy) end
-end
-
--- This is outside of Ball:update so that balls can interact with
--- the players (bounce) before we check for a score going up. Fast balls
--- can appear (x-wise) to go through a player when they're really bouncing.
-function Ball:handle_score_up()
-  if self.x >  1 then players[1]:score_up() end
-  if self.x < -1 then players[2]:score_up() end
-end
 
 --------------------------------------------------------------------------------
 -- The Player class.
@@ -266,19 +175,12 @@ end
 function love.load()
   ball    = Ball:new()
   players = {Player:new(-0.8), Player:new(0.8)}
-
-  local sound_names = {'ball_hit', 'ball_edge_hit', 'point'}
-
-  for _, name in pairs(sound_names) do
-    local filename = 'audio/' .. name .. '.wav'
-    sounds[name] = love.audio.newSource(filename, 'static')
-  end
 end
 
 function love.update(dt)
   -- Support debug slow-down.
-  dbg_frame_offset = (dbg_frame_offset + 1) % dbg_cycles_per_frame
-  if dbg_frame_offset ~= 0 then return end
+  dbg.frame_offset = (dbg.frame_offset + 1) % dbg.cycles_per_frame
+  if dbg.frame_offset ~= 0 then return end
 
   -- Move the ball.
   ball:update(dt)
@@ -289,7 +191,7 @@ function love.update(dt)
   end
 
   -- Handle any scoring that may have occurred.
-  ball:handle_score_up()
+  ball:handle_score_up(players)
 end
 
 function love.draw()
