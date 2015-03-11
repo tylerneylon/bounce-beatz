@@ -19,6 +19,16 @@ local sounds = require 'sounds'
 
 
 --------------------------------------------------------------------------------
+-- Internal globals.
+--------------------------------------------------------------------------------
+
+local colors = {draw.cyan, draw.green, draw.yellow}
+
+-- These are the number of bounces (aka hits) where a ball's value goes up.
+local pt_thresholds = {7, 14}
+
+
+--------------------------------------------------------------------------------
 -- The Ball class.
 --------------------------------------------------------------------------------
 
@@ -42,6 +52,7 @@ function Ball:new(ball)
   ball.old_x, ball.old_y = 0, 0
   ball.dx,    ball.dy    = start_dx * dx_sign, start_dy * dy_sign
   ball.w,     ball.h     = self.size, self.size
+  ball.num_hits          = 0
 
   return setmetatable(ball, {__index = self})
 end
@@ -65,6 +76,7 @@ function Ball:bounce(hit_pt, bounce_pt, is_edge_hit)
   end
 
   self.did_bounce = true
+  self.num_hits   = self.num_hits + 1
 
   local sound = is_edge_hit and sounds.ball_edge_hit or sounds.ball_hit
   sound:play()
@@ -85,8 +97,17 @@ function Ball:update(dt)
   if self.y > ( 1 - d) then self.dy = -1 * math.abs(self.dy) end
 end
 
+function Ball:value()
+  local value = 1
+  for _, threshold in ipairs(pt_thresholds) do
+    if self.num_hits >= threshold then value = value + 1 end
+  end
+  return value
+end
+
 function Ball:draw()
-  draw.rect_w_mid_pt(self.x, self.y, self.w, self.h, draw.cyan)
+  local color = colors[self:value()]
+  draw.rect_w_mid_pt(self.x, self.y, self.w, self.h, color)
 end
 
 -- This is outside of Ball:update so that balls can interact with

@@ -122,7 +122,7 @@ end
 
 function Player:score_up(ball)
   sounds.point:play()
-  self.score = self.score + 1
+  self.score = self.score + ball:value()
   Ball:new(ball)
 end
 
