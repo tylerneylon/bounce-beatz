@@ -13,7 +13,7 @@ Phase I   : Human vs human gameplay (1P battle)
 
 [x] New sound for edge hits
 [ ] Spin
-[ ] More points for long-lasting balls
+[x] More points for long-lasting balls
 
 Phase I.(half) : title and menu screen
 
