@@ -44,7 +44,6 @@ local Ball     = require 'ball'
 local dbg      = require 'dbg'
 local draw     = require 'draw'
 local font     = require 'font'
-local hit_test = require 'hit_test'
 local Player   = require 'player'
 local sounds   = require 'sounds'
 
@@ -99,16 +98,13 @@ end
 
 function love.draw()
   draw.borders()
+  draw.center_line()
   
   for _, p in pairs(players) do
     p:draw()
   end
 
-  draw.center_line()
-
-  -- Draw the ball.
-  -- TODO Move this into the Ball class.
-  draw.rect_w_mid_pt(ball.x, ball.y, ball.w, ball.h, draw.cyan)
+  ball:draw()
 end
 
 -- This is the player movement speed.

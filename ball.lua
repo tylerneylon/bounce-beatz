@@ -85,6 +85,10 @@ function Ball:update(dt)
   if self.y > ( 1 - d) then self.dy = -1 * math.abs(self.dy) end
 end
 
+function Ball:draw()
+  draw.rect_w_mid_pt(self.x, self.y, self.w, self.h, draw.cyan)
+end
+
 -- This is outside of Ball:update so that balls can interact with
 -- the players (bounce) before we check for a score going up. Fast balls
 -- can appear (x-wise) to go through a player when they're really bouncing.
