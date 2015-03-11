@@ -24,7 +24,9 @@ local sounds = require 'sounds'
 
 local Ball = {size = 0.04}
 
-function Ball:new()
+function Ball:new(ball)
+  assert(self ~= ball)
+
   local dx_sign  = math.random(2) * 2 - 3
   local dy_sign  = math.random(2) * 2 - 3
   local start_dx = 0.6
@@ -34,14 +36,13 @@ function Ball:new()
     start_dx, start_dy = dbg.start_dx, dbg.start_dy
   end
 
-  local ball = {x  = 0,
-                y  = 0,
-                old_x = 0,
-                old_y = 0,
-                dx = start_dx * dx_sign,
-                dy = start_dy * dy_sign,
-                w  = self.size,
-                h  = self.size}
+  ball = ball or {}
+
+  ball.x,     ball.y     = 0, 0
+  ball.old_x, ball.old_y = 0, 0
+  ball.dx,    ball.dy    = start_dx * dx_sign, start_dy * dy_sign
+  ball.w,     ball.h     = self.size, self.size
+
   return setmetatable(ball, {__index = self})
 end
 
@@ -88,8 +89,9 @@ end
 -- the players (bounce) before we check for a score going up. Fast balls
 -- can appear (x-wise) to go through a player when they're really bouncing.
 function Ball:handle_score_up(players)
-  if self.x >  1 then players[1]:score_up() end
-  if self.x < -1 then players[2]:score_up() end
+  if self.x >  1 then players[1]:score_up(self) end
+  if self.x < -1 then players[2]:score_up(self) end
 end
+
 
 return Ball
