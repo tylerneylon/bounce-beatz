@@ -1,4 +1,4 @@
---[[ font.lua
+--[[ pong-love/font.lua
 
 Data and drawing functions for a ridiculously simple boxy font
 designed to be used in pong-love, the pong clone.
