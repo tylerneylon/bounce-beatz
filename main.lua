@@ -7,7 +7,7 @@ This is the classic game pong.
 Anytime items
 
 [ ] Support overlapping sound effects
-[ ] Split into modules (ball, player, draw, font)
+[x] Split into modules (ball, player, draw, font)
 
 Phase I   : Human vs human gameplay (1P battle)
 
@@ -43,7 +43,6 @@ Done!
 local Ball     = require 'ball'
 local dbg      = require 'dbg'
 local draw     = require 'draw'
-local font     = require 'font'
 local Player   = require 'player'
 local sounds   = require 'sounds'
 

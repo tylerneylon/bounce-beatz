@@ -14,7 +14,6 @@ local Player = require 'player'
 --------------------------------------------------------------------------------
 
 local Ball     = require 'ball'
-local dbg      = require 'dbg'
 local draw     = require 'draw'
 local font     = require 'font'
 local hit_test = require 'hit_test'
