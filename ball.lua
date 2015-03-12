@@ -25,8 +25,10 @@ local sounds = require 'sounds'
 local colors = {draw.cyan, draw.green, draw.yellow}
 
 -- These are the number of bounces (aka hits) where a ball's value goes up.
-local pt_thresholds = {7, 14}
+local pt_thresholds = {8, 16}
 
+-- We play these sounds when the ball achieves value 2 or 3.
+local value_up_sounds = {false, sounds.good1, sounds.good2}
 
 --------------------------------------------------------------------------------
 -- The Ball class.
@@ -76,7 +78,13 @@ function Ball:bounce(hit_pt, bounce_pt, is_edge_hit)
   end
 
   self.did_bounce = true
+
+  local old_value = self:value()
   self.num_hits   = self.num_hits + 1
+  local new_value = self:value()
+  if new_value > old_value then
+    value_up_sounds[new_value]:play()
+  end
 
   local sound = is_edge_hit and sounds.ball_edge_hit or sounds.ball_hit
   sound:play()
