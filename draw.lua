@@ -84,9 +84,6 @@ function draw.rotated_rect(mid_x, mid_y, w, h, color, angle)
   local x, y = (mid_x + 1) * win_w / 2, (1 - mid_y) * win_h / 2
   local w, h = w * win_w / 2, h * win_h / 2
 
-  -- Shift y since love.graphics draws from the upper-left corner.
-  y = y - h
-
   -- u is a unit vector pointing toward angle.
   local ux, uy  = math.cos(angle), math.sin(angle)
   local sw, sh  = 1, 1  -- The signs of the width/height to add.

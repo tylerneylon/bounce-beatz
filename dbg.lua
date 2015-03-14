@@ -11,7 +11,7 @@ local dbg = {}
 
 -- Controls default new-ball behavior; set this to false for normal operation.
 dbg.is_ball_weird = false
-dbg.start_dx = 0.5
+dbg.start_dx = 0.3
 dbg.start_dy = 0
 
 -- If dbg.cycles_per_frame = 1, then it's full speed (normal operation), if

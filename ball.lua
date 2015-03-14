@@ -55,6 +55,7 @@ function Ball:new(ball)
   ball.dx,    ball.dy    = start_dx * dx_sign, start_dy * dy_sign
   ball.w,     ball.h     = self.size, self.size
   ball.num_hits          = 0
+  ball.spin_angle        = 0
 
   return setmetatable(ball, {__index = self})
 end
@@ -78,11 +79,11 @@ function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, player_dy)
     self.dx = sign(self.dx) * max_dx
   end
 
-  -- TODO Update this section as I implement spin.
   -- Update the spin_angle based on player_dy.
-  -- TEMP
-  -- print('player_dy =', player_dy)
-  self.spin_angle = 3 * player_dy
+  local max_angle = 0.1
+  self.spin_angle = -0.02 * player_dy
+  if self.spin_angle > max_angle then self.spin_angle = max_angle end
+  if is_edge_hit then self.spin_angle = 0 end
 
   -- Mark the bounce so it can't happen twice in one update cycle.
   -- This can theoretically be a problem at extremely high speeds.
@@ -126,7 +127,7 @@ end
 
 function Ball:draw()
   local color = colors[self:value()]
-  draw.rotated_rect(self.x, self.y, self.w, self.h, color, 0)
+  draw.rotated_rect(self.x, self.y, self.w, self.h, color, self.spin_angle)
 end
 
 -- This is outside of Ball:update so that balls can interact with
