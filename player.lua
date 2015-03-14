@@ -103,7 +103,7 @@ function Player:handle_if_hit(ball)
     bounce_pt = ball.x
   end
 
-  ball:bounce(hit_pt, bounce_pt, is_edge_hit)
+  ball:bounce(hit_pt, bounce_pt, is_edge_hit, self.dy)
 end
 
 function Player:update(dt, ball)

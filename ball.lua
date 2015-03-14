@@ -62,23 +62,33 @@ end
 -- hit_pt is expected to be in the range [-1, 1], and determines the
 -- angle that the ball bounces away at.
 -- bounce_pt is the x-coord at which the ball bounces.
-function Ball:bounce(hit_pt, bounce_pt, is_edge_hit)
-  assert(type(hit_pt) == 'number')
+function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, player_dy)
+  assert(type(hit_pt)    == 'number')
+  assert(type(player_dy) == 'number')
 
+  -- Update x based on the bounce.
   self.x = bounce_pt - (self.x - bounce_pt)
 
   -- Effect a slight speed-up with each player bounce.
   local speedup = 1.12
   self.dx = -speedup * self.dx
   self.dy =        2 * hit_pt
-
   local max_dx = 10
   if math.abs(self.dx) > max_dx then
     self.dx = sign(self.dx) * max_dx
   end
 
+  -- TODO Update this section as I implement spin.
+  -- Update the spin_angle based on player_dy.
+  -- TEMP
+  -- print('player_dy =', player_dy)
+  self.spin_angle = 3 * player_dy
+
+  -- Mark the bounce so it can't happen twice in one update cycle.
+  -- This can theoretically be a problem at extremely high speeds.
   self.did_bounce = true
 
+  -- Update num_hits and play a sound if the ball's value went up.
   local old_value = self:value()
   self.num_hits   = self.num_hits + 1
   local new_value = self:value()
@@ -86,6 +96,7 @@ function Ball:bounce(hit_pt, bounce_pt, is_edge_hit)
     value_up_sounds[new_value]:play()
   end
 
+  -- Play the hit sound.
   local sound = is_edge_hit and sounds.ball_edge_hit or sounds.ball_hit
   sound:play()
 end
@@ -115,7 +126,7 @@ end
 
 function Ball:draw()
   local color = colors[self:value()]
-  draw.rect_w_mid_pt(self.x, self.y, self.w, self.h, color)
+  draw.rotated_rect(self.x, self.y, self.w, self.h, color, 0)
 end
 
 -- This is outside of Ball:update so that balls can interact with
