@@ -63,9 +63,9 @@ end
 -- hit_pt is expected to be in the range [-1, 1], and determines the
 -- angle that the ball bounces away at.
 -- bounce_pt is the x-coord at which the ball bounces.
-function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, player_dy)
+function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
   assert(type(hit_pt)    == 'number')
-  assert(type(player_dy) == 'number')
+  assert(type(spin) == 'number')
 
   -- Update x based on the bounce.
   self.x = bounce_pt - (self.x - bounce_pt)
@@ -79,9 +79,9 @@ function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, player_dy)
     self.dx = sign(self.dx) * max_dx
   end
 
-  -- Update the spin_angle based on player_dy.
+  -- Update the spin_angle based on spin.
   local max_angle = 0.1
-  self.spin_angle = -0.02 * player_dy
+  self.spin_angle = -0.02 * spin
   if self.spin_angle > max_angle then self.spin_angle = max_angle end
   if is_edge_hit then self.spin_angle = 0 end
 
