@@ -30,6 +30,17 @@ local pt_thresholds = {8, 16}
 -- We play these sounds when the ball achieves value 2 or 3.
 local value_up_sounds = {false, sounds.good1, sounds.good2}
 
+
+--------------------------------------------------------------------------------
+-- Supporting functions.
+--------------------------------------------------------------------------------
+
+local function sign(x)
+  if x > 0 then return  1 end
+  if x < 0 then return -1 end
+  return 0
+end
+
 --------------------------------------------------------------------------------
 -- The Ball class.
 --------------------------------------------------------------------------------
@@ -64,26 +75,44 @@ end
 -- angle that the ball bounces away at.
 -- bounce_pt is the x-coord at which the ball bounces.
 function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
+
   assert(type(hit_pt)    == 'number')
   assert(type(spin) == 'number')
 
   -- Update x based on the bounce.
   self.x = bounce_pt - (self.x - bounce_pt)
 
+  -- Determine the theoretical new spin angle.
+  -- This is theoretical because we haven't yet considered the old spin.
+  local max_angle      =  0.1
+  local min_angle      = -max_angle
+  local new_spin_angle = -0.02 * spin
+  if new_spin_angle > max_angle then new_spin_angle = max_angle end
+  if new_spin_angle < min_angle then new_spin_angle = min_angle end
+  if is_edge_hit then new_spin_angle = 0 end
+
+  -- Determine how the old and new spin affect the bounce angle.
+  local angle_scale = 2  -- Default value for zero spin influence.
+
+  -- Set up spin_badness in the range [0, 1].
+  local spin_badness = math.abs(new_spin_angle + self.spin_angle) * 10
+  spin_badness = spin_badness * (math.abs(self.spin_angle) / max_angle)
+  if spin_badness > 1 then spin_badness = 1 end
+
+  -- We take the sqrt to make slight spin errors more meaningful.
+  angle_scale = angle_scale * (1 - math.sqrt(spin_badness))
+
   -- Effect a slight speed-up with each player bounce.
   local speedup = 1.12
   self.dx = -speedup * self.dx
-  self.dy =        2 * hit_pt
+  self.dy = angle_scale * hit_pt
   local max_dx = 10
   if math.abs(self.dx) > max_dx then
     self.dx = sign(self.dx) * max_dx
   end
 
-  -- Update the spin_angle based on spin.
-  local max_angle = 0.1
-  self.spin_angle = -0.02 * spin
-  if self.spin_angle > max_angle then self.spin_angle = max_angle end
-  if is_edge_hit then self.spin_angle = 0 end
+  -- If they got the spin right, then the ball has some spin.
+  self.spin_angle = (1 - spin_badness) * new_spin_angle
 
   -- Mark the bounce so it can't happen twice in one update cycle.
   -- This can theoretically be a problem at extremely high speeds.
