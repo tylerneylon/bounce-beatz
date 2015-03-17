@@ -12,7 +12,7 @@ Anytime items
 Phase I   : Human vs human gameplay (1P battle)
 
 [x] New sound for edge hits
-[ ] Spin
+[x] Spin
 [x] More points for long-lasting balls
 
 Phase I.(half) : title and menu screen
