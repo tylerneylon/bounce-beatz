@@ -6,7 +6,7 @@ This is the classic game pong.
 
 Anytime items
 
-[ ] Support overlapping sound effects
+[x] Support overlapping sound effects
 [x] Split into modules (ball, player, draw, font)
 
 Phase I   : Human vs human gameplay (1P battle)
