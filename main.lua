@@ -107,8 +107,8 @@ function love.draw()
 end
 
 -- This is the player movement speed.
-local player_ddy = 16
-local player_dy  = 2.5
+local player_ddy = 26
+local player_dy  = 1.5
 
 function love.keypressed(key, isrepeat)
   -- We don't care about auto-repeat key siganls.
