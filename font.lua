@@ -1,7 +1,7 @@
---[[ pong-love/font.lua
+--[[ bounce-beatz/font.lua
 
 Data and drawing functions for a ridiculously simple boxy font
-designed to be used in pong-love, the pong clone.
+designed to be used in bounce-beatz.
 
 This font has a fixed height of 5 units but is
 variable width. Many characters will be 3 units in

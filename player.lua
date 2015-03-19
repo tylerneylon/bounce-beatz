@@ -1,4 +1,4 @@
---[[ pong-love/player.lua
+--[[ bounce-beatz/player.lua
 
 A class to encapsulate player behavior.
 

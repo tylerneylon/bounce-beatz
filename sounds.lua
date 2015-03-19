@@ -1,4 +1,4 @@
---[[ pong-love/sounds.lua
+--[[ bounce-beatz/sounds.lua
 
 Module to load and manage all game sounds.
 

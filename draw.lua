@@ -1,4 +1,4 @@
---[[ pong-love/draw.lua
+--[[ bounce-beatz/draw.lua
 
 Drawing functions. Surprise!
 

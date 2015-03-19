@@ -1,4 +1,4 @@
---[[ pong-love/hit_test.lua
+--[[ bounce-beatz/hit_test.lua
 
 Functions to test for collisions.
 

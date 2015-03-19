@@ -1,6 +1,6 @@
---[[ pong-love/main.lua
+--[[ bounce-beatz/main.lua
 
-This is the classic game pong.
+This is a table-tennis-like game.
 
 # Roadmap
 

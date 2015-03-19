@@ -1,4 +1,4 @@
---[[ pong-love/ball.lua
+--[[ bounce-beatz/ball.lua
 
 A class to encapsulate ball behavior.
 

@@ -1,4 +1,4 @@
---[[ pong-love/dbg.lua
+--[[ bounce-beatz/dbg.lua
 
 Debug parameters.
 

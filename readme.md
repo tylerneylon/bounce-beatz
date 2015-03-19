@@ -1,15 +1,12 @@
-# pong-love
+# bounce-beatz
 
-This is the classic game pong, recreated
-in Lua using the Love game engine.
+This is a table-tennis-inspired game built in Lua
+using the Löve game engine.
 
 Why? Because it's fun to make :)
 
-![](https://raw.githubusercontent.com/tylerneylon/pong-love/master/pong-love.png)
+![](https://raw.githubusercontent.com/tylerneylon/bounce-beatz/master/game_screen1.png)
 
-This is essentially the simplest video game I can think of.
+This started as essentially the simplest video game I could think of.
 
-If I have time after this, I may remake more classic games.
-I'm also considering making a game-making tutorial based
-on a simple game like this, since the code is small and
-relatively easy to learn from.
+It's evolving to be something more interesting over time.

@@ -1,4 +1,4 @@
 function love.conf(t)
-  t.title    = 'pong-love'
-  t.identity = 'pong-love'
+  t.title    = 'bounce-beatz'
+  t.identity = 'bounce-beatz'
 end
