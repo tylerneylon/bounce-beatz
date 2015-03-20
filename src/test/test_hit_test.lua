@@ -1,4 +1,4 @@
---[[ pong-love/test/test_hit_test.lua
+--[[ bounce-beatz/test/test_hit_test.lua
 
 This is a basic unit test for hit_test.lua.
 
