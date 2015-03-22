@@ -35,6 +35,8 @@ Done!
 
 --]]
 
+require 'strict'  -- Enforce careful global variable usage.
+
 
 --------------------------------------------------------------------------------
 -- Require modules.

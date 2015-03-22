@@ -7,6 +7,9 @@ certain features useful for debugging.
 
 --]]
 
+require 'strict'  -- Enforce careful global variable usage.
+
+
 local dbg = {}
 
 -- Controls default new-ball behavior; set this to false for normal operation.

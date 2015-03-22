@@ -4,6 +4,9 @@ Module to load and manage all game sounds.
 
 --]]
 
+require 'strict'  -- Enforce careful global variable usage.
+
+
 local sounds = {}
 
 

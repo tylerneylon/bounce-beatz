@@ -4,6 +4,9 @@ Functions to test for collisions.
 
 --]]
 
+require 'strict'  -- Enforce careful global variable usage.
+
+
 local hit_test = {}
 
 

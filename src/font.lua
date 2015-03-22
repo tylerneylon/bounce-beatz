@@ -9,6 +9,9 @@ width.
 
 --]]
 
+require 'strict'  -- Enforce careful global variable usage.
+
+
 local font = {}
 
 

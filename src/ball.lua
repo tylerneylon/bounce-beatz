@@ -8,6 +8,8 @@ local Ball = require 'ball'
 
 --]]
 
+require 'strict'  -- Enforce careful global variable usage.
+
 
 --------------------------------------------------------------------------------
 -- Require modules.

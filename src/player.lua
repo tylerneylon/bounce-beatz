@@ -8,6 +8,9 @@ local Player = require 'player'
 
 --]]
 
+require 'strict'  -- Enforce careful global variable usage.
+
+
 
 --------------------------------------------------------------------------------
 -- Require modules.

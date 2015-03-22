@@ -19,6 +19,9 @@ These drawing functions accept coordinates in a custom system where
 
 --]]
 
+require 'strict'  -- Enforce careful global variable usage.
+
+
 local draw = {}
 
 
