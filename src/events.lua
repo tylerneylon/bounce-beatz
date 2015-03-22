@@ -11,6 +11,9 @@ It's important to call events.update from love.update:
     -- other update code
   end
 
+If this is used along with the anim module, call
+anim.update before events.update.
+
 --]]
 
 local events = {}

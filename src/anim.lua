@@ -17,6 +17,9 @@ It's also important to call anim.update from love.update:
     -- other update code
   end
 
+If this is used along with the events module, call
+anim.update before events.update.
+
 --]]
 
 require 'strict'  -- enforce careful global variable usage.
