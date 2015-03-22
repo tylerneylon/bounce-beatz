@@ -45,6 +45,7 @@ require 'strict'  -- Enforce careful global variable usage.
 local Ball     = require 'ball'
 local dbg      = require 'dbg'
 local draw     = require 'draw'
+local events   = require 'events'
 local Player   = require 'player'
 local sounds   = require 'sounds'
 
@@ -84,6 +85,9 @@ function love.update(dt)
   -- Support debug slow-down.
   dbg.frame_offset = (dbg.frame_offset + 1) % dbg.cycles_per_frame
   if dbg.frame_offset ~= 0 then return end
+
+  -- Hooks for module run loops.
+  events.update(dt)
 
   -- Move the ball.
   ball:update(dt)
