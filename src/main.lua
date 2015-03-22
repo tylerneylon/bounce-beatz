@@ -1,4 +1,4 @@
---[[ bounce-beatz/main.lua
+--[[ bounce-beatz/src/main.lua
 
 This is a table-tennis-like game.
 

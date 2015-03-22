@@ -1,4 +1,4 @@
---[[ bounce-beatz/sounds.lua
+--[[ bounce-beatz/src/sounds.lua
 
 Module to load and manage all game sounds.
 

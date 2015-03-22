@@ -1,4 +1,4 @@
---[[ bounce-beatz/font.lua
+--[[ bounce-beatz/src/font.lua
 
 Data and drawing functions for a ridiculously simple boxy font
 designed to be used in bounce-beatz.

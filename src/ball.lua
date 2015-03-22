@@ -1,4 +1,4 @@
---[[ bounce-beatz/ball.lua
+--[[ bounce-beatz/src/ball.lua
 
 A class to encapsulate ball behavior.
 

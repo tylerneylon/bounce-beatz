@@ -1,4 +1,4 @@
---[[ bounce-beatz/hit_test.lua
+--[[ bounce-beatz/src/hit_test.lua
 
 Functions to test for collisions.
 

@@ -1,4 +1,4 @@
---[[ bounce-beatz/strict.lua
+--[[ bounce-beatz/src/strict.lua
 
 Throw an error when a global is defined in a function or when
 an undeclared global is referenced in a function.

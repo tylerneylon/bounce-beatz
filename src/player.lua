@@ -1,4 +1,4 @@
---[[ bounce-beatz/player.lua
+--[[ bounce-beatz/src/player.lua
 
 A class to encapsulate player behavior.
 

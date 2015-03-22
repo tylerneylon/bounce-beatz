@@ -1,4 +1,4 @@
---[[ bounce-beatz/conf.lua
+--[[ bounce-beatz/src/conf.lua
 
 Basic Love game configuration.
 

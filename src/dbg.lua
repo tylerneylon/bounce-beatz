@@ -1,4 +1,4 @@
---[[ bounce-beatz/dbg.lua
+--[[ bounce-beatz/src/dbg.lua
 
 Debug parameters.
 
