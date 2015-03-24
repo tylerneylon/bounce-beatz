@@ -42,16 +42,17 @@ require 'strict'  -- Enforce careful global variable usage.
 -- Require modules.
 --------------------------------------------------------------------------------
 
-local battle = require 'battle'
 local dbg    = require 'dbg'
 local events = require 'events'
+local title  = require 'title'
 
 
 --------------------------------------------------------------------------------
--- Internal functions.
+-- Love-based functions.
 --------------------------------------------------------------------------------
 
-local function give_control_to(mode)
+-- This is a function we add to let anyone change modes.
+function love.give_control_to(mode)
   local fn_names = {'draw', 'keypressed', 'keyreleased'}
   for _, fn_name in pairs(fn_names) do
     love[fn_name] = mode[fn_name]
@@ -59,13 +60,8 @@ local function give_control_to(mode)
   love.mode_update = mode.update
 end
 
-
---------------------------------------------------------------------------------
--- Love-based functions.
---------------------------------------------------------------------------------
-
 function love.load()
-  give_control_to(battle)
+  love.give_control_to(title)
 end
 
 function love.update(dt)
