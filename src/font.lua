@@ -266,6 +266,7 @@ end
 function font.get_str_size(s)
   local w = 0
   local h = 0
+  local grids = 0
   for i = 1, #s do
     local c = s:sub(i, i)
     local char_data = font[c]
@@ -277,34 +278,48 @@ function font.get_str_size(s)
       local c_width = #char_data[1]
       w = w + c_width
       if i > 1 then w = w + 1 end  -- For the inter-char space.
-    end
-  end
-  return w, h
-end
-
-function font.draw_char(c, x, y, color)
-  local w, h = font.get_str_size(c)
-  local char_data = font[c]
-  for row = 1, #char_data do
-    for col = 1, #char_data[1] do
-      if char_data[row][col] == 1 then
-        local this_x = x + (col - 1) * font.block_size
-        local this_y = y + (h - row) * font.block_size
-        draw.rect(this_x, this_y, font.block_size, font.block_size, color)
+      for _, row in pairs(char_data) do
+        for _, cell in pairs(row) do
+          grids = grids + cell
+        end
       end
     end
   end
+  return w, h, grids
+end
+
+function font.draw_char(c, x, y, color, let, num_let, grids_done, num_grids)
+  local w, h = font.get_str_size(c)
+  local char_data = font[c]
+  local grids = 0
+  for row = 1, #char_data do
+    for col = 1, #char_data[1] do
+      if char_data[row][col] == 1 then
+        grids = grids + 1
+        local this_x = x + (col - 1) * font.block_size
+        local this_y = y + (h - row) * font.block_size
+        local c = color
+        if type(color) == 'function' then
+          c = color(let, num_let, grids_done + grids, num_grids)
+        end
+        draw.rect(this_x, this_y, font.block_size, font.block_size, c)
+      end
+    end
+  end
+  return grids
 end
 
 -- Both x_align and y_align are expected to be either
 -- 0, 0.5, or 1 for near-0, centered, or near-1 alignment.
 function font.draw_str(s, x, y, x_align, y_align, color)
-  local w, h = font.get_str_size(s)
+  local w, h, num_grids = font.get_str_size(s)
   x = x - w * font.block_size * x_align
   y = y - h * font.block_size * y_align
+  local grids_done = 0
   for i = 1, #s do
     local c = s:sub(i, i)
-    font.draw_char(c, x, y, color)
+    local grids = font.draw_char(c, x, y, color, i, #s, grids_done, num_grids)
+    grids_done = grids_done + grids
     x = x + (font.get_str_size(c) + 1) * font.block_size
   end
 end

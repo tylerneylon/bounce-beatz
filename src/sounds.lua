@@ -42,9 +42,10 @@ end
 -- Supporting functions.
 --------------------------------------------------------------------------------
 
-local function load_named_sounds(names, sounds, num_src)
+local function load_named_sounds(names, sounds, num_src, ext)
+  ext = ext or '.wav'
   for _, name in pairs(names) do
-    local filename = 'audio/' .. name .. '.wav'
+    local filename = 'audio/' .. name .. ext
     sounds[name] = ReplayableSource:new(filename, 'static', num_src)
   end
 end
@@ -58,11 +59,19 @@ end
 local names = {'point', 'good1', 'good2'}
 load_named_sounds(names, sounds)
 
-
 -- Set up high-replayable sounds.
 local names = {'ball_hit', 'ball_edge_hit'}
 -- By experimentation, apparently 10 instances is enough to cover a ball moving
 -- at top speed.
 load_named_sounds(names, sounds, 10)
+
+-- Set up songs.
+local names = {'beatz01'}
+load_named_sounds(names, sounds, 1, '.mp3')
+
+
+--------------------------------------------------------------------------------
+-- Return.
+--------------------------------------------------------------------------------
 
 return sounds
