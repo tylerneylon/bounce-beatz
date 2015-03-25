@@ -12,8 +12,7 @@ which is updated as below.
 It's also important to call anim.update from love.update:
 
   function love.update(dt)
-    clock = clock + dt
-    anim.update()
+    anim.update(dt)
     -- other update code
   end
 
@@ -32,6 +31,7 @@ local anim = {}
 -- Internal state and functions.
 -------------------------------------------------------------------------------
 
+local clock = 0
 local state = {}
 
 local function dot_split(s)
@@ -59,11 +59,11 @@ local function set_value_in_table(name, val, tab)
 end
 
 local function get_value(name)
-  return get_value_from_table(name, M)
+  return get_value_from_table(name, anim)
 end
 
 local function set_value(name, val)
-  set_value_in_table(name, val, M)
+  set_value_in_table(name, val, anim)
 end
 
 
@@ -111,7 +111,8 @@ function anim.change_if_new(name, dst, opts)
   end
 end
 
-function anim.update()
+function anim.update(dt)
+  clock = clock + dt
   for name, s in pairs(state) do
     if anim.is_changing(name) then
       if s.start_time == s.end_time then

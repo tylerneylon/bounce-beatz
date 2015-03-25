@@ -13,6 +13,7 @@ local title = {}
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local anim     = require 'anim'
 local battle   = require 'battle'
 local draw     = require 'draw'
 local events   = require 'events'
@@ -29,6 +30,8 @@ local num_beats = 0
 
 local sec_per_beat = 0.416666666
 
+local num_rows = 10
+
 
 --------------------------------------------------------------------------------
 -- Internal functions.
@@ -37,6 +40,14 @@ local sec_per_beat = 0.416666666
 local function count_a_beat()
   num_beats = num_beats + 1
   events.add(sec_per_beat, count_a_beat)
+
+  -- We want to start fading rows on beat 5.
+  local row = (num_beats) / 4
+  if row == math.floor(row) then
+    if 1 <= row and row <= (num_rows / 2) then
+      anim.change_to('row_levels.' .. row, 0, {duration = 5.0})
+    end
+  end
 end
 
 local function gaarlicbread_color(let, num_let, grid, num_grid)
@@ -58,13 +69,21 @@ function title.update(dt)
 end
  
 function title.draw()
-  draw.rect_w_mid_pt(0, 0, 2, 2, draw.white)
+  -- Draw fading-out rows.
+  local row_height = 2 / num_rows
+  for i = 1, (num_rows / 2) do
+    -- We'll draw so that i = 1 is for the middle two rows.
+    local level = math.floor(anim.row_levels[i])
+    local c = {level, level, level}
+    draw.rect_w_mid_pt(0,  (i - 0.5) * row_height, 2, row_height, c)
+    draw.rect_w_mid_pt(0, -(i - 0.5) * row_height, 2, row_height, c)
+  end
 
+  -- Draw gaarlicbread presents text.
   font.draw_str('gaarlicbread', 0,  0.2, 0.5, 0, gaarlicbread_color)
-
-  local presents_color = draw.gray
+  local presents_color = draw.black
   if num_beats < 4 then presents_color = draw.white end
-  font.draw_str('presents',     0, -0.2, 0.5, 0, presents_color)
+  font.draw_str('presents',     0, -0.2, 0.5, 1, presents_color)
 end
 
 function title.keypressed(key, isrepeat)
@@ -84,6 +103,10 @@ end
 sounds.beatz01:play()
 events.add(sec_per_beat, count_a_beat)
 
+anim.row_levels = {}
+for i = 1, (num_rows / 2) do
+  anim.row_levels[i] = 255
+end
 
 --------------------------------------------------------------------------------
 -- Return.

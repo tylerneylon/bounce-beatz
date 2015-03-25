@@ -42,6 +42,7 @@ require 'strict'  -- Enforce careful global variable usage.
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local anim   = require 'anim'
 local dbg    = require 'dbg'
 local events = require 'events'
 local title  = require 'title'
@@ -70,6 +71,7 @@ function love.update(dt)
   if dbg.frame_offset ~= 0 then return end
 
   -- Hooks for module run loops.
+  anim.update(dt)
   events.update(dt)
 
   -- This is the mode-specific update functions.
