@@ -31,8 +31,8 @@ local ball
 local players
 
 -- These determine the player movement speed.
-local player_ddy = 26
-local player_dy  = 1.5
+local player_ddy = 30   -- Previously 26.
+local player_dy  = 0.5  -- Previously 1.5.
 
 
 --------------------------------------------------------------------------------
