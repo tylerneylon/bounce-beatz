@@ -250,6 +250,12 @@ font.z = {{ 1, 1, 1 },
           { 1, 0, 0 },
           { 1, 1, 1 }}
 
+font['-'] = {{ 0, 0, 0 },
+             { 0, 0, 0 },
+             { 1, 1, 1 },
+             { 0, 0, 0 },
+             { 0, 0, 0 }}
+
 -- Make digits visible via string keys as well.
 
 for k, v in pairs(font) do
@@ -288,7 +294,8 @@ function font.get_str_size(s)
   return w, h, grids
 end
 
-function font.draw_char(c, x, y, color, let, num_let, grids_done, num_grids)
+function font.draw_char(c, x, y, color, let, num_let, grids_done, num_grids, block_size)
+  block_size = block_size or font.block_size
   local w, h = font.get_str_size(c)
   local char_data = font[c]
   local grids = 0
@@ -296,13 +303,13 @@ function font.draw_char(c, x, y, color, let, num_let, grids_done, num_grids)
     for col = 1, #char_data[1] do
       if char_data[row][col] == 1 then
         grids = grids + 1
-        local this_x = x + (col - 1) * font.block_size
-        local this_y = y + (h - row) * font.block_size
+        local this_x = x + (col - 1) * block_size
+        local this_y = y + (h - row) * block_size
         local c = color
         if type(color) == 'function' then
           c = color(let, num_let, grids_done + grids, num_grids)
         end
-        draw.rect(this_x, this_y, font.block_size, font.block_size, c)
+        draw.rect(this_x, this_y, block_size, block_size, c)
       end
     end
   end
@@ -311,16 +318,17 @@ end
 
 -- Both x_align and y_align are expected to be either
 -- 0, 0.5, or 1 for near-0, centered, or near-1 alignment.
-function font.draw_str(s, x, y, x_align, y_align, color)
+function font.draw_str(s, x, y, x_align, y_align, color, block_size)
+  block_size = block_size or font.block_size
   local w, h, num_grids = font.get_str_size(s)
-  x = x - w * font.block_size * x_align
-  y = y - h * font.block_size * y_align
+  x = x - w * block_size * x_align
+  y = y - h * block_size * y_align
   local grids_done = 0
   for i = 1, #s do
     local c = s:sub(i, i)
-    local grids = font.draw_char(c, x, y, color, i, #s, grids_done, num_grids)
+    local grids = font.draw_char(c, x, y, color, i, #s, grids_done, num_grids, block_size)
     grids_done = grids_done + grids
-    x = x + (font.get_str_size(c) + 1) * font.block_size
+    x = x + (font.get_str_size(c) + 1) * block_size
   end
 end
 

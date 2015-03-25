@@ -84,6 +84,9 @@ function title.draw()
   local presents_color = draw.black
   if num_beats < 4 then presents_color = draw.white end
   font.draw_str('presents',     0, -0.2, 0.5, 1, presents_color)
+
+  -- Draw the title.
+  font.draw_str('bounce-beatz', 0, 0, 0.5, 0.5, draw.white, 0.04)
 end
 
 function title.keypressed(key, isrepeat)
