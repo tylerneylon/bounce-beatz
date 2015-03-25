@@ -114,7 +114,8 @@ local function gaarlicbread_color(let, num_let, grid, num_grid)
 end
 
 local function title_color(let, num_let, grid, num_grid)
-  local tick_of_grid = melody_eighths[grid] or 200  -- TODO fix the or 200 bit
+  local index = math.ceil(grid * #melody_eighths / num_grid)
+  local tick_of_grid = melody_eighths[index]
   if tick_of_grid <= num_eighths then
     return draw.cyan
   end
