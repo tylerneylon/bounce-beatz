@@ -51,18 +51,28 @@ local function remove(event_id)
   end
 end
 
+local function add(event)
+  local event_id = next_number_id
+  next_number_id = next_number_id + 1
+  events_by_id[event_id] = event
+  insert(event_id)  -- Inserts into event_ids_by_time.
+  return event_id
+end
+
 
 -------------------------------------------------------------------------------
 -- Public functions.
 -------------------------------------------------------------------------------
 
+function events.add_repeating(period, callback, ...)
+  local event = {time = clock + period, callback = callback,
+                 period = period, params = {...}}
+  return add(event)
+end
+
 function events.add(delay, callback, ...)
-  local event_id = next_number_id
-  next_number_id = next_number_id + 1
   local event = {time = clock + delay, callback = callback, params = {...}}
-  events_by_id[event_id] = event
-  insert(event_id)  -- Inserts into event_ids_by_time.
-  return event_id
+  return add(event)
 end
 
 function events.cancel(event_id)
@@ -79,9 +89,17 @@ function events.update(dt)
   clock = clock + dt
   local e_ids = event_ids_by_time
   while #e_ids > 0 and events_by_id[e_ids[1]].time < clock do
-    local event = events_by_id[e_ids[1]]
+    local e_id  = e_ids[1]
+    local event = events_by_id[e_id]
     event.callback(unpack(event.params))
-    events.cancel(e_ids[1])
+    if event.period then
+      event.time = event.time + event.period
+      -- Remove and re-insert it to keep events_ids_by_time sorted.
+      remove(e_id)
+      insert(e_id)
+    else
+      events.cancel(e_id)
+    end
   end
 end
 

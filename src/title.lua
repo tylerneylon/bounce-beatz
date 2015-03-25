@@ -26,26 +26,79 @@ local sounds   = require 'sounds'
 --------------------------------------------------------------------------------
 
 -- How many beats have passed in the song.
-local num_beats = 0
+-- We start negative since the metronome ticks before the draw function is
+-- called.
+local num_beats   = -0.5
+local num_eighths = -1
 
-local sec_per_beat = 0.416666666
+-- This is based 144 quarters per minute (so it's 60/288).
+local sec_per_eighth = 0.2083333
 
 local num_rows = 10
+
+local melody_eighths = {
+  -- Measure 1.
+  6, 7,
+  -- Measure 2.
+  8, 10, 11, 12, 14, 15,
+  -- Measure 3.
+  16, 18, 20,
+  -- Measure 5.
+  38, 39,
+  -- Measure 6.
+  40, 42, 43, 44, 46,
+  -- Measure 7.
+  48,
+  -- Measure 9.
+  70, 71,
+  -- Measure 10.
+  72, 74, 75, 76, 78,
+  -- Measure 11.
+  80,
+  -- Measure 13.
+  102, 103,
+  -- Measure 14.
+  104, 106, 107, 108, 110, 111,
+  -- Measure 15.
+  112, 114, 116,
+  -- Measure 17.
+  134, 135,
+  -- Measure 18.
+  136, 138, 139, 140, 142, 143,
+  -- Measure 19.
+  144, 146, 148,
+  -- Measure 21.
+  166, 167,
+  -- Measure 22.
+  168, 170, 171, 172, 174,
+  -- Measure 23.
+  176}
 
 
 --------------------------------------------------------------------------------
 -- Internal functions.
 --------------------------------------------------------------------------------
 
-local function count_a_beat()
-  num_beats = num_beats + 1
-  events.add(sec_per_beat, count_a_beat)
+local function metronome_tick()
+  num_eighths = num_eighths + 1
+  num_beats   = num_beats   + 0.5
 
-  -- We want to start fading rows on beat 5.
+  if num_eighths == 0 then
+    sounds.beatz01:play()
+  end
+
+  --[[ This may be useful for debugging.
+  if num_beats == math.floor(num_beats) then
+    print('num_beats =', num_beats)
+  end
+  --]]
+
+  -- We want to start fading rows after 4 beats = start of 2nd measure.
   local row = (num_beats) / 4
+  local fade_time = 5.0  -- Normally 5.0; change to help debug.
   if row == math.floor(row) then
     if 1 <= row and row <= (num_rows / 2) then
-      anim.change_to('row_levels.' .. row, 0, {duration = 5.0})
+      anim.change_to('row_levels.' .. row, 0, {duration = fade_time})
     end
   end
 end
@@ -53,11 +106,19 @@ end
 local function gaarlicbread_color(let, num_let, grid, num_grid)
   local beats_of_let = {0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2}
   local beats_this_let = beats_of_let[let]
-  if beats_this_let < num_beats then
+  if beats_this_let <= math.floor(num_beats) then
     return draw.black
   else
     return draw.white
   end
+end
+
+local function title_color(let, num_let, grid, num_grid)
+  local tick_of_grid = melody_eighths[grid] or 200  -- TODO fix the or 200 bit
+  if tick_of_grid <= num_eighths then
+    return draw.cyan
+  end
+  return draw.white
 end
 
 
@@ -82,11 +143,11 @@ function title.draw()
   -- Draw gaarlicbread presents text.
   font.draw_str('gaarlicbread', 0,  0.2, 0.5, 0, gaarlicbread_color)
   local presents_color = draw.black
-  if num_beats < 4 then presents_color = draw.white end
+  if num_beats < 3 then presents_color = draw.white end
   font.draw_str('presents',     0, -0.2, 0.5, 1, presents_color)
 
   -- Draw the title.
-  font.draw_str('bounce-beatz', 0, 0, 0.5, 0.5, draw.white, 0.04)
+  font.draw_str('bounce-beatz', 0, 0, 0.5, 0.5, title_color, 0.04)
 end
 
 function title.keypressed(key, isrepeat)
@@ -103,8 +164,7 @@ end
 -- Initialization.
 --------------------------------------------------------------------------------
 
-sounds.beatz01:play()
-events.add(sec_per_beat, count_a_beat)
+events.add_repeating(sec_per_eighth, metronome_tick)
 
 anim.row_levels = {}
 for i = 1, (num_rows / 2) do
