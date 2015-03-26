@@ -17,7 +17,7 @@ Phase I   : Human vs human gameplay (1P battle)
 
 Phase I.(half) : title and menu screen
 
-[ ] Add a title screen
+[x] Add a title screen
 [ ] Add a play-mode menu
 
 Phase II  : Human vs computer AI    (2P battle)
