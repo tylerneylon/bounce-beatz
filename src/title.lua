@@ -103,6 +103,21 @@ local function metronome_tick()
   end
 end
 
+local grid_map
+
+local function setup_grid_map_of_len(len)
+  -- This is a linear-time Fisher-Yates shuffle.
+  -- I find this to be less confusing than the Kansas City shuffle.
+  grid_map = {}
+  for i = 1, len do
+    grid_map[i] = i
+  end
+  for i = 1, len do
+    local j = math.random(i, len)
+    grid_map[i], grid_map[j] = grid_map[j], grid_map[i]
+  end
+end
+
 local function gaarlicbread_color(let, num_let, grid, num_grid)
   local beats_of_let = {0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2}
   local beats_this_let = beats_of_let[let]
@@ -114,6 +129,10 @@ local function gaarlicbread_color(let, num_let, grid, num_grid)
 end
 
 local function title_color(let, num_let, grid, num_grid)
+  -- Apply a random map to the grid index.
+  if grid_map == nil then setup_grid_map_of_len(num_grid) end
+  grid = grid_map[grid]
+
   local index = math.ceil(grid * #melody_eighths / num_grid)
   local tick_of_grid = melody_eighths[index]
   if tick_of_grid <= num_eighths then
