@@ -294,8 +294,9 @@ function font.get_str_size(s)
   return w, h, grids
 end
 
-function font.draw_char(c, x, y, color, let, num_let, grids_done, num_grids, block_size)
-  block_size = block_size or font.block_size
+function font.draw_char(c, x, y, color, let, num_let, grids_done, num_grids, opts)
+  local block_size = (opts and opts.block_size) or font.block_size
+  local grid_size  = (opts and opts.grid_size)  or      block_size
   local w, h = font.get_str_size(c)
   local char_data = font[c]
   local grids = 0
@@ -309,7 +310,7 @@ function font.draw_char(c, x, y, color, let, num_let, grids_done, num_grids, blo
         if type(color) == 'function' then
           c = color(let, num_let, grids_done + grids, num_grids)
         end
-        draw.rect(this_x, this_y, block_size, block_size, c)
+        draw.rect(this_x, this_y, grid_size, grid_size, c)
       end
     end
   end
@@ -318,15 +319,17 @@ end
 
 -- Both x_align and y_align are expected to be either
 -- 0, 0.5, or 1 for near-0, centered, or near-1 alignment.
-function font.draw_str(s, x, y, x_align, y_align, color, block_size)
-  block_size = block_size or font.block_size
+-- The optional opts table may have any combo of the keys
+-- block_size or grid_size.
+function font.draw_str(s, x, y, x_align, y_align, color, opts)
+  local block_size = (opts and opts.block_size) or font.block_size
   local w, h, num_grids = font.get_str_size(s)
   x = x - w * block_size * x_align
   y = y - h * block_size * y_align
   local grids_done = 0
   for i = 1, #s do
     local c = s:sub(i, i)
-    local grids = font.draw_char(c, x, y, color, i, #s, grids_done, num_grids, block_size)
+    local grids = font.draw_char(c, x, y, color, i, #s, grids_done, num_grids, opts)
     grids_done = grids_done + grids
     x = x + (font.get_str_size(c) + 1) * block_size
   end

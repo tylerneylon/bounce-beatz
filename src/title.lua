@@ -167,7 +167,8 @@ function title.draw()
   font.draw_str('presents',     0, -0.2, 0.5, 1, presents_color)
 
   -- Draw the title.
-  font.draw_str('bounce-beatz', 0, 0, 0.5, 0.5, title_color, 0.04)
+  local opts = {block_size = 0.04, grid_size = 0.033}
+  font.draw_str('bounce-beatz', 0, 0, 0.5, 0.5, title_color, opts)
 end
 
 function title.keypressed(key, isrepeat)

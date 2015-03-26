@@ -50,7 +50,6 @@ draw.yellow  = {210, 150,   0}
 
 -- x, y is the lower-left corner of the rectangle.
 function draw.rect(x, y, w, h, color)
-
   -- Set the color.
   color = color or {255, 255, 255}
   love.graphics.setColor(color)
