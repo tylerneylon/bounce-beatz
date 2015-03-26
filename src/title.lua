@@ -99,6 +99,9 @@ local function metronome_tick()
   if row == math.floor(row) then
     if 1 <= row and row <= (num_rows / 2) then
       anim.change_to('row_levels.' .. row, 0, {duration = fade_time})
+      if row == 1 then
+        anim.change_to('title_min', 80, {duration = 20.0})
+      end
     end
   end
 end
@@ -149,6 +152,15 @@ local function gaarlicbread_color(let, num_let, grid, num_grid)
   end
 end
 
+local function max(...)
+  local vals = {...}
+  local m = vals[1]
+  for i = 2, #vals do
+    if vals[i] > m then m = vals[i] end
+  end
+  return m
+end
+
 local function title_color(let, num_let, grid, num_grid)
   -- Apply a random map to the grid index.
   if grid_map == nil then setup_grid_map_of_len(num_grid) end
@@ -161,7 +173,10 @@ local function title_color(let, num_let, grid, num_grid)
   if tick_of_grid <= num_eighths then
     return grid_colors[grid]
   end
-  return draw.white
+  local level1 = anim.row_levels[1]
+  local level2 = anim.title_min
+  local level = max(level1, level2)
+  return {level, level, level}
 end
 
 
@@ -214,6 +229,9 @@ anim.row_levels = {}
 for i = 1, (num_rows / 2) do
   anim.row_levels[i] = 255
 end
+
+anim.title_min = 20
+
 
 --------------------------------------------------------------------------------
 -- Return.
