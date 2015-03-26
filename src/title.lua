@@ -103,7 +103,9 @@ local function metronome_tick()
   end
 end
 
+-- Variables for use in the title coloring.
 local grid_map
+local grid_colors
 
 local function setup_grid_map_of_len(len)
   -- This is a linear-time Fisher-Yates shuffle.
@@ -115,6 +117,25 @@ local function setup_grid_map_of_len(len)
   for i = 1, len do
     local j = math.random(i, len)
     grid_map[i], grid_map[j] = grid_map[j], grid_map[i]
+  end
+end
+
+local function color_clamp(val)
+  if val <   0 then return   0 end
+  if val > 255 then return 255 end
+  return val
+end
+
+local function setup_grid_colors(len)
+  grid_colors = {}
+  local base_color = {0, 200, 230}
+  local max_offset = 90
+  for i = 1, len do
+    local c = {}
+    for j = 1, 3 do
+      c[j] = color_clamp(base_color[j] + math.random(-max_offset, max_offset))
+    end
+    grid_colors[i] = c
   end
 end
 
@@ -133,10 +154,12 @@ local function title_color(let, num_let, grid, num_grid)
   if grid_map == nil then setup_grid_map_of_len(num_grid) end
   grid = grid_map[grid]
 
+  if grid_colors == nil then setup_grid_colors(num_grid) end
+
   local index = math.ceil(grid * #melody_eighths / num_grid)
   local tick_of_grid = melody_eighths[index]
   if tick_of_grid <= num_eighths then
-    return draw.cyan
+    return grid_colors[grid]
   end
   return draw.white
 end
