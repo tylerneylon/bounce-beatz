@@ -33,6 +33,9 @@ local num_eighths = -1
 
 -- This is based 144 quarters per minute (so it's 60/288).
 local sec_per_eighth = 0.2083333
+--[[ Uncomment this line for a sped up intro (music is the same speed).
+sec_per_eighth = 0.02
+--]]
 
 local num_rows = 10
 
@@ -179,6 +182,24 @@ local function title_color(let, num_let, grid, num_grid)
   return {level, level, level}
 end
 
+local abs = math.abs -- Conveniently shorter name.
+
+local function draw_menu()
+  -- Draw the surrounding rectangle.
+  local border_size = 0.02
+  local border_w, border_h = 1, 0.4 - 2 * border_size
+  local sx, sy = 1, 0
+  for i = 1, 4 do
+    local mid_x, mid_y = sx * border_w / 2, -0.6 + sy * border_h / 2
+    sx, sy = -sy, sx
+    local w, h = abs(sx) * border_w, abs(sy) * border_h
+          w, h = w + border_size,    h + border_size
+    local level = max(anim.row_levels[4], 100)
+    local color = {level, level, level}
+    draw.rect_w_mid_pt(mid_x, mid_y, w, h, color)
+  end
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -207,6 +228,8 @@ function title.draw()
   -- Draw the title.
   local opts = {block_size = 0.04, grid_size = 0.033}
   font.draw_str('bounce-beatz', 0, 0, 0.5, 0.5, title_color, opts)
+
+  draw_menu()
 end
 
 function title.keypressed(key, isrepeat)
