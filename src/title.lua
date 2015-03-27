@@ -105,9 +105,6 @@ local function metronome_tick()
   if row == math.floor(row) then
     if 1 <= row and row <= (num_rows / 2) then
       anim.change_to('row_levels.' .. row, 0, {duration = fade_time})
-      if row == 1 then
-        anim.change_to('title_min', 80, {duration = 20.0})
-      end
     end
   end
 end
@@ -179,9 +176,7 @@ local function title_color(let, num_let, grid, num_grid)
   if tick_of_grid <= num_eighths then
     return grid_colors[grid]
   end
-  local level1 = anim.row_levels[1]
-  local level2 = anim.title_min
-  local level = max(level1, level2)
+  local level = max(anim.row_levels[1], 110)
   return {level, level, level}
 end
 
@@ -191,7 +186,7 @@ local function draw_menu()
   local y_off = -0.6  -- The y offset of the menu's center.
 
   -- Determine the color.
-  local level = max(anim.row_levels[4], 100)
+  local level = math.floor((255 - anim.row_levels[5]) * 0.5)
   local color = {level, level, level}
 
   -- Draw the surrounding rectangle.
@@ -235,12 +230,14 @@ function title.update(dt)
 end
  
 function title.draw()
+  draw_menu()
+
   -- Draw fading-out rows.
   local row_height = 2 / num_rows
   for i = 1, (num_rows / 2) do
     -- We'll draw so that i = 1 is for the middle two rows.
     local level = math.floor(anim.row_levels[i])
-    local c = {level, level, level}
+    local c = {level, level, level, level}
     draw.rect_w_mid_pt(0,  (i - 0.5) * row_height, 2, row_height, c)
     draw.rect_w_mid_pt(0, -(i - 0.5) * row_height, 2, row_height, c)
   end
@@ -252,10 +249,8 @@ function title.draw()
   font.draw_str('presents',     0, -0.2, 0.5, 1, presents_color)
 
   -- Draw the title.
-  local opts = {block_size = 0.04, grid_size = 0.033}
+  local opts = {block_size = 0.04, grid_size = 0.037}
   font.draw_str('bounce-beatz', 0, 0, 0.5, 0.5, title_color, opts)
-
-  draw_menu()
 end
 
 function title.keypressed(key, isrepeat)
@@ -293,8 +288,6 @@ anim.row_levels = {}
 for i = 1, (num_rows / 2) do
   anim.row_levels[i] = 255
 end
-
-anim.title_min = 20
 
 
 --------------------------------------------------------------------------------
