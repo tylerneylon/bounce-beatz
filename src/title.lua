@@ -33,9 +33,12 @@ local num_eighths = -1
 
 -- This is based 144 quarters per minute (so it's 60/288).
 local sec_per_eighth = 0.2083333
----[[ Uncomment this line for a sped up intro (music is the same speed).
+--[[ Uncomment this line for a sped up intro (music is the same speed).
 sec_per_eighth = 0.02
 --]]
+
+local menu_choice = 1  -- Which option is currently selected.
+local menu_lines  = {'1p vs', '2p vs'}
 
 local num_rows = 10
 
@@ -204,18 +207,23 @@ local function draw_menu()
   end
 
   -- Draw the options.
-  local lines = {'1p vs', '2p vs'}
   local block_size = 0.02
   local opts = {block_size = block_size}
   local line_height = 5 * block_size
-  local total_height = line_height * #lines + 2 * block_size
+  local leading = line_height + 2 * block_size
+  local total_height = line_height * #menu_lines + 2 * block_size
   -- Start y at the middle of the top-most line.
-  local y = y_off + (total_height - line_height) / 2
-  for i = 1, #lines do
+  local top_y = y_off + (total_height - line_height) / 2
+  local y = top_y
+  for i = 1, #menu_lines do
     local x_align, y_align = 0.5, 0.5  -- We pass in the center/middle pt.
-    font.draw_str(lines[i], 0, y, x_align, y_align, color, opts)
-    y = y - (line_height + 2 * block_size)
+    font.draw_str(menu_lines[i], 0, y, x_align, y_align, color, opts)
+    y = y - leading
   end
+
+  -- Show which option is currently selected.
+  y = top_y - (menu_choice - 1) * leading
+  font.draw_str('>', -border_w / 2, y, 0, 0.5, color, opts)
 end
 
 
@@ -251,6 +259,21 @@ function title.draw()
 end
 
 function title.keypressed(key, isrepeat)
+
+  --[[ TODO
+  --   Make an early keypress skip the intro animation; the bad thing
+  --   would be to have the menu working without it being visible yet.
+  --   Which is what we currently have.
+  --]]
+
+  if key == 'down' and menu_choice < #menu_lines then
+    menu_choice = menu_choice + 1
+  end
+
+  if key == 'up' and menu_choice > 1 then
+    menu_choice = menu_choice - 1
+  end
+
   if key == 'return' then
     love.give_control_to(battle)
   end
