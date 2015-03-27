@@ -256,6 +256,18 @@ font['-'] = {{ 0, 0, 0 },
              { 0, 0, 0 },
              { 0, 0, 0 }}
 
+font[' '] = {{ 0, 0, 0 },
+             { 0, 0, 0 },
+             { 0, 0, 0 },
+             { 0, 0, 0 },
+             { 0, 0, 0 }}
+
+font['>'] = {{ 0, 0, 0, 0, 1, 0, 0 },
+             { 0, 0, 0, 0, 1, 1, 0 },
+             { 1, 1, 1, 1, 1, 1, 1 },
+             { 0, 0, 0, 0, 1, 1, 0 },
+             { 0, 0, 0, 0, 1, 0, 0 }}
+
 -- Make digits visible via string keys as well.
 
 for k, v in pairs(font) do
@@ -298,6 +310,10 @@ function font.draw_char(c, x, y, color, let, num_let, grids_done, num_grids, opt
   local block_size = (opts and opts.block_size) or font.block_size
   local grid_size  = (opts and opts.grid_size)  or      block_size
   local w, h = font.get_str_size(c)
+  if font[c] == nil then
+    local b = c:byte(1)
+    error(string.format('Sadly, I have no font data for "%s" (0x%X).', c, b))
+  end
   local char_data = font[c]
   local grids = 0
   for row = 1, #char_data do

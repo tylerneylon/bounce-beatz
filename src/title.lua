@@ -33,7 +33,7 @@ local num_eighths = -1
 
 -- This is based 144 quarters per minute (so it's 60/288).
 local sec_per_eighth = 0.2083333
---[[ Uncomment this line for a sped up intro (music is the same speed).
+---[[ Uncomment this line for a sped up intro (music is the same speed).
 sec_per_eighth = 0.02
 --]]
 
@@ -185,18 +185,36 @@ end
 local abs = math.abs -- Conveniently shorter name.
 
 local function draw_menu()
+  local y_off = -0.6  -- The y offset of the menu's center.
+
+  -- Determine the color.
+  local level = max(anim.row_levels[4], 100)
+  local color = {level, level, level}
+
   -- Draw the surrounding rectangle.
   local border_size = 0.02
   local border_w, border_h = 1, 0.4 - 2 * border_size
   local sx, sy = 1, 0
   for i = 1, 4 do
-    local mid_x, mid_y = sx * border_w / 2, -0.6 + sy * border_h / 2
+    local mid_x, mid_y = sx * border_w / 2, y_off + sy * border_h / 2
     sx, sy = -sy, sx
     local w, h = abs(sx) * border_w, abs(sy) * border_h
           w, h = w + border_size,    h + border_size
-    local level = max(anim.row_levels[4], 100)
-    local color = {level, level, level}
     draw.rect_w_mid_pt(mid_x, mid_y, w, h, color)
+  end
+
+  -- Draw the options.
+  local lines = {'1p vs', '2p vs'}
+  local block_size = 0.02
+  local opts = {block_size = block_size}
+  local line_height = 5 * block_size
+  local total_height = line_height * #lines + 2 * block_size
+  -- Start y at the middle of the top-most line.
+  local y = y_off + (total_height - line_height) / 2
+  for i = 1, #lines do
+    local x_align, y_align = 0.5, 0.5  -- We pass in the center/middle pt.
+    font.draw_str(lines[i], 0, y, x_align, y_align, color, opts)
+    y = y - (line_height + 2 * block_size)
   end
 end
 
