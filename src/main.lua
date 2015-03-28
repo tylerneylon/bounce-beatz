@@ -18,9 +18,17 @@ Phase I   : Human vs human gameplay (1P battle)
 Phase I.(half) : title and menu screen
 
 [x] Add a title screen
-[ ] Add a play-mode menu
+[x] Add a play-mode menu
+
+[ ] Stop game and show an empty pop-up at 7 pts
+[ ] Display winner at 7 pts
+[ ] Provide option to rematch or back to menu after victory
+[ ] Refactor menu code if appropriate
 
 Phase II  : Human vs computer AI    (2P battle)
+
+[ ] Write a placeholder do-nothing AI class
+[ ] Make a markdown doc for the AI design
 
 Phase III : Levels                  (Beats)
 
