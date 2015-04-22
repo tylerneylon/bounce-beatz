@@ -38,7 +38,7 @@ sec_per_eighth = 0.02
 --]]
 
 local menu_choice = 1  -- Which option is currently selected.
-local menu_lines  = {'1p vs', '2p vs'}
+local menu_lines  = {'1p: human vs beatz', '2p: human vs human'}
 
 local num_rows = 10
 
@@ -189,9 +189,20 @@ local function draw_menu()
   local level = math.floor((255 - anim.row_levels[5]) * 0.5)
   local color = {level, level, level}
 
+  -- Determine the widest menu line width to help size the border and
+  -- position the lines.
+  local block_size = 0.02
+  local prefix_w   = block_size * font.get_str_size('> ')
+  local max_line_w = 0
+  for i = 1, #menu_lines do
+    local line_w = block_size * font.get_str_size(menu_lines[i])
+    if line_w > max_line_w then max_line_w = line_w end
+  end
+  local border_w = max_line_w + prefix_w + 0.1
+
   -- Draw the surrounding rectangle.
   local border_size = 0.02
-  local border_w, border_h = 1, 0.4 - 2 * border_size
+  local border_h = 0.4 - 2 * border_size
   local sx, sy = 1, 0
   for i = 1, 4 do
     local mid_x, mid_y = sx * border_w / 2, y_off + sy * border_h / 2
@@ -202,23 +213,26 @@ local function draw_menu()
   end
 
   -- Draw the options.
-  local block_size = 0.02
   local opts = {block_size = block_size}
   local line_height = 5 * block_size
   local leading = line_height + 2 * block_size
   local total_height = line_height * #menu_lines + 2 * block_size
+  -- Set x to the left edge of the longest menu line, when it is centered,
+  -- taking the prefix into account.
+  local prefix_x = 0 - (max_line_w + prefix_w) / 2
+  local x = prefix_x + prefix_w
   -- Start y at the middle of the top-most line.
   local top_y = y_off + (total_height - line_height) / 2
   local y = top_y
   for i = 1, #menu_lines do
-    local x_align, y_align = 0.5, 0.5  -- We pass in the center/middle pt.
-    font.draw_str(menu_lines[i], 0, y, x_align, y_align, color, opts)
+    local x_align, y_align = 0, 0.5  -- We pass in the center/middle pt.
+    font.draw_str(menu_lines[i], x, y, x_align, y_align, color, opts)
     y = y - leading
   end
 
   -- Show which option is currently selected.
   y = top_y - (menu_choice - 1) * leading
-  font.draw_str('>', -border_w / 2, y, 0, 0.5, color, opts)
+  font.draw_str('>', prefix_x, y, 0, 0.5, color, opts)
 end
 
 

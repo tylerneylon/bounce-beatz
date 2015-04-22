@@ -268,6 +268,12 @@ font['>'] = {{ 0, 0, 0, 0, 1, 0, 0 },
              { 0, 0, 0, 0, 1, 1, 0 },
              { 0, 0, 0, 0, 1, 0, 0 }}
 
+font[':'] = {{ 0, 0, 0 },
+             { 0, 1, 0 },
+             { 0, 0, 0 },
+             { 0, 1, 0 },
+             { 0, 0, 0 }}
+
 -- Make digits visible via string keys as well.
 
 for k, v in pairs(font) do
