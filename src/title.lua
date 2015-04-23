@@ -41,6 +41,9 @@ local menu_choice = 1  -- Which option is currently selected.
 local menu_lines  = {'1p: human vs beatz', '2p: human vs human'}
 local menu_modes  = {'1p', '2p'}  -- The mode_name sent to battle.take_over.
 
+local is_menu_visible = false
+local did_skip_anim   = false
+
 local num_rows = 10
 
 local melody_eighths = {
@@ -99,6 +102,9 @@ local function metronome_tick()
     print('num_beats =', num_beats)
   end
   --]]
+
+  -- Don't change the row_levels if we've skipped the intro animation.
+  if did_skip_anim then return end
 
   -- We want to start fading rows after 4 beats = start of 2nd measure.
   local row = (num_beats) / 4
@@ -190,6 +196,8 @@ local function draw_menu()
   local level = math.floor((255 - anim.row_levels[5]) * 0.5)
   local color = {level, level, level}
 
+  is_menu_visible = (level >= 64)
+
   -- Determine the widest menu line width to help size the border and
   -- position the lines.
   local block_size = 0.02
@@ -258,10 +266,12 @@ function title.draw()
   end
 
   -- Draw gaarlicbread presents text.
-  font.draw_str('gaarlicbread', 0,  0.2, 0.5, 0, gaarlicbread_color)
-  local presents_color = draw.black
-  if num_beats < 3 then presents_color = draw.white end
-  font.draw_str('presents',     0, -0.2, 0.5, 1, presents_color)
+  if not did_skip_anim then
+    font.draw_str('gaarlicbread', 0,  0.2, 0.5, 0, gaarlicbread_color)
+    local presents_color = draw.black
+    if num_beats < 3 then presents_color = draw.white end
+    font.draw_str('presents',     0, -0.2, 0.5, 1, presents_color)
+  end
 
   -- Draw the title.
   local opts = {block_size = 0.04, grid_size = 0.037}
@@ -270,11 +280,15 @@ end
 
 function title.keypressed(key, isrepeat)
 
-  --[[ TODO
-  --   Make an early keypress skip the intro animation; the bad thing
-  --   would be to have the menu working without it being visible yet.
-  --   Which is what we currently have.
-  --]]
+  if not is_menu_visible then
+    did_skip_anim = true
+    for row = 1, math.floor(num_rows / 2) do
+      anim.change_to('row_levels.' .. row, 0, {duration = 0})
+    end
+    return
+  end
+
+  -- The rest of the logic is for the menu-is-visible case.
 
   if key == 'down' and menu_choice < #menu_lines then
     menu_choice = menu_choice + 1
