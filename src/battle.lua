@@ -34,6 +34,9 @@ local players
 local player_ddy = 30   -- Previously 26.
 local player_dy  = 0.5  -- Previously 1.5.
 
+-- This is set from battle.take_over.
+local mode
+
 
 --------------------------------------------------------------------------------
 -- Internal functions.
@@ -112,6 +115,11 @@ function battle.keyreleased(key)
   if sign(pl.ddy) ~= action.sign then return end
 
   pl:stop_at(pl.y)
+end
+
+function battle.take_over(mode_name)
+  mode = mode_name
+  love.give_control_to(battle)
 end
 
 

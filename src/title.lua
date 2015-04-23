@@ -39,6 +39,7 @@ sec_per_eighth = 0.02
 
 local menu_choice = 1  -- Which option is currently selected.
 local menu_lines  = {'1p: human vs beatz', '2p: human vs human'}
+local menu_modes  = {'1p', '2p'}  -- The mode_name sent to battle.take_over.
 
 local num_rows = 10
 
@@ -284,7 +285,7 @@ function title.keypressed(key, isrepeat)
   end
 
   if key == 'return' then
-    love.give_control_to(battle)
+    battle.take_over(menu_modes[menu_choice])
   end
 end
 
