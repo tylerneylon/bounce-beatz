@@ -47,6 +47,18 @@ local function sign(x)
   return -1
 end
 
+local function start_smaller_drawing()
+  local win_w, win_h = love.graphics.getDimensions()
+  local h_scale = 0.9
+  love.graphics.push()
+  love.graphics.scale(1.0, h_scale)
+  love.graphics.translate(0, win_h / 2 * (1 / h_scale - 1))
+end
+
+local function end_smaller_drawing()
+  love.graphics.pop()
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -66,13 +78,20 @@ function vsbeatz.update(dt)
 end
  
 function vsbeatz.draw()
+
+  -- TEMP This is to help clearly see the extents of the window while
+  --      developing this mode.
+  local win_w, win_h = love.graphics.getDimensions()
+  love.graphics.setColor({255, 0, 0})
+  love.graphics.rectangle('fill', 0, 0, win_w, win_h)
+
+  start_smaller_drawing()
   draw.borders()
-  
   for _, p in pairs(players) do
     p:draw()
   end
-
   ball:draw()
+  end_smaller_drawing()
 end
 
 function vsbeatz.keypressed(key, isrepeat)
