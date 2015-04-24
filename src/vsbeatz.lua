@@ -67,7 +67,6 @@ end
  
 function vsbeatz.draw()
   draw.borders()
-  draw.center_line()
   
   for _, p in pairs(players) do
     p:draw()
@@ -134,7 +133,7 @@ end
 --------------------------------------------------------------------------------
 
 ball    = Ball:new()
-players = {Player:new(-0.8), Player:new(0.8)}
+players = {Player:new(-0.8), Player:new(1.0, 2.0)}
 
 
 --------------------------------------------------------------------------------

@@ -38,8 +38,9 @@ end
 
 local Player = {w = 0.05, h = 0.4}
 
-function Player:new(x)
+function Player:new(x, h)
   local p = {x = x, y = 0, score = 0, dy = 0, ddy = 0}
+  if h then p.h = h end
   return setmetatable(p, {__index = self})
 end
 
