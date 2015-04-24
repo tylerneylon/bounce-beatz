@@ -19,6 +19,7 @@ local draw     = require 'draw'
 local events   = require 'events'
 local font     = require 'font'
 local sounds   = require 'sounds'
+local vsbeatz  = require 'vsbeatz'
 
 
 --------------------------------------------------------------------------------
@@ -39,7 +40,7 @@ sec_per_eighth = 0.02
 
 local menu_choice = 1  -- Which option is currently selected.
 local menu_lines  = {'1p: human vs beatz', '2p: human vs human'}
-local menu_modes  = {'1p', '2p'}  -- The mode_name sent to battle.take_over.
+local menu_modes  = {vsbeatz, battle} -- The controlling module per menu choice.
 
 local is_menu_visible = false
 local did_skip_anim   = false
@@ -299,7 +300,7 @@ function title.keypressed(key, isrepeat)
   end
 
   if key == 'return' then
-    battle.take_over(menu_modes[menu_choice])
+    love.give_control_to(menu_modes[menu_choice])
   end
 end
 

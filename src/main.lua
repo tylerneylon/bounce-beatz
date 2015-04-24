@@ -67,6 +67,9 @@ function love.give_control_to(mode)
     love[fn_name] = mode[fn_name]
   end
   love.mode_update = mode.update
+  if mode.did_get_control then
+    mode.did_get_control()
+  end
 end
 
 function love.load()
