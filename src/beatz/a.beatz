@@ -1,0 +1,13 @@
+new_track {
+
+instrument = 'human_drumkit';
+swing = true;
+loops = true;
+
+chars_per_beat = 4;
+
+----|1               2               3               4               |
+----|1 + 2 + 3 + 4 + 1 + 2 + 3 + 4 + 1 + 2 + 3 + 4 + 1 + 2 + 3 + 4 + |
+    'a   b   e     c d c d   e   f   a   b   e     c d       f       ';
+}
+

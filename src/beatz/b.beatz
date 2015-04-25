@@ -1,0 +1,86 @@
+A = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a                               '
+}
+
+  B = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a               b               '
+}
+
+C = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a       b   c   d   c   b       '
+}
+
+D = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a       b   c   d     c   b     '
+}
+
+E = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a           b   c   d           '
+}
+
+F = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a     b   c         d           '
+}
+
+G = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 6;
+  ----|1                       |
+  ----|1  +  2  +  3  +  4  +  |
+      'a     b  c  d b c db    '
+}
+
+H = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a       b       a       c       '
+}
+
+I = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a       b       a   b c d b c   '
+}
+
+J = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+      'a   b c d b c   a       b       '
+}
+
+--main_track = {B, B, B, C, B, C, B, B, E, B, E, B, F}
+--main_track = {B, B, E, B, C, B, B, C, F, C, B}
+
+--main_track = {B, C, F, C, B, C, F, C, B, C, H, C, B, H, H, C, H, C, H, C, H, B, B, A}
+
+main_track = {B, B, B, C, B, C, B, B, E, B, C, B, B, C, F, C, B, C, F, C, B, C, H, C, B, H, H, C, H, C, H, C, H, B, B, A}
