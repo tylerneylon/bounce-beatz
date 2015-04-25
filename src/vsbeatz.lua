@@ -16,7 +16,6 @@ local vsbeatz = {}
 local Ball     = require 'ball'
 local draw     = require 'draw'
 local Player   = require 'player'
-local sounds   = require 'sounds'
 
 
 --------------------------------------------------------------------------------

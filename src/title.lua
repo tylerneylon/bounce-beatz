@@ -18,7 +18,7 @@ local battle   = require 'battle'
 local draw     = require 'draw'
 local events   = require 'events'
 local font     = require 'font'
-local sounds   = require 'sounds'
+local audio    = require 'audio'
 local vsbeatz  = require 'vsbeatz'
 
 
@@ -95,7 +95,7 @@ local function metronome_tick()
   num_beats   = num_beats   + 0.5
 
   if num_eighths == 0 then
-    sounds.beatz01:play()
+    audio.beatz01:play()
   end
 
   --[[ This may be useful for debugging.

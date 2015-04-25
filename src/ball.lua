@@ -17,7 +17,7 @@ require 'strict'  -- Enforce careful global variable usage.
 
 local dbg    = require 'dbg'
 local draw   = require 'draw'
-local sounds = require 'sounds'
+local audio  = require 'audio'
 
 
 --------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ local colors = {draw.cyan, draw.green, draw.yellow}
 local pt_thresholds = {8, 16}
 
 -- We play these sounds when the ball achieves value 2 or 3.
-local value_up_sounds = {false, sounds.good1, sounds.good2}
+local value_up_sounds = {false, audio.good1, audio.good2}
 
 
 --------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
   end
 
   -- Play the hit sound.
-  local sound = is_edge_hit and sounds.ball_edge_hit or sounds.ball_hit
+  local sound = is_edge_hit and audio.ball_edge_hit or audio.ball_hit
   sound:play()
 end
 

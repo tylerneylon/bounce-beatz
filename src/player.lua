@@ -19,7 +19,7 @@ local Ball     = require 'ball'
 local draw     = require 'draw'
 local font     = require 'font'
 local hit_test = require 'hit_test'
-local sounds   = require 'sounds'
+local audio    = require 'audio'
 
 
 --------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ function Player:update(dt, ball)
 end
 
 function Player:score_up(ball)
-  sounds.point:play()
+  audio.point:play()
   self.score = self.score + ball:value()
   Ball:new(ball)
 end

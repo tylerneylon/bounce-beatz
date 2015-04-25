@@ -9,8 +9,8 @@ TODO Add usage comments.
 
 require 'strict'  -- Enforce careful global variable usage.
 
-local sounds = require 'beatz.sounds'
 
+local sounds = require 'beatz.sounds'
 
 local rsounds = {}
 
