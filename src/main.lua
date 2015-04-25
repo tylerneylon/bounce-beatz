@@ -45,6 +45,11 @@ Done!
 
 require 'strict'  -- Enforce careful global variable usage.
 
+-- Support inclusion of C modules in subdirectories.
+-- TODO Consider putting this in a top-level beatz.lua that is the single
+--      require point for the beatz library.
+package.cpath = 'src/?.so;' .. package.cpath
+
 
 --------------------------------------------------------------------------------
 -- Require modules.
