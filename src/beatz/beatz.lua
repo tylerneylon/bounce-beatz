@@ -28,14 +28,14 @@ Projected usage:
 
 --]]
 
-require 'strict'  -- Enforce careful global variable usage.
+require 'beatz.strict'  -- Enforce careful global variable usage.
 
 local beatz = {}
 
 -- TEMP Eventually this stuff will live in its own Lua file.
 
 -- Set up replacement code when this is run from within the Love game engine.
-if love then
+if rawget(_G, 'love') then
 
   -- Replace the dir module.
   local function dir_open(path)
@@ -191,7 +191,7 @@ local function play_track(track)
   time          = 0
 
   -- Play loop.
-  if not love then
+  if not rawget(_G, 'love') then
     local delay_usec = 5 * 1000  -- Operate at 200 hz.
     while true do
       play_at_time(time)

@@ -18,7 +18,7 @@ Projected usage:
 
 --]]
 
-require 'strict'  -- Enforce careful global variable usage.
+require 'beatz.strict'  -- Enforce careful global variable usage.
 
 local dir     = require 'beatz.dir'
 local rsounds = require 'beatz.rsounds'

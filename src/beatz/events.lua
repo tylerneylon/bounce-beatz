@@ -21,7 +21,7 @@ anim.update before events.update.
 
 --]]
 
-require 'strict'  -- Enforce careful global variable usage.
+require 'beatz.strict'  -- Enforce careful global variable usage.
 
 
 local events = {}
