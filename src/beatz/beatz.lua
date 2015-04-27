@@ -200,17 +200,14 @@ local function ensure_track_has_notes(track)
   local num_beats = 0
   local notes = {}
   for i = 1, #track do
-    --pr('looking at subtrack %d', i)
     ensure_track_has_notes(track[i])
     local subnotes = track[i].notes
     for _, note in ipairs(subnotes) do
       if note[2] then  -- Don't include end markers.
         notes[#notes + 1] = {note[1] + num_beats, note[2]}
-        --pr('Just added {%g, %s} to notes', notes[#notes][1], notes[#notes][2])
       end
     end
     num_beats = num_beats + track[i].num_beats
-    --pr('num_beats increased to %g', num_beats)
   end
   -- Now add a final end marker.
   notes[#notes + 1] = {num_beats, false}

@@ -3,9 +3,20 @@
 https://github.com/tylerneylon/beatz
 
 A wrapper around the sounds module to make it easier to play overlapping copies
-of a single sound.
+of a single sound. This is useful, for example, for sound effects in games that
+may overlap.
 
-TODO Add usage comments.
+Sample usage:
+
+  local rsounds = require 'rsounds'
+
+  local num_simult_plays = 10
+  local my_sound = rsounds.load(file_path, num_simult_plays)
+  for i = 1, num_simult_plays do
+    my_sound:play()  -- Start a 20 second sound.
+    sleep(1)
+  end
+  -- Now we have 10 copies all playing at about a 1 second offset.
 
 --]]
 
@@ -33,7 +44,6 @@ function ReplayableSound:new(file_path, mode, num_src)
   src.raw_sources = {}
   for i = 1, src.num_sources do
     src.raw_sources[i] = sounds.load(file_path)
-    --print(string.format('Loaded "%s" to %s', file_path, tostring(src.raw_sources[i])))
   end
 
   return src
