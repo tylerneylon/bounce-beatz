@@ -157,7 +157,7 @@ end
 -- Initialization.
 --------------------------------------------------------------------------------
 
-ball    = Ball:new()
+ball    = Ball:new({is_1p = true})
 players = {Player:new(-0.8), Player:new(1.0, 2.0)}
 
 for i = 1, 2 do

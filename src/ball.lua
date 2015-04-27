@@ -49,10 +49,10 @@ end
 
 local Ball = {size = 0.04}
 
-function Ball:new(ball)
+function Ball:new(ball, dx_sign)
   assert(self ~= ball)
 
-  local dx_sign  = math.random(2) * 2 - 3
+  local dx_sign  = math.random(2) * 2 - 3  -- Randomly -1 or +1.
   local dy_sign  = math.random(2) * 2 - 3
   local start_dx = 0.6
   local start_dy = 0.4
@@ -62,6 +62,8 @@ function Ball:new(ball)
   end
 
   ball = ball or {}
+
+  if ball.is_1p then dx_sign = -1 end
 
   ball.x,     ball.y     = 0, 0
   ball.old_x, ball.old_y = 0, 0
