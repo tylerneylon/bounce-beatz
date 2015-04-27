@@ -32,38 +32,13 @@ require 'beatz.strict'  -- Enforce careful global variable usage.
 
 local beatz = {}
 
--- TEMP Eventually this stuff will live in its own Lua file.
-
--- Set up replacement code when this is run from within the Love game engine.
-if rawget(_G, 'love') then
-
-  -- Replace the dir module.
-  local function dir_open(path)
-    local items = love.filesystem.getDirectoryItems(path)
-    local i = 0
-    return function ()
-      i = i + 1
-      if items[i] then return items[i] end
-    end
-  end
-  package.loaded['beatz.dir'] = {open = dir_open}
-
-  -- Replace the sound module.
-  local function sounds_load(file_path)
-    return love.audio.newSource(file_path, 'static')
-  end
-  package.loaded['beatz.sounds'] = {load = sounds_load}
-
-  -- Replace the usleep module, which is not used when love is present as we
-  -- use love's run loop instead of our own.
-  package.loaded['beatz.usleep'] = {}
-
-end
-
 
 --------------------------------------------------------------------------------
 -- Require modules.
 --------------------------------------------------------------------------------
+
+-- Set up replacement code when this is run from within the Love game engine.
+require 'beatz.add_love_handles'
 
 local events     = require 'beatz.events'
 local instrument = require 'beatz.instrument'
