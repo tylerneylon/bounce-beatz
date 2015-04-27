@@ -130,9 +130,11 @@ function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
     value_up_sounds[new_value]:play()
   end
 
-  -- Play the hit sound.
-  local sound = is_edge_hit and audio.ball_edge_hit or audio.ball_hit
-  sound:play()
+  if not self.is_1p then
+    -- Play the hit sound.
+    local sound = is_edge_hit and audio.ball_edge_hit or audio.ball_hit
+    sound:play()
+  end
 end
 
 function Ball:update(dt)

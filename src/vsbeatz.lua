@@ -136,14 +136,16 @@ function vsbeatz.keyreleased(key)
 end
 
 function note_callback(time, beat, note)
-  print(string.format('note_callback(%g, %g, %s)', time, beat, note))
+  --print(string.format('note_callback(%g, %g, %s)', time, beat, note))
+  if ball.num_hits == 0 then
+    return 'wait'
+  end
   return true
 end
 
 function vsbeatz.did_get_control()
-  -- TEMP stuff for testing
-  --beatz.set_note_callback(note_callback)
-  --beatz.play('beatz/b.beatz')
+  beatz.set_note_callback(note_callback)
+  beatz.play('beatz/b.beatz')
 end
 
 -- TODO remove; and the mode variable
