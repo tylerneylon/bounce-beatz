@@ -301,6 +301,7 @@ function title.keypressed(key, isrepeat)
 
   if key == 'return' then
     love.give_control_to(menu_modes[menu_choice])
+    audio.beatz01:stop()
   end
 end
 

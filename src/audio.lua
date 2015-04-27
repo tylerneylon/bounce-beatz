@@ -37,6 +37,12 @@ function ReplayableSource:play()
   self.play_next = (self.play_next % self.num_sources) + 1
 end
 
+function ReplayableSource:stop()
+  for i = 1, #self.raw_sources do
+    self.raw_sources[i]:stop()
+  end
+end
+
 
 --------------------------------------------------------------------------------
 -- Supporting functions.

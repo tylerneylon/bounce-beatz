@@ -135,8 +135,6 @@ function vsbeatz.keyreleased(key)
 end
 
 function vsbeatz.did_get_control()
-  -- TEMP
-  print('vsbeatz got control')
 end
 
 -- TODO remove; and the mode variable
