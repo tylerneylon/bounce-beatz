@@ -1,5 +1,7 @@
 --[[ beatz/strict.lua
 
+https://github.com/tylerneylon/beatz
+
 Throw an error when a global is defined in a function or when
 an undeclared global is referenced in a function.
 

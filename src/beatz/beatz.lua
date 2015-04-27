@@ -1,5 +1,7 @@
 --[[ beatz/beatz.lua
 
+https://github.com/tylerneylon/beatz
+
 This is a command-line audio track playing and editing module.
 
 It is designed to work as both a stand-alone app and to

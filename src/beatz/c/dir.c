@@ -1,5 +1,7 @@
 // beatz/c/dir.c
 //
+// https://github.com/tylerneylon/beatz
+//
 // A Lua C module (written in C, called from Lua) for iterating over a list of
 // file names in a dir.
 //

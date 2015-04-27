@@ -1,3 +1,10 @@
+# beatz/c/Makefile
+#
+# https://github.com/tylerneylon/beatz
+#
+# Makefile for the Lua C modules in the beatz project.
+#
+
 all: sounds.so dir.so usleep.so
 
 clean:

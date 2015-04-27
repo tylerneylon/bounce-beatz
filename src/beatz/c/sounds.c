@@ -1,5 +1,7 @@
 // beatz/c/sounds.c
 //
+// https://github.com/tylerneylon/beatz
+//
 // The capitalization style in this file is a tiny bit inconsistent because
 // Apple uses CamelCase while my usual C and Lua style is to use underscores. I
 // decided to use underscores everywhere except when referring directly to

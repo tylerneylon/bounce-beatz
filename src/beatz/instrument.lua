@@ -1,5 +1,7 @@
 --[[ beatz/instrument.lua
 
+https://github.com/tylerneylon/beatz
+
 A class to capture a single instrument.
 
 On disk, an instrument is a set of sound files kept together in a single subdir

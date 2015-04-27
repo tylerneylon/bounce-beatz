@@ -1,5 +1,7 @@
 // beatz/c/usleep.c
 //
+// https://github.com/tylerneylon/beatz
+//
 // A Lua C module (written in C, called from Lua) for OS-friendly sleeping
 // that can be used, for example, in a thread-consuming loop that you don't
 // want to kill a cpu.

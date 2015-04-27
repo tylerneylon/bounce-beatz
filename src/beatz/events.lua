@@ -1,5 +1,7 @@
 --[[ beatz/events.lua
 
+https://github.com/tylerneylon/beatz
+
 Meant to be used as:
   local events = require 'events'
 

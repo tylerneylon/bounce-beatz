@@ -1,5 +1,7 @@
 --[[ beatz/rsounds.lua
 
+https://github.com/tylerneylon/beatz
+
 A wrapper around the sounds module to make it easier to play overlapping copies
 of a single sound.
 
