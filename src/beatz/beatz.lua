@@ -223,6 +223,14 @@ local function get_processed_main_track(data)
   return track
 end
 
+local function loadfile_love_aware(file_path)
+  if rawget(_G, 'love') then
+    return love.filesystem.load(file_path)
+  else
+    return loadfile(file_path)
+  end
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -231,8 +239,9 @@ end
 -- Returns the data table resulting from running the file as a Lua file within
 -- a new load environment (load_env).
 function beatz.load(filename)
+
   -- Load and parse the file.
-  local file_fn, err_msg = loadfile(filename)
+  local file_fn, err_msg = loadfile_love_aware(filename)
   if file_fn == nil then error(err_msg) end
 
   -- Process the file contents.
