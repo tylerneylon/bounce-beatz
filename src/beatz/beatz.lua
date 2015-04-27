@@ -54,6 +54,9 @@ local beats_per_sec, play_at_beat, notes, ind, inst
 local loops_done, num_beats
 local time = 0
 local is_playing = false
+local is_waiting = false
+
+local note_cb
 
 
 --------------------------------------------------------------------------------
@@ -130,23 +133,40 @@ local function play_at_time(time)
   if not is_playing then return end
 
   local beat = time * beats_per_sec
-  if beat < play_at_beat then return end
 
-  local note = notes[ind][2]
+  while beat >= play_at_beat do
+    local note = notes[ind][2]
 
-  -- Check for an end mark in the track.
-  if note == false then
-    is_playing = false
-    return
+    -- Check for an end mark in the track.
+    if note == false then
+      is_playing = false
+      return
+    end
+
+    if note_cb then
+      local action = note_cb(time, beat + 1, note)  -- Provide 1-indexed beats.
+      if action == false then
+        is_playing = false
+        return
+      elseif action == 'wait' then
+        is_waiting = true
+      elseif action == true then
+        is_waiting = false
+      else
+        error('Unexpected note callback return value: ' .. tostring(action))
+      end
+    end
+
+    if is_waiting then return end
+
+    inst:play(note)
+    ind = ind + 1
+    if ind > #notes then
+      ind = 1
+      loops_done = loops_done + 1
+    end
+    play_at_beat = notes[ind][1] + loops_done * num_beats
   end
-
-  inst:play(note)
-  ind = ind + 1
-  if ind > #notes then
-    ind = 1
-    loops_done = loops_done + 1
-  end
-  play_at_beat = notes[ind][1] + loops_done * num_beats
 end
 
 local function play_track(track)
@@ -162,6 +182,7 @@ local function play_track(track)
   loops_done    = 0
   play_at_beat  = notes[ind][1]
   is_playing    = true
+  is_waiting    = false
   beats_per_sec = 4.2
   time          = 0
 
@@ -171,7 +192,9 @@ local function play_track(track)
     while true do
       play_at_time(time)
       usleep(delay_usec)
-      time = time + delay_usec / 1e6
+      if not is_waiting then 
+        time = time + delay_usec / 1e6
+      end
     end
   end
 end
@@ -260,8 +283,26 @@ end
 
 -- Meant to be called from love.
 function beatz.update(dt)
-  time = time + dt
+  if not is_waiting then
+    time = time + dt
+  end
   play_at_time(time)
+end
+
+-- A note callback is called like so:
+-- action = cb(time, beat, notee)
+--   [in] time    is in seconds since the song began
+--   [in] beat    is in beats since the song began
+--   [in] notee   is a string
+--  [out] action  may be:
+--        * true   = keep playing
+--        * false  = stop playing
+--        * 'wait' = enter waiting state
+-- In the waiting state, no notes are played until true is received from the
+-- note callback, which is called with every tick. The song time is also held
+-- static during this time.
+function beatz.set_note_callback(cb)
+  note_cb = cb
 end
 
 
