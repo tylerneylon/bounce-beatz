@@ -46,18 +46,43 @@ end
 
 
 -------------------------------------------------------------------------------
+-- Working space: LOVE-based replacement for dir.open.
+-------------------------------------------------------------------------------
+
+local d = dir.open
+
+-- This is an iterator that can replace dir.open when used from a love file.
+local function d(path)
+  local items = love.filesystem.getDirectoryItems(path)
+  --[[
+  print('items =', items)
+  print('#items =', #items)
+  print(string.format('From path "%s" got the items:', path))
+  for k, v in pairs(items) do
+    print(k, v)
+  end
+  --]]
+  local i = 0
+  return function ()
+    i = i + 1
+    if items[i] then return items[i] end
+  end
+end
+
+-------------------------------------------------------------------------------
 -- Public functions.
 -------------------------------------------------------------------------------
 
 function instrument.load(inst_name)
   local inst = Instrument:new()
 
-  local dir_path = 'instruments/' .. inst_name
+  -- TEMP
+  local dir_path = 'beatz/instruments/' .. inst_name
   local wav_pattern = '(.*)%.wav$'
-  for filename in dir.open(dir_path) do
+  for filename in d(dir_path) do
     local name = filename:match(wav_pattern)
     if name then
-      local file_path = dir_path .. '/' .. filename
+      local file_path = 'src/' .. dir_path .. '/' .. filename
       inst.sounds[name] = rsounds.load(file_path, 20)
     end
   end

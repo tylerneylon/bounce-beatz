@@ -50,6 +50,13 @@ require 'strict'  -- Enforce careful global variable usage.
 --      require point for the beatz library.
 package.cpath = 'src/?.so;' .. package.cpath
 
+-- TEMP Turn this on to help test beatz integration. My current goal is to
+-- get 'love src' working, and then to get 'love bounce-beatz.love' working,
+-- which is more challenging as there are greater constraints on file access.
+--[[
+local beatz = require 'beatz.beatz'
+beatz.play('src/beatz/b.beatz')
+--]]
 
 --------------------------------------------------------------------------------
 -- Require modules.
