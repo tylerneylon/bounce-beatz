@@ -52,7 +52,9 @@ if love then
   end
   package.loaded['beatz.sounds'] = {load = sounds_load}
 
-  -- Replace the run loop (and need for the usleep module).
+  -- Replace the usleep module, which is not used when love is present as we
+  -- use love's run loop instead of our own.
+  package.loaded['beatz.usleep'] = {}
 
 end
 
@@ -64,6 +66,17 @@ end
 local events     = require 'beatz.events'
 local instrument = require 'beatz.instrument'
 local usleep     = require 'beatz.usleep'
+
+
+--------------------------------------------------------------------------------
+-- Internal globals.
+--------------------------------------------------------------------------------
+
+-- Variables shared between play_at_time and play_track.
+local beats_per_sec, play_at_beat, notes, ind, inst
+local loops_done, num_beats
+local time = 0
+local is_playing = false
 
 
 --------------------------------------------------------------------------------
@@ -132,41 +145,57 @@ local function get_new_load_env()
   return load_env
 end
 
+
+-- This function uses some module-level globals along with the given time to
+-- play any sounds appropriate at this moment.
+-- time is in seconds, and starts at 0 when the track begins.
+local function play_at_time(time)
+  if not is_playing then return end
+
+  local beat = time * beats_per_sec
+  if beat < play_at_beat then return end
+
+  local note = notes[ind][2]
+
+  -- Check for an end mark in the track.
+  if note == false then
+    is_playing = false
+    return
+  end
+
+  inst:play(note)
+  ind = ind + 1
+  if ind > #notes then
+    ind = 1
+    loops_done = loops_done + 1
+  end
+  play_at_beat = notes[ind][1] + loops_done * num_beats
+end
+
 local function play_track(track)
   -- Load the instrument.
   local inst_name = track.instrument
   if inst_name == nil then error('No instrument assigned with track') end
-  local inst = instrument.load(inst_name)
 
   -- Gather notes and set initial playing variables.
-  local notes     = track.notes
-  local num_beats = track.num_beats
-  local ind = 1
-  local loops_done = 0
-  local play_at_beat = notes[ind][1]
-  local i = 0
+  inst          = instrument.load(inst_name)
+  notes         = track.notes
+  num_beats     = track.num_beats
+  ind           = 1
+  loops_done    = 0
+  play_at_beat  = notes[ind][1]
+  is_playing    = true
+  beats_per_sec = 4.2
+  time          = 0
 
   -- Play loop.
-  while true do
-    local this_beat = i / 48
-    --print('this_beat =', this_beat)
-
-    if this_beat >= play_at_beat then
-      local note = notes[ind][2]
-      -- Check for an end mark in the track.
-      if note == false then break end
-      inst:play(note)
-      ind = ind + 1
-      if ind > #notes then
-        ind = 1
-        loops_done = loops_done + 1
-      end
-      play_at_beat = notes[ind][1] + loops_done * num_beats
-      --print('play_at_beat =', play_at_beat)
+  if not love then
+    local delay_usec = 5 * 1000  -- Operate at 200 hz.
+    while true do
+      play_at_time(time)
+      usleep(delay_usec)
+      time = time + delay_usec / 1e6
     end
-
-    usleep(5 * 1000) -- Operate at 200 hz.
-    i = i + 1
   end
 end
 
@@ -244,6 +273,12 @@ function beatz.play(filename)
   local data = beatz.load(filename)
   local track = get_processed_main_track(data)
   play_track(track)
+end
+
+-- Meant to be called from love.
+function beatz.update(dt)
+  time = time + dt
+  play_at_time(time)
 end
 
 

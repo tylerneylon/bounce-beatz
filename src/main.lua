@@ -45,24 +45,13 @@ Done!
 
 require 'strict'  -- Enforce careful global variable usage.
 
--- Support inclusion of C modules in subdirectories.
--- TODO Consider putting this in a top-level beatz.lua that is the single
---      require point for the beatz library.
-package.cpath = 'src/?.so;' .. package.cpath
-
--- TEMP Turn this on to help test beatz integration. My current goal is to
--- get 'love src' working, and then to get 'love bounce-beatz.love' working,
--- which is more challenging as there are greater constraints on file access.
---[[
-local beatz = require 'beatz.beatz'
-beatz.play('src/beatz/b.beatz')
---]]
 
 --------------------------------------------------------------------------------
 -- Require modules.
 --------------------------------------------------------------------------------
 
 local anim   = require 'anim'
+local beatz  = require 'beatz.beatz'
 local dbg    = require 'dbg'
 local events = require 'events'
 local title  = require 'title'
@@ -96,6 +85,10 @@ function love.update(dt)
   -- Hooks for module run loops.
   anim.update(dt)
   events.update(dt)
+
+  if beatz then
+    beatz.update(dt)
+  end
 
   -- This is the mode-specific update functions.
   love.mode_update(dt)
