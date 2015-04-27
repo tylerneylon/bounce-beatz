@@ -36,7 +36,7 @@ end
 -- The Player class.
 --------------------------------------------------------------------------------
 
-local Player = {w = 0.05, h = 0.4}
+local Player = {w = 0.05, h = 0.4, do_draw_score = true}
 
 function Player:new(x, h)
   local p = {x = x, y = 0, score = 0, dy = 0, ddy = 0}
@@ -51,13 +51,15 @@ function Player:draw()
   local score_str = tostring(self.score)
   local align = sign(self.x) == 1 and 'right' or 'left'
 
-  local sgn = sign(self.x)
-  local str_x = 0.98 * sgn
-  local x_align = (sgn + 1) / 2  -- Map to 0 or 1.
-  font.draw_str(score_str,       -- str
-                str_x, -0.9,     -- x, y
-                x_align, 0.0,    -- x_align, y_align
-                draw.gray)       -- color
+  if self.do_draw_score then
+    local sgn = sign(self.x)
+    local str_x = 0.98 * sgn
+    local x_align = (sgn + 1) / 2  -- Map to 0 or 1.
+    font.draw_str(score_str,       -- str
+                  str_x, -0.9,     -- x, y
+                  x_align, 0.0,    -- x_align, y_align
+                  draw.gray)       -- color
+  end
 end
 
 function Player:stop_at(y)

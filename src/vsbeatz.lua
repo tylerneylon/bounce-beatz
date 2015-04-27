@@ -160,6 +160,10 @@ end
 ball    = Ball:new()
 players = {Player:new(-0.8), Player:new(1.0, 2.0)}
 
+for i = 1, 2 do
+  players[i].do_draw_score = false
+end
+
 
 --------------------------------------------------------------------------------
 -- Return.
