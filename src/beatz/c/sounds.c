@@ -398,8 +398,6 @@ static const struct luaL_Reg sounds[] = {
 
 int luaopen_beatz_sounds(lua_State *L) {
   luaL_register(L, "sounds", sounds);
-  // TEMP
-  printf("C: %s called\n", __FUNCTION__);
   return 1;
 }
 

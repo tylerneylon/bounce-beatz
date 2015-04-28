@@ -3,6 +3,7 @@ new_track {
 instrument = 'human_drumkit';
 swing = true;
 loops = true;
+tempo = 200;
 
 chars_per_beat = 4;
 

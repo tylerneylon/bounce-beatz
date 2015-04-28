@@ -183,7 +183,7 @@ local function play_track(track)
   play_at_beat  = notes[ind][1]
   is_playing    = true
   is_waiting    = false
-  beats_per_sec = 4.2
+  beats_per_sec = track.tempo / 60
   time          = 0
 
   -- Play loop.
@@ -199,13 +199,30 @@ local function play_track(track)
   end
 end
 
-local function ensure_track_has_instrument(track)
-  if track.instrument then return end
-  -- Assume the track is an array of subtracks.
-  -- Get an instrument from the first one of them we can.
-  local t = track[1]
-  ensure_track_has_instrument(t)
-  track.instrument = t.instrument
+-- This expects params to have param strings as keys and default values as
+-- values. The special string value 'no default' indicates that the track
+-- itself is required to provide a value at some level. Missing top-level
+-- parameters are first attempted to be filled in from lower in the track tree;
+-- if that fails, parameters are given default values. Missing required
+-- parameters result in an error.
+local function ensure_track_has_params(track, params, level)
+  level = level or 0  -- This is here to help with debugging.
+
+  if track == nil then
+    error('Track processing started without a track (nil value given)!')
+  end
+
+  for param, default in pairs(params) do
+    if track[param] == nil then
+      if type(track[1]) == 'table' then
+        ensure_track_has_params(track[1], {[param] = default}, level + 1)
+        track[param] = track[1][param]
+      else
+        if default == 'no default' then error('Missing parameter: ' .. param) end
+        track[param] = default
+      end
+    end
+  end
 end
 
 -- This expects two arrays as inputs.
@@ -241,7 +258,11 @@ end
 local function get_processed_main_track(data)
   local track = data.main_track
   if track == nil then track = data.tracks[1] end
-  ensure_track_has_instrument(track)
+  local params = {
+    tempo      = 120,
+    instrument = 'no default'
+  }
+  ensure_track_has_params(track, params)
   ensure_track_has_notes(track)
   return track
 end
