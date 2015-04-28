@@ -50,13 +50,9 @@ local usleep     = require 'beatz.usleep'
 -- Internal globals.
 --------------------------------------------------------------------------------
 
--- Variables shared between play_at_time and play_track.
-local beats_per_sec, play_at_beat, notes, ind, inst
-local loops_done, num_beats
-local time = 0
-local is_playing = false
-local is_waiting = false
-
+-- This is set up to only support the playback of a single track at at time.
+-- For now.
+local playing_track
 local note_cb
 
 
@@ -126,47 +122,49 @@ local function get_new_load_env()
   return load_env
 end
 
-
 -- This function uses some module-level globals along with the given time to
 -- play any sounds appropriate at this moment.
 -- time is in seconds, and starts at 0 when the track begins.
 local function play_at_time(time)
-  if not is_playing then return end
+  if not playing_track then return end
+  local pb = playing_track.playback
 
-  local beat = time * beats_per_sec
+  if not pb.is_playing then return end
 
-  while beat >= play_at_beat do
-    local note = notes[ind][2]
+  pb.beat = pb.time * pb.beats_per_sec
+
+  while pb.beat >= pb.play_at_beat do
+    local note = pb.notes[pb.ind][2]
 
     -- Check for an end mark in the track.
     if note == false then
-      is_playing = false
+      pb.is_playing = false
       return
     end
 
     if note_cb then
-      local action = note_cb(time, beat + 1, note)  -- Provide 1-indexed beats.
+      local action = note_cb(pb.time, pb.beat + 1, note)  -- Provide 1-indexed beats.
       if action == false then
-        is_playing = false
+        pb.is_playing = false
         return
       elseif action == 'wait' then
-        is_waiting = true
+        pb.is_waiting = true
       elseif action == true then
-        is_waiting = false
+        pb.is_waiting = false
       else
         error('Unexpected note callback return value: ' .. tostring(action))
       end
     end
 
-    if is_waiting then return end
+    if pb.is_waiting then return end
 
-    inst:play(note)
-    ind = ind + 1
-    if ind > #notes then
-      ind = 1
-      loops_done = loops_done + 1
+    pb.inst:play(note)
+    pb.ind = pb.ind + 1
+    if pb.ind > #pb.notes then
+      pb.ind = 1
+      pb.loops_done = pb.loops_done + 1
     end
-    play_at_beat = notes[ind][1] + loops_done * num_beats
+    pb.play_at_beat = pb.notes[pb.ind][1] + pb.loops_done * pb.num_beats
   end
 end
 
@@ -263,10 +261,12 @@ end
 
 -- Meant to be called from love.
 function beatz.update(dt)
-  if not is_waiting then
-    time = time + dt
+  if not playing_track then return end
+  local pb = playing_track.playback
+  if not pb.is_waiting then
+    pb.time = pb.time + dt
   end
-  play_at_time(time)
+  play_at_time(pb.time)
 end
 
 -- A note callback is called like so:
@@ -295,26 +295,32 @@ function beatz.play_track(track)
   local inst_name = track.instrument
   if inst_name == nil then error('No instrument assigned with track') end
 
+  track.playback = {}
+  local pb       = track.playback
+
   -- Gather notes and set initial playing variables.
-  inst          = instrument.load(inst_name)
-  notes         = track.notes
-  num_beats     = track.num_beats
-  ind           = 1
-  loops_done    = 0
-  play_at_beat  = notes[ind][1]
-  is_playing    = true
-  is_waiting    = false
-  beats_per_sec = track.tempo / 60
-  time          = 0
+  pb.inst          = instrument.load(inst_name)
+  pb.notes         = track.notes
+  pb.num_beats     = track.num_beats
+  pb.ind           = 1
+  pb.loops_done    = 0
+  pb.play_at_beat  = pb.notes[pb.ind][1]
+  pb.is_playing    = true
+  pb.is_waiting    = false
+  pb.beats_per_sec = track.tempo / 60
+  pb.beat          = 0
+  pb.time          = 0
+
+  playing_track = track
 
   -- Play loop.
   if not rawget(_G, 'love') then
     local delay_usec = 5 * 1000  -- Operate at 200 hz.
     while true do
-      play_at_time(time)
+      play_at_time(pb.time)
       usleep(delay_usec)
-      if not is_waiting then 
-        time = time + delay_usec / 1e6
+      if not pb.is_waiting then 
+        pb.time = pb.time + delay_usec / 1e6
       end
     end
   end
