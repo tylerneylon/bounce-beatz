@@ -68,6 +68,10 @@ function Player:stop_at(y)
   self.ddy = 0
 end
 
+function Player:bounce_pt(ball)
+  return self.x - sign(self.x) * (self.w + ball.w) / 2
+end
+
 function Player:handle_if_hit(ball)
 
   assert(ball.old_x)
@@ -93,7 +97,7 @@ function Player:handle_if_hit(ball)
   
   -- hit_pt is in the range [-1, 1]
   local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
-  local bounce_pt = self.x - sign(self.x) * (self.w + ball.w) / 2
+  local bounce_pt = self:bounce_pt(ball)
 
   -- Check for edge hits; this is when the ball hits the smaller player edge.
   local ball_x = (ball.old_x + ball.x) / 2

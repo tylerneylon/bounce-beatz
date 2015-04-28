@@ -85,8 +85,8 @@ end
 -- bounce_pt is the x-coord at which the ball bounces.
 function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
 
-  assert(type(hit_pt)    == 'number')
-  assert(type(spin) == 'number')
+  assert(type(hit_pt) == 'number')
+  assert(type(spin)   == 'number')
 
   -- Update x based on the bounce.
   self.x = bounce_pt - (self.x - bounce_pt)

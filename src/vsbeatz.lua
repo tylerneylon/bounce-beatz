@@ -140,12 +140,32 @@ function note_callback(time, beat, note)
   if ball.num_hits == 0 then
     return 'wait'
   end
+
+  -- TEMP
+  --[[
+  if note ~= 'a' then
+    ball:bounce(0, ball.x, false, 0)
+  end
+  --]]
+
   return true
 end
 
 function vsbeatz.did_get_control()
+
+  -- Calculate the tempo we'll play at. Our goal is exactly one bar = 4 beats
+  -- between two consecutive player hits for the main player. This is the same
+  -- as two beats per screen width.
+  
+  local w = players[2]:bounce_pt(ball) - players[1]:bounce_pt(ball)
+  local sec_per_w     = w / math.abs(ball.dx)
+  local beats_per_sec = 2 / sec_per_w
+  local tempo         = beats_per_sec * 60
+
   beatz.set_note_callback(note_callback)
-  beatz.play('beatz/b.beatz')
+  local track = beatz.load('beatz/b.beatz')
+  track:set_tempo(tempo)
+  track:play()
 end
 
 -- TODO remove; and the mode variable

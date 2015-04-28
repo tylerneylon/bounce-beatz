@@ -24,6 +24,12 @@ function Track:new(t)
   return setmetatable(t, {__index = self})
 end
 
+function Track:set_tempo(new_tempo)
+  local beatz = require 'beatz.beatz'
+  local main_track = beatz.get_processed_main_track(self)
+  main_track.tempo = new_tempo
+end
+
 function Track:play()
   -- This is required here to avoid a require cycle.
   local beatz = require 'beatz.beatz'

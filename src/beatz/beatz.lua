@@ -226,19 +226,6 @@ local function ensure_track_has_notes(track)
   track.num_beats   = num_beats
 end
 
-local function get_processed_main_track(data)
-  local track = data.main_track
-  if track == nil then track = data.tracks[1] end
-  local params = {
-    tempo      = 120,
-    instrument = 'no default'
-  }
-  ensure_track_has_params(track, params)
-  ensure_track_has_notes(track)
-  track.is_main_track = true
-  return track
-end
-
 local function loadfile_love_aware(file_path)
   if rawget(_G, 'love') then
     return love.filesystem.load(file_path)
@@ -270,7 +257,7 @@ end
 
 function beatz.play(filename)
   local data = beatz.load(filename)
-  local track = get_processed_main_track(data)
+  local track = beatz.get_processed_main_track(data)
   beatz.play_track(track)
 end
 
@@ -301,7 +288,7 @@ end
 function beatz.play_track(track)
 
   if not track.is_main_track then
-    track = get_processed_main_track(track)
+    track = beatz.get_processed_main_track(track)
   end
 
   -- Load the instrument.
@@ -331,6 +318,20 @@ function beatz.play_track(track)
       end
     end
   end
+end
+
+function beatz.get_processed_main_track(data)
+  local track = data.main_track
+  if track == nil then track = data.tracks[1] end
+  local params = {
+    tempo      = 120,
+    instrument = 'no default'
+  }
+  ensure_track_has_params(track, params)
+  ensure_track_has_notes(track)
+  track.is_main_track = true
+  data.main_track = track
+  return track
 end
 
 
