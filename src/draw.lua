@@ -42,6 +42,7 @@ draw.gray    = {120, 120, 120}
 draw.green   = {  0, 210,   0}
 draw.white   = {255, 255, 255}
 draw.yellow  = {210, 150,   0}
+draw.magenta = {255,   0, 255}
 
 
 --------------------------------------------------------------------------------
@@ -109,6 +110,13 @@ function draw.str(s, x, y, limit, align)
   if align == 'right' then x = x - limit end
 
   love.graphics.printf(s, x, y, limit, align)
+end
+
+function draw.line(x1, y1, x2, y2)
+  local win_w, win_h = love.graphics.getDimensions()
+  x1, y1 = (x1 + 1) * win_w / 2, (1 - y1) * win_h / 2
+  x2, y2 = (x2 + 1) * win_w / 2, (1 - y2) * win_h / 2
+  love.graphics.line(x1, y1, x2, y2)
 end
 
 

@@ -37,6 +37,8 @@ local player_dy  = 0.5  -- Previously 1.5.
 -- This is set from vsbeatz.take_over.
 local mode
 
+local track
+
 
 --------------------------------------------------------------------------------
 -- Internal functions.
@@ -59,12 +61,38 @@ local function end_smaller_drawing()
   love.graphics.pop()
 end
 
+local function draw_note_bounce_bars()
+  if not track or not track.main_track then return end
+
+  local pb = track.main_track.playback
+  if not pb.is_playing then return end
+
+  love.graphics.setColor(draw.magenta)
+
+  -- In this code block, I'm treating virtual coords as meters (m).
+  local i = pb.ind
+  while i <= #pb.notes do
+    local note = pb.notes[i]
+    local delta_b = note[1] - pb.beat
+    if delta_b > 10 then break end
+
+    local delta_s = delta_b / pb.beats_per_sec
+    local delta_m = delta_s * ball.dx  -- This is a signed result in meters.
+    local x = ball.x + delta_m
+
+    draw.line(x, -1, x, 1)
+
+    i = i + 1
+  end
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
 --------------------------------------------------------------------------------
 
 function vsbeatz.update(dt)
+
   -- Move the ball.
   ball:update(dt)
 
@@ -90,6 +118,7 @@ function vsbeatz.draw()
   for _, p in pairs(players) do
     p:draw()
   end
+  draw_note_bounce_bars()
   ball:draw()
   end_smaller_drawing()
 end
@@ -163,7 +192,7 @@ function vsbeatz.did_get_control()
   local tempo         = beats_per_sec * 60
 
   beatz.set_note_callback(note_callback)
-  local track = beatz.load('beatz/b.beatz')
+  track = beatz.load('beatz/b.beatz')
   track:set_tempo(tempo)
   track:play()
 end
