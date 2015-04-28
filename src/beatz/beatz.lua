@@ -42,6 +42,7 @@ require 'beatz.add_love_handles'
 
 local events     = require 'beatz.events'
 local instrument = require 'beatz.instrument'
+local Track      = require 'beatz.track'
 local usleep     = require 'beatz.usleep'
 
 
@@ -169,36 +170,6 @@ local function play_at_time(time)
   end
 end
 
-local function play_track(track)
-  -- Load the instrument.
-  local inst_name = track.instrument
-  if inst_name == nil then error('No instrument assigned with track') end
-
-  -- Gather notes and set initial playing variables.
-  inst          = instrument.load(inst_name)
-  notes         = track.notes
-  num_beats     = track.num_beats
-  ind           = 1
-  loops_done    = 0
-  play_at_beat  = notes[ind][1]
-  is_playing    = true
-  is_waiting    = false
-  beats_per_sec = track.tempo / 60
-  time          = 0
-
-  -- Play loop.
-  if not rawget(_G, 'love') then
-    local delay_usec = 5 * 1000  -- Operate at 200 hz.
-    while true do
-      play_at_time(time)
-      usleep(delay_usec)
-      if not is_waiting then 
-        time = time + delay_usec / 1e6
-      end
-    end
-  end
-end
-
 -- This expects params to have param strings as keys and default values as
 -- values. The special string value 'no default' indicates that the track
 -- itself is required to provide a value at some level. Missing top-level
@@ -264,6 +235,7 @@ local function get_processed_main_track(data)
   }
   ensure_track_has_params(track, params)
   ensure_track_has_notes(track)
+  track.is_main_track = true
   return track
 end
 
@@ -293,13 +265,13 @@ function beatz.load(filename)
   setfenv(file_fn, data)
   file_fn()
 
-  return data
+  return Track:new(data)
 end
 
 function beatz.play(filename)
   local data = beatz.load(filename)
   local track = get_processed_main_track(data)
-  play_track(track)
+  beatz.play_track(track)
 end
 
 -- Meant to be called from love.
@@ -324,6 +296,41 @@ end
 -- static during this time.
 function beatz.set_note_callback(cb)
   note_cb = cb
+end
+
+function beatz.play_track(track)
+
+  if not track.is_main_track then
+    track = get_processed_main_track(track)
+  end
+
+  -- Load the instrument.
+  local inst_name = track.instrument
+  if inst_name == nil then error('No instrument assigned with track') end
+
+  -- Gather notes and set initial playing variables.
+  inst          = instrument.load(inst_name)
+  notes         = track.notes
+  num_beats     = track.num_beats
+  ind           = 1
+  loops_done    = 0
+  play_at_beat  = notes[ind][1]
+  is_playing    = true
+  is_waiting    = false
+  beats_per_sec = track.tempo / 60
+  time          = 0
+
+  -- Play loop.
+  if not rawget(_G, 'love') then
+    local delay_usec = 5 * 1000  -- Operate at 200 hz.
+    while true do
+      play_at_time(time)
+      usleep(delay_usec)
+      if not is_waiting then 
+        time = time + delay_usec / 1e6
+      end
+    end
+  end
 end
 
 

@@ -85,7 +85,7 @@ J = new_track {
 
 main_track = {
 
-  tempo = 200;
+  tempo = 125;
   
   B, B, B, C, B, C, B, B, E, B, C, B, B, C, F, C, B, C, F, C, B, C, H, C, B, H, H, C, H, C, H, C, H, B, B, A
 }

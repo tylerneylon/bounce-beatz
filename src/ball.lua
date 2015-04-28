@@ -32,6 +32,8 @@ local pt_thresholds = {8, 16}
 -- We play these sounds when the ball achieves value 2 or 3.
 local value_up_sounds = {false, audio.good1, audio.good2}
 
+local dx_1p = 2.0
+
 
 --------------------------------------------------------------------------------
 -- Supporting functions.
@@ -63,7 +65,10 @@ function Ball:new(ball, dx_sign)
 
   ball = ball or {}
 
-  if ball.is_1p then dx_sign = -1 end
+  if ball.is_1p then
+    dx_sign  = -1
+    start_dx = dx_1p
+  end
 
   ball.x,     ball.y     = 0, 0
   ball.old_x, ball.old_y = 0, 0
@@ -111,6 +116,7 @@ function Ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
   self.dx = -speedup * self.dx
   self.dy = angle_scale * hit_pt
   local max_dx = 10
+  if self.is_1p then max_dx = dx_1p end
   if math.abs(self.dx) > max_dx then
     self.dx = sign(self.dx) * max_dx
   end
