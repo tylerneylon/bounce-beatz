@@ -53,6 +53,8 @@ local last_planned_bounce_num = 1
 local num_unplayed_bounces = 0
 local next_bounce_num      = 1
 
+local ideal_beats_per_sec
+
 
 --------------------------------------------------------------------------------
 -- Debugging functions.
@@ -167,7 +169,7 @@ local function update_bounce_bars()
     --]]
 
     delta_b = note[1] - last_planned_hit_beat
-    local delta_s = delta_b / pb.beats_per_sec
+    local delta_s = delta_b / ideal_beats_per_sec
 
     -- This is a signed result in meters.
     local delta_m = delta_s * last_planned_hit_dx
@@ -335,8 +337,8 @@ function vsbeatz.did_get_control()
   
   local w = players[2]:bounce_pt(ball) - players[1]:bounce_pt(ball)
   local sec_per_w     = w / math.abs(ball.dx)
-  local beats_per_sec = 2 / sec_per_w
-  local tempo         = beats_per_sec * 60
+  ideal_beats_per_sec = 2 / sec_per_w
+  local tempo         = ideal_beats_per_sec * 60
 
   -- Slightly speed up the tempo to help account for precision errors.
   -- It's easier for us to in-real-time-slow-down beatz than to speed it up.
@@ -360,9 +362,10 @@ end
 --------------------------------------------------------------------------------
 
 ball    = Ball:new({is_1p = true})
+local is_1p = true
 -- The 1.2 value here is temporary for debugging. Normally we leave that
 -- parameter blank so Player will use the default height.
-players = {Player:new(-0.8, 2.0), Player:new(1.0, 2.0)}
+players = {Player:new(-0.8, 0.6, is_1p), Player:new(1.0, 2.0, is_1p)}
 
 for i = 1, 2 do
   players[i].do_draw_score = false

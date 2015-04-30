@@ -38,9 +38,10 @@ end
 
 local Player = {w = 0.05, h = 0.4, do_draw_score = true}
 
-function Player:new(x, h)
+function Player:new(x, h, is_1p)
   local p = {x = x, y = 0, score = 0, dy = 0, ddy = 0}
-  if h then p.h = h end
+  if is_1p then p.is_1p = true end
+  if h     then p.h     = h end
   return setmetatable(p, {__index = self})
 end
 
@@ -105,11 +106,13 @@ function Player:handle_if_hit(ball)
   local x_off = math.abs(ball_x - self.x) / half_w
   local y_off = math.abs(ball_y - self.y) / half_h
 
-  local is_edge_hit = y_off > x_off
+  local is_edge_hit = y_off > x_off and not self.is_1p
 
   if is_edge_hit then
     hit_pt = sign(hit_pt) * 1.3
     bounce_pt = ball.x
+    if bounce_pt < -1 then bounce_pt = -1 end
+    if bounce_pt >  1 then bounce_pt =  1 end
   end
 
   local spin = self.dy * sign(self.x)
