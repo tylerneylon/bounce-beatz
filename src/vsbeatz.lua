@@ -39,11 +39,17 @@ local player_dy  = 0.5  -- Previously 1.5.
 local mode
 
 local track
-local next_bar_ind = 1
+local next_bar_ind = 2
 
 -- This is a map: <beat> -> <bar>, where <beat> is the beat number on which the
 -- corresponding note is expected to play.
 local bars = {}
+
+local last_planned_hit_beat
+local last_planned_hit_x
+local last_planned_hit_dx  -- This is the ball's velocity after the hit.
+
+local num_unplayed_bounces = 0
 
 
 --------------------------------------------------------------------------------
@@ -101,35 +107,82 @@ local function mod_w_bounce(x)
   return val
 end
 
+local function get_x_from_note_names(note_names)
+  if type(note_names) == 'table' then
+    for _, note_name in pairs(note_names) do
+      local x = get_x_from_note_names(note_name)
+      if x then return x end
+    end
+  else
+    local note_name = note_names  -- To clarify it's a single name.
+    if note_name == 'x' then return players[1]:bounce_pt(ball) end
+    if note_name == 'y' then return players[2]:bounce_pt(ball) end
+  end
+end
+
 local function update_bounce_bars()
   if not track or not track.main_track then return end
 
   local pb = track.main_track.playback
   if not pb.is_playing then return end
 
-  -- Remove bars whose notes have already played.
-  for beat in pairs(bars) do
+  -- Check for any ball/bar hits and remove old bars.
+  for beat, bar in pairs(bars) do
+    bar:update(ball, pb.beat)
     if pb.beat > beat then bars[beat] = nil end
   end
 
   -- In this code block, I'm treating virtual coords as meters (m).
-  local ball_dx = ball.dx
   while next_bar_ind <= #pb.notes do
     local note = pb.notes[next_bar_ind]
     local delta_b = note[1] - pb.beat
     if delta_b > 10 then break end
 
+    pr('Considering a note with delta_b = %g', delta_b)
+
+    if note[2] then
+      io.write('note = ')
+      if type(note[2]) == 'string' then
+        io.write('"', note[2], '"\n')
+      else
+        io.write('{')
+        for i, n in ipairs(note[2]) do
+          if i > 1 then io.write(', ') end
+          io.write('"', n, '"')
+        end
+      io.write('}\n')
+      end
+    end
+
+    delta_b = note[1] - last_planned_hit_beat
     local delta_s = delta_b / pb.beats_per_sec
-    local delta_m = delta_s * ball_dx  -- This is a signed result in meters.
-    local x = ball.x + delta_m
 
-    -- hit_x is the edge between the ball and the bar when they will hit.
-    local hit_x = mod_w_bounce(ball.x + delta_m + ball.w / 2 * sign(ball_dx))
+    -- This is a signed result in meters.
+    local delta_m = delta_s * last_planned_hit_dx
+    local hit_x   = last_planned_hit_x + delta_m
 
-    pr('Adding a bar with hit_x = %g; ball_dx = %g', hit_x, ball_dx)
+    -- Some notes have designated hit points that override what we calculate.
+    local do_draw     = true
+    local x_from_note = get_x_from_note_names(note[2])
+    if x_from_note then
+      pr('x_from_note = %g', x_from_note)
+      hit_x   = x_from_note
+      do_draw = false
+    end
 
-    local bar = Bar:new(hit_x, ball_dx)
+    pr('Adding a bar with hit_x = %g; ball_dx = %g; do_draw = %s',
+       hit_x, last_planned_hit_dx, tostring(do_draw))
+
+    local bar_info = {
+      do_draw = do_draw,
+      beat    = note[1]
+    }
+    local bar = Bar:new(bar_info, hit_x, last_planned_hit_dx, ball)
     bars[note[1]] = bar
+
+    last_planned_hit_x    = hit_x
+    last_planned_hit_dx   = -1 * last_planned_hit_dx
+    last_planned_hit_beat = note[1]
 
     next_bar_ind = next_bar_ind + 1
   end
@@ -267,6 +320,10 @@ players = {Player:new(-0.8), Player:new(1.0, 2.0)}
 for i = 1, 2 do
   players[i].do_draw_score = false
 end
+
+last_planned_hit_beat = 0
+last_planned_hit_x    = players[1]:bounce_pt(ball)
+last_planned_hit_dx   = math.abs(ball.dx)
 
 
 --------------------------------------------------------------------------------
