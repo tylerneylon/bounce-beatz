@@ -39,7 +39,13 @@ function Instrument:new()
 end
 
 function Instrument:play(name)
-  self.sounds[name]:play()
+  if type(name) == 'table' then
+    for _, n in pairs(name) do
+      self.sounds[n]:play()
+    end
+  else
+    self.sounds[name]:play()
+  end
 end
 
 

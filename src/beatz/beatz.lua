@@ -69,7 +69,50 @@ end
 -- The environment used to load beatz files.
 --------------------------------------------------------------------------------
 
-function add_notes(track)
+-- This inserts the notes in order by note[1], which is the beat of the note.
+local function insert_note(note, notes, first, last)
+
+  -- Turn this on to help with debugging.
+  --[[
+  print(string.format('insert_note({%d, %s}, <notes>, %s, %s)',
+                      note[1], note[2], tostring(first), tostring(last)))
+  --]]
+  
+  if #notes == 0 then
+    notes[1] = note
+    return
+  end
+
+  first, last = first or 1, last or #notes
+
+  -- This can only happen if the beat isn't found; we must insert effectively
+  -- between the two given indexes.
+  if last < first then return table.insert(notes, first, note) end
+
+  local mid = math.floor((first + last) / 2)
+  local mid_beat, beat = notes[mid][1], note[1]
+  if mid_beat < beat then return insert_note(note, notes, mid + 1, last) end
+  if mid_beat > beat then return insert_note(note, notes, first, mid - 1) end
+
+  -- If we get here, then notes[mid] is at the beat where we'll insert note.
+  if type(notes[mid][2]) ~= 'table' then notes[mid][2] = {notes[mid][2]} end
+  table.insert(notes[mid][2], note[2])
+end
+
+local function add_voice_to_notes(track, voice_str, notes)
+  for i = 1, #voice_str do
+    local note = voice_str:sub(i, i)
+    if note ~= ' ' then
+      local beat = (i - 1) / track.chars_per_beat
+      if track.swing and beat % 1 == 0.5 then
+        beat = beat + 0.1
+      end
+      insert_note({beat, note}, notes)
+    end
+  end
+end
+
+local function add_notes(track)
   local chars_per_beat = track.chars_per_beat
   if chars_per_beat == nil then error('Missing chars_per_beat value') end
 
@@ -77,24 +120,36 @@ function add_notes(track)
   if track_str == nil then error('Missing note data') end
 
   local notes = {}
-  for i = 1, #track_str do
-    local note = track_str:sub(i, i)
-    if note ~= ' ' then
-      local beat = (i - 1) / chars_per_beat
-      if track.swing and beat % 1 == 0.5 then
-        beat = beat + 0.1
-      end
-      notes[#notes + 1] = {beat, note}
+
+  -- We handle multiline v single-line strings differently.
+  local _, num_newlines = track_str:gsub('\n', '')
+
+  local track_len = #track_str
+  if num_newlines == 0 then
+    add_voice_to_notes(track, track_str, notes)
+  else
+    for voice_str in track_str:gmatch('\'(.-)\'') do
+      track_len = #voice_str
+      add_voice_to_notes(track, voice_str, notes)
     end
   end
+
   if not track.loops then
-    local beat = #track_str / chars_per_beat
+    local beat = track_len / chars_per_beat
     notes[#notes + 1] = {beat, false}  -- Add an end mark.
   end
 
   track.notes = notes
 
-  track.num_beats = #track_str / chars_per_beat
+  -- Turn this on to help with debugging.
+  --[[
+  pr('notes:')
+  for i, note in ipairs(notes) do
+    pr(' %4d { %4d, %5s }', i, note[1], tostring(note[2]))
+  end
+  --]]
+
+  track.num_beats = track_len / chars_per_beat
 end
 
 local function new_track(track)
@@ -119,6 +174,10 @@ local function get_new_load_env()
       setfenv(f, load_env)
     end
   end
+  -- Add some built-in functions.
+  load_env.ipairs   = ipairs
+  load_env.pairs    = pairs
+  load_env.tostring = tostring
   return load_env
 end
 
