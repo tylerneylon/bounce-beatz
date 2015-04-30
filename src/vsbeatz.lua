@@ -40,6 +40,9 @@ local mode
 
 local track
 local next_bar_ind = 1
+
+-- This is a map: <beat> -> <bar>, where <beat> is the beat number on which the
+-- corresponding note is expected to play.
 local bars = {}
 
 
@@ -104,6 +107,11 @@ local function update_bounce_bars()
   local pb = track.main_track.playback
   if not pb.is_playing then return end
 
+  -- Remove bars whose notes have already played.
+  for beat in pairs(bars) do
+    if pb.beat > beat then bars[beat] = nil end
+  end
+
   -- In this code block, I'm treating virtual coords as meters (m).
   local ball_dx = ball.dx
   while next_bar_ind <= #pb.notes do
@@ -121,7 +129,7 @@ local function update_bounce_bars()
     pr('Adding a bar with hit_x = %g; ball_dx = %g', hit_x, ball_dx)
 
     local bar = Bar:new(hit_x, ball_dx)
-    bars[#bars + 1] = bar
+    bars[note[1]] = bar
 
     next_bar_ind = next_bar_ind + 1
   end
