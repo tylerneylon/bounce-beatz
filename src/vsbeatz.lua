@@ -48,8 +48,10 @@ local bars = {}
 local last_planned_hit_beat
 local last_planned_hit_x
 local last_planned_hit_dx  -- This is the ball's velocity after the hit.
+local last_planned_bounce_num = 1
 
 local num_unplayed_bounces = 0
+local next_bounce_num      = 1
 
 
 --------------------------------------------------------------------------------
@@ -128,8 +130,16 @@ local function update_bounce_bars()
 
   -- Check for any ball/bar hits and remove old bars.
   for beat, bar in pairs(bars) do
-    bar:update(ball, pb.beat)
-    if pb.beat > beat then bars[beat] = nil end
+    local num_bounces = bar:update(ball, next_bounce_num)
+    num_unplayed_bounces = num_unplayed_bounces + num_bounces
+    next_bounce_num      = next_bounce_num      + num_bounces
+
+    if num_bounces > 0 then
+      bars[beat] = nil
+    end
+
+    -- TEMP
+    --if pb.beat > beat then bars[beat] = nil end
   end
 
   -- In this code block, I'm treating virtual coords as meters (m).
@@ -138,8 +148,9 @@ local function update_bounce_bars()
     local delta_b = note[1] - pb.beat
     if delta_b > 10 then break end
 
-    pr('Considering a note with delta_b = %g', delta_b)
+    --pr('Considering a note with delta_b = %g', delta_b)
 
+    --[[
     if note[2] then
       io.write('note = ')
       if type(note[2]) == 'string' then
@@ -153,6 +164,7 @@ local function update_bounce_bars()
       io.write('}\n')
       end
     end
+    --]]
 
     delta_b = note[1] - last_planned_hit_beat
     local delta_s = delta_b / pb.beats_per_sec
@@ -165,24 +177,32 @@ local function update_bounce_bars()
     local do_draw     = true
     local x_from_note = get_x_from_note_names(note[2])
     if x_from_note then
-      pr('x_from_note = %g', x_from_note)
+      --pr('x_from_note = %g', x_from_note)
       hit_x   = x_from_note
       do_draw = false
     end
 
-    pr('Adding a bar with hit_x = %g; ball_dx = %g; do_draw = %s',
-       hit_x, last_planned_hit_dx, tostring(do_draw))
+    if not x_from_note then
+      --[[
+      pr('Adding a bar with hit_x = %g; ball_dx = %g; do_draw = %s',
+         hit_x, last_planned_hit_dx, tostring(do_draw))
+         --]]
 
-    local bar_info = {
-      do_draw = do_draw,
-      beat    = note[1]
-    }
-    local bar = Bar:new(bar_info, hit_x, last_planned_hit_dx, ball)
-    bars[note[1]] = bar
+      local bar_info = {
+        do_draw    = do_draw,
+        beat       = note[1],
+        bounce_num = last_planned_bounce_num + 1
+      }
+      local bar = Bar:new(bar_info, hit_x, last_planned_hit_dx, ball)
+      bars[note[1]] = bar
+    else
+      --pr('Skipping adding a bar as it\'s either the player or end-wall')
+    end
 
-    last_planned_hit_x    = hit_x
-    last_planned_hit_dx   = -1 * last_planned_hit_dx
-    last_planned_hit_beat = note[1]
+    last_planned_hit_x      = hit_x
+    last_planned_hit_dx     = -1 * last_planned_hit_dx
+    last_planned_hit_beat   = note[1]
+    last_planned_bounce_num = last_planned_bounce_num + 1
 
     next_bar_ind = next_bar_ind + 1
   end
@@ -193,14 +213,22 @@ end
 -- Public functions.
 --------------------------------------------------------------------------------
 
+-- TEMP
+local update_num = 0
+
 function vsbeatz.update(dt)
+
+  update_num = update_num + 1
+  --pr('update %d', update_num)
 
   -- Move the ball.
   ball:update(dt)
 
   -- Move the players. This also handles ball collisions.
   for _, p in pairs(players) do
-    p:update(dt, ball)
+    local num_bounces = p:update(dt, ball)
+    num_unplayed_bounces = num_unplayed_bounces + num_bounces
+    next_bounce_num      = next_bounce_num      + num_bounces
   end
 
   -- Handle any scoring that may have occurred.
@@ -222,8 +250,14 @@ function vsbeatz.draw()
   for _, p in pairs(players) do
     p:draw()
   end
+
+  local beat = 0
+  if track and track.main_track then
+    beat = track.main_track.playback.beat
+  end
+
   for _, bar in pairs(bars) do
-    bar:draw()
+    bar:draw(beat)
   end
   ball:draw()
   end_smaller_drawing()
@@ -276,6 +310,13 @@ function note_callback(time, beat, note)
     return 'wait'
   end
 
+  if num_unplayed_bounces > 0 then
+    num_unplayed_bounces = num_unplayed_bounces - 1
+    return true
+  else
+    return 'wait'
+  end
+
   -- TEMP
   --[[
   if note ~= 'a' then
@@ -297,6 +338,10 @@ function vsbeatz.did_get_control()
   local beats_per_sec = 2 / sec_per_w
   local tempo         = beats_per_sec * 60
 
+  -- Slightly speed up the tempo to help account for precision errors.
+  -- It's easier for us to in-real-time-slow-down beatz than to speed it up.
+  tempo = tempo * 1.1
+
   beatz.set_note_callback(note_callback)
   track = beatz.load('beatz/b.beatz')
   track:set_tempo(tempo)
@@ -315,7 +360,9 @@ end
 --------------------------------------------------------------------------------
 
 ball    = Ball:new({is_1p = true})
-players = {Player:new(-0.8), Player:new(1.0, 2.0)}
+-- The 1.2 value here is temporary for debugging. Normally we leave that
+-- parameter blank so Player will use the default height.
+players = {Player:new(-0.8, 2.0), Player:new(1.0, 2.0)}
 
 for i = 1, 2 do
   players[i].do_draw_score = false

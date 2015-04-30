@@ -86,10 +86,10 @@ function love.update(dt)
   anim.update(dt)
   events.update(dt)
 
+  -- This is the mode-specific update functions.
+  love.mode_update(dt)
+
   if beatz then
     beatz.update(dt)
   end
-
-  -- This is the mode-specific update functions.
-  love.mode_update(dt)
 end

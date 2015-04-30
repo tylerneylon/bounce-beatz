@@ -78,7 +78,7 @@ function Player:handle_if_hit(ball)
   assert(ball.old_y)
 
   -- We only need to check for collisions with incoming balls.
-  if sign(self.x) ~= sign(ball.dx) then return end
+  if sign(self.x) ~= sign(ball.dx) then return 0 end
 
   local half_w, half_h = (self.w + ball.w) / 2, (self.h + ball.h) / 2
   local box = {mid_x = self.x, mid_y = self.y,
@@ -89,11 +89,11 @@ function Player:handle_if_hit(ball)
   --print(string.format('box: mid=(%g, %g) half_size=(%g, %g)', box.mid_x, box.mid_y, box.half_w, box.half_h))
   --print(string.format('line: (%g, %g) -> (%g, %g)', ball_line.x1, ball_line.y1, ball_line.x2, ball_line.y2))
 
-  if not hit_test.box_and_line(box, ball_line) then return end
+  if not hit_test.box_and_line(box, ball_line) then return 0 end
 
   -- Avoid double bounces; a high-speed ball can go from one side to the other
   -- in a single dx, which may trigger both bounce code paths.
-  if ball.did_bounce then return end
+  if ball.did_bounce then return 0 end
   
   -- hit_pt is in the range [-1, 1]
   local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
@@ -114,6 +114,12 @@ function Player:handle_if_hit(ball)
 
   local spin = self.dy * sign(self.x)
   ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
+
+  -- TEMP
+  --print('Player-triggered bounce!')
+  --print('After bounce, ball.x =', ball.x, ' ball.dx =', ball.dx)
+
+  return 1
 end
 
 function Player:update(dt, ball)
@@ -127,10 +133,14 @@ function Player:update(dt, ball)
   if self.y < min then self:stop_at(min) end
   if self.y > max then self:stop_at(max) end
 
-  self:handle_if_hit(ball)
+  return self:handle_if_hit(ball)
 end
 
 function Player:score_up(ball)
+  -- TEMP
+  --print('Ball went off screen!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+  --print('ball.x =', ball.x)
+
   audio.point:play()
   self.score = self.score + ball:value()
   Ball:new(ball)

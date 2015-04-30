@@ -32,7 +32,7 @@ local pt_thresholds = {8, 16}
 -- We play these sounds when the ball achieves value 2 or 3.
 local value_up_sounds = {false, audio.good1, audio.good2}
 
-local dx_1p = 2.0
+local dx_1p = 3.0
 
 
 --------------------------------------------------------------------------------
