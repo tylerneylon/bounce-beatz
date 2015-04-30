@@ -3,7 +3,10 @@ A = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a                               '
+      'x                               '
+]]
 }
 
   B = new_track {
@@ -11,7 +14,10 @@ A = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a               b               '
+      'x               y               '
+]]
 }
 
 C = new_track {
@@ -19,7 +25,10 @@ C = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a       b   c   d   c   b       '
+      'x                               '
+]]
 }
 
 D = new_track {
@@ -27,7 +36,10 @@ D = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a       b   c   d     c   b     '
+      'x                               '
+]]
 }
 
 E = new_track {
@@ -35,7 +47,10 @@ E = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a           b   c   d           '
+      'x                               '
+]]
 }
 
 F = new_track {
@@ -43,7 +58,10 @@ F = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a     b   c         d           '
+      'x                               '
+]]
 }
 
 G = new_track {
@@ -51,7 +69,10 @@ G = new_track {
   chars_per_beat = 6;
   ----|1                       |
   ----|1  +  2  +  3  +  4  +  |
+[[
       'a     b  c  d b c db    '
+      'x                               '
+]]
 }
 
 H = new_track {
@@ -59,7 +80,10 @@ H = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a       b       a       c       '
+      'x               x               '
+]]
 }
 
 I = new_track {
@@ -67,7 +91,10 @@ I = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a       b       a   b c d b c   '
+      'x               x               '
+]]
 }
 
 J = new_track {
@@ -75,7 +102,10 @@ J = new_track {
   chars_per_beat = 8;
   ----|1                               |
   ----|1   +   2   +   3   +   4   +   |
+[[
       'a   b c d b c   a       b       '
+      'x               x               '
+]]
 }
 
 --main_track = {B, B, B, C, B, C, B, B, E, B, E, B, F}
