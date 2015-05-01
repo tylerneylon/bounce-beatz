@@ -365,7 +365,7 @@ ball    = Ball:new({is_1p = true})
 local is_1p = true
 -- The 1.2 value here is temporary for debugging. Normally we leave that
 -- parameter blank so Player will use the default height.
-players = {Player:new(-0.8, 0.6, is_1p), Player:new(1.0, 2.0, is_1p)}
+players = {Player:new(-0.8, 0.6, '1p_pl'), Player:new(1.0, 2.0, '1p_bar')}
 
 for i = 1, 2 do
   players[i].do_draw_score = false

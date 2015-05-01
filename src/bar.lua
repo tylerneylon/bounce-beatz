@@ -72,7 +72,7 @@ function Bar:update(ball, bounce_num)
     local bounce_pt = self.x - w * sign(ball.dx)
     -- TEMP
     --print('Bar-triggered bounce!')
-    ball:bounce(0, bounce_pt, 0, 0)
+    ball:reflect_bounce(bounce_pt)
     return 1  -- 1 for 1 bounce.
   end
   return 0  -- 0 for no bounces.

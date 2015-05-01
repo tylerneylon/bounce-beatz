@@ -38,10 +38,14 @@ end
 
 local Player = {w = 0.05, h = 0.4, do_draw_score = true}
 
-function Player:new(x, h, is_1p)
-  local p = {x = x, y = 0, score = 0, dy = 0, ddy = 0}
-  if is_1p then p.is_1p = true end
-  if h     then p.h     = h end
+function Player:new(x, h, pl_mode)
+  local p = {
+    x = x, y = 0,
+    score = 0,
+    dy = 0, ddy = 0,
+    h = h or self.h,
+    pl_mode = pl_mode or 'default'
+  }
   return setmetatable(p, {__index = self})
 end
 
@@ -106,7 +110,7 @@ function Player:handle_if_hit(ball)
   local x_off = math.abs(ball_x - self.x) / half_w
   local y_off = math.abs(ball_y - self.y) / half_h
 
-  local is_edge_hit = y_off > x_off and not self.is_1p
+  local is_edge_hit = y_off > x_off and self.pl_mode == 'default'
 
   if is_edge_hit then
     hit_pt = sign(hit_pt) * 1.3
@@ -116,7 +120,11 @@ function Player:handle_if_hit(ball)
   end
 
   local spin = self.dy * sign(self.x)
-  ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
+  if self.pl_mode == '1p_bar' then
+    ball:reflect_bounce(bounce_pt)
+  else
+    ball:bounce(hit_pt, bounce_pt, is_edge_hit, spin)
+  end
 
   -- TEMP
   --print('Player-triggered bounce!')

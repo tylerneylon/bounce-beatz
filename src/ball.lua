@@ -80,6 +80,18 @@ function Ball:new(ball, dx_sign)
   return setmetatable(ball, {__index = self})
 end
 
+-- This is a relatively boring version of Ball:bounce that simply bounces off
+-- at the same angle in came in at.
+function Ball:reflect_bounce(bounce_pt)
+
+  assert(type(bounce_pt) == 'number')
+
+  self.x = bounce_pt - (self.x - bounce_pt)
+  self.did_bounce = true
+  -- This is expected to only be called in 1p mode, so there's no speedup.
+  self.dx = -self.dx
+end
+
 -- hit_pt is expected to be in the range [-1, 1], and determines the
 -- angle that the ball bounces away at.
 -- bounce_pt is the x-coord at which the ball bounces.
@@ -159,6 +171,7 @@ function Ball:update(dt)
 end
 
 function Ball:value()
+  if self.is_1p then return 1 end
   local value = 1
   for _, threshold in ipairs(pt_thresholds) do
     if self.num_hits >= threshold then value = value + 1 end
