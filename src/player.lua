@@ -74,6 +74,7 @@ function Player:stop_at(y)
 end
 
 function Player:bounce_pt(ball)
+  assert(ball)
   return self.x - sign(self.x) * (self.w + ball.w) / 2
 end
 

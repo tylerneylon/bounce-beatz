@@ -126,6 +126,11 @@ local function get_x_from_note_names(note_names)
   end
 end
 
+local function handle_num_bounces(num_bounces)
+  num_unplayed_bounces = num_unplayed_bounces + num_bounces
+  next_bounce_num      = next_bounce_num      + num_bounces
+end
+
 local function update_bounce_bars()
   if not track or not track.main_track then return end
 
@@ -135,8 +140,7 @@ local function update_bounce_bars()
   -- Check for any ball/bar hits and remove old bars.
   for beat, bar in pairs(bars) do
     local num_bounces = bar:update(ball, next_bounce_num)
-    num_unplayed_bounces = num_unplayed_bounces + num_bounces
-    next_bounce_num      = next_bounce_num      + num_bounces
+    handle_num_bounces(num_bounces)
 
     if num_bounces > 0 then
       bars[beat] = nil
@@ -230,12 +234,10 @@ function vsbeatz.update(dt)
 
   -- Move the players. This also handles ball collisions.
   for _, p in pairs(players) do
-    local num_bounces = p:update(dt, ball)
-    num_unplayed_bounces = num_unplayed_bounces + num_bounces
-    next_bounce_num      = next_bounce_num      + num_bounces
+    handle_num_bounces(p:update(dt, ball))
   end
 
-  shield:update(dt, ball)
+  handle_num_bounces(shield:update(dt, ball))
 
   -- Handle any scoring that may have occurred.
   ball:handle_score_up(players, shield)

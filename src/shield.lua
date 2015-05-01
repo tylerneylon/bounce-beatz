@@ -48,9 +48,14 @@ end
 -- The purpose of this function is to notice as soon as the ball as no chance
 -- of hitting the player, but before the ball is considered off-screen.
 function Shield:update(dt, ball)
-  if ball.x < self.player.x - self.player.w / 2 then
-    print('Miss!')
+  local pl = self.player
+  if ball.x < pl.x - pl.w / 2 then
+    ball:reflect_bounce(pl:bounce_pt(ball))
+    self.num_hearts = self.num_hearts - 1
+    print('num_hearts =', self.num_hearts)
+    return 1  -- 1 = one bounce.
   end
+  return 0  -- 0 = no bounces.
 end
 
 
