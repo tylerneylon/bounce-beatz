@@ -18,6 +18,7 @@ local Bar      = require 'bar'
 local beatz    = require 'beatz.beatz'
 local draw     = require 'draw'
 local Player   = require 'player'
+local Shield   = require 'shield'
 
 
 --------------------------------------------------------------------------------
@@ -30,6 +31,7 @@ local Player   = require 'player'
 -- These will be set up in the initialization below.
 local ball
 local players
+local shield
 
 -- These determine the player movement speed.
 local player_ddy = 30   -- Previously 26.
@@ -244,11 +246,11 @@ function vsbeatz.draw()
   -- TEMP This is to help clearly see the extents of the window while
   --      developing this mode.
   local win_w, win_h = love.graphics.getDimensions()
-  love.graphics.setColor({255, 0, 0})
+  love.graphics.setColor({30, 0, 0})
   love.graphics.rectangle('fill', 0, 0, win_w, win_h)
 
   start_smaller_drawing()
-  draw.borders()
+  shield:draw()
   for _, p in pairs(players) do
     p:draw()
   end
@@ -261,7 +263,9 @@ function vsbeatz.draw()
   for _, bar in pairs(bars) do
     bar:draw(beat)
   end
+
   ball:draw()
+  draw.borders()
   end_smaller_drawing()
 end
 
@@ -366,6 +370,8 @@ local is_1p = true
 -- The 1.2 value here is temporary for debugging. Normally we leave that
 -- parameter blank so Player will use the default height.
 players = {Player:new(-0.8, 0.6, '1p_pl'), Player:new(1.0, 2.0, '1p_bar')}
+
+shield = Shield:new(players[1].x - players[1].w * 0.4)
 
 for i = 1, 2 do
   players[i].do_draw_score = false
