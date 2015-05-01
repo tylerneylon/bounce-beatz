@@ -235,8 +235,10 @@ function vsbeatz.update(dt)
     next_bounce_num      = next_bounce_num      + num_bounces
   end
 
+  shield:update(dt, ball)
+
   -- Handle any scoring that may have occurred.
-  ball:handle_score_up(players)
+  ball:handle_score_up(players, shield)
 
   update_bounce_bars()
 end
@@ -371,7 +373,7 @@ local is_1p = true
 -- parameter blank so Player will use the default height.
 players = {Player:new(-0.8, 0.6, '1p_pl'), Player:new(1.0, 2.0, '1p_bar')}
 
-shield = Shield:new(players[1].x - players[1].w * 0.4)
+shield = Shield:new(players[1])
 
 for i = 1, 2 do
   players[i].do_draw_score = false
