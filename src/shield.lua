@@ -16,6 +16,7 @@ require 'strict'  -- Enforce careful global variable usage.
 --------------------------------------------------------------------------------
 
 local anim     = require 'anim'
+local audio    = require 'audio'
 local draw     = require 'draw'
 
 
@@ -155,6 +156,8 @@ function Shield:update(dt, ball)
 
   local pl = self.player
   if ball.x < pl.x - pl.w / 2 then
+
+    audio.spark:play()
 
     anim.shield_brightness = 1
     anim.change_to('shield_brightness', 0, {duration = 1.0})

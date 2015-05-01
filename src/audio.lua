@@ -71,6 +71,9 @@ local names = {'ball_hit', 'ball_edge_hit'}
 -- at top speed.
 load_named_sounds(names, audio, 10)
 
+-- Set up mp3-based sfx.
+load_named_sounds({'spark'}, audio, 3, '.mp3')
+
 -- Set up songs.
 local names = {'beatz01'}
 load_named_sounds(names, audio, 1, '.mp3')
