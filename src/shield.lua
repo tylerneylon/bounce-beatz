@@ -37,10 +37,24 @@ local shield_hit_dirs = {}
 local shield_hit_rndy = {}  -- Random y values, from -1 to 1.
 local shield_hit_mixp = {}  -- Mix percentages for use with rndy values.
 
+-- Dots strenghten the visual cues of a weakened shield.
+local num_dots  = 40
+local dot_y_pos = {}
+local dot_dy    = {}
+
 
 --------------------------------------------------------------------------------
 -- Internal functions.
 --------------------------------------------------------------------------------
+
+local function min(...)
+  local t = {...}
+  local val = t[1]
+  for i = 2, #t do
+    if t[i] < val then val = t[i] end
+  end
+  return val
+end
 
 local function sign(x)
   if x > 0 then return 1 end
@@ -136,7 +150,12 @@ function Shield:draw()
     200 * lev * (1 - b) + 255 * b,
     230 * lev * (1 - b) + 255 * b}
 
-  love.graphics.setColor(color)
+  local s_color = {}
+  for i = 1, 3 do
+    s_color[i] = 0.9 * ((self.num_hearts + 1) / 4) * color[i]
+  end
+
+  love.graphics.setColor(s_color)
   draw.line(self.x, -1, self.x, 1)
 
   -- Draw the hearts.
@@ -157,8 +176,9 @@ function Shield:draw()
   if hit_p and hit_p < 1.0 then
 
     -- Modify the color to fade out by the end of the animation.
-    for i = 1, 3 do color[i] = (1 - hit_p) * color[i] end
-    love.graphics.setColor(color)
+    local hit_color = {}
+    for i = 1, 3 do hit_color[i] = (1 - hit_p) * color[i] end
+    love.graphics.setColor(hit_color)
 
     local dirs = shield_hit_dirs
     for i = 1, shield_hit_num_particles do
@@ -169,11 +189,25 @@ function Shield:draw()
       draw.point(x, y)
     end
   end
+
+  -- Draw the dots.
+  local d_color = {}
+  for i = 1, 3 do
+    d_color[i] = min(1.4 * s_color[i], color[i])
+  end
+  love.graphics.setColor(d_color)
+  for i = 1, num_dots do
+    draw.point(self.x, dot_y_pos[i] % 2 - 1)
+  end
 end
 
 -- The purpose of this function is to notice as soon as the ball has no chance
 -- of hitting the player, but before the ball is considered off-screen.
 function Shield:update(dt, ball)
+
+  for i = 1, num_dots do
+    dot_y_pos[i] = dot_y_pos[i] + dt * dot_dy[i] * 2.0 * (1 - (self.num_hearts - 1) / 3)
+  end
 
   if self.num_hearts <= 0 then return 0 end
 
@@ -223,6 +257,11 @@ for i = 1, shield_hit_num_particles do
   table.insert(shield_hit_dirs, {math.random() - 0.8, math.random() - 0.5})
   table.insert(shield_hit_rndy, math.random() * 2 - 1)
   table.insert(shield_hit_mixp, math.random() ^ 3)
+end
+
+for i = 1, num_dots do
+  table.insert(dot_y_pos, math.random() * 2)
+  table.insert(dot_dy,    math.random())
 end
 
 
