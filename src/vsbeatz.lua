@@ -250,8 +250,8 @@ function vsbeatz.draw()
   -- TEMP This is to help clearly see the extents of the window while
   --      developing this mode.
   local win_w, win_h = love.graphics.getDimensions()
-  love.graphics.setColor({30, 0, 0})
-  love.graphics.rectangle('fill', 0, 0, win_w, win_h)
+  --love.graphics.setColor({30, 0, 0})
+  --love.graphics.rectangle('fill', 0, 0, win_w, win_h)
 
   start_smaller_drawing()
   shield:draw()

@@ -15,8 +15,21 @@ require 'strict'  -- Enforce careful global variable usage.
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local anim     = require 'anim'
 local draw     = require 'draw'
 
+
+--------------------------------------------------------------------------------
+-- Internal globals.
+--------------------------------------------------------------------------------
+
+-- Determine the granularity of the heart sprites.
+local grid_cells_w, grid_cells_h = 12, 12
+
+-- These are random directions for the blocky pixels used to draw hearts.
+-- The dirs are used to animate hearts as they disappear, and are set during
+-- initialization.
+local rand_dirs = {}
 
 --------------------------------------------------------------------------------
 -- Internal functions.
@@ -39,16 +52,20 @@ local function pr(...)
   print(string.format(...))
 end
 
-local function draw_heart(grid_x, grid_y)
+-- The last paramater, the "bye-bye percentage" is used to draw hearts that are
+-- being animated as going away.
+local function draw_heart(grid_x, grid_y, bye_perc)
   -- The w/h ratio of 3/5 looks good.
   local grid_w, grid_h =  0.09,  0.15
-
-  local grid_cells_w, grid_cells_h = 12, 12  -- Num cells.
   local cell_w, cell_h = grid_w / grid_cells_w, grid_h / grid_cells_h
 
-  local floor = math.floor
+  bye_perc = bye_perc or 0
+  local col_level = 255 * (1 - bye_perc)
+  local color = {col_level, col_level, col_level}
+
 
   -- Calculate the positional parameters for the triangle and circles.
+  local floor = math.floor
   local tri_top = floor(grid_cells_h * 0.6)
   local mid_y = floor(grid_cells_h * 0.5)
   local mid_x1 = floor(grid_cells_w * 0.25)
@@ -78,11 +95,11 @@ local function draw_heart(grid_x, grid_y)
       end
 
       if do_draw then
-        draw.rect(grid_x + (x - 1) * cell_w,
-                  grid_y + (y - 1) * cell_h,
+        draw.rect(grid_x + (x - 1) * cell_w + rand_dirs[x][y][1] * bye_perc,
+                  grid_y + (y - 1) * cell_h + rand_dirs[x][y][2] * bye_perc,
                   cell_w,
                   cell_h,
-                  draw.white)
+                  color)
       end
     end
   end
@@ -98,37 +115,77 @@ local Shield = {}
 function Shield:new(player)
   local s = {player = player, num_hearts = 3}
   s.x = player.x - player.w * 0.4
+  anim.shield_brightness = 0
+  anim.shield_level      = 1
   return setmetatable(s, {__index = self})
 end
 
 function Shield:draw()
 
-  -- If they have no hearts, there's nothing to draw!
-  if self.num_hearts <= 0 then return end
+  local b   = anim.shield_brightness  -- Between 0 and 1.
+  local lev = anim.shield_level       -- Between 0 and 1.
+  local color = {
+      0 * lev * (1 - b) + 255 * b,
+    200 * lev * (1 - b) + 255 * b,
+    230 * lev * (1 - b) + 255 * b}
 
-  love.graphics.setColor({0, 200, 230})
+  love.graphics.setColor(color)
   draw.line(self.x, -1, self.x, 1)
 
   -- Draw the hearts.
-  local y  =  -0.9
+  local y0 =  -1.1
   local dy =   0.2
   for i = 1, self.num_hearts do
+    local y = y0 + i * dy
     draw_heart(-0.95, y)
-    y = y + dy
   end
+
+  if anim.bye_heart_perc and anim.bye_heart_perc < 1.0 then
+    local y = y0 + anim.bye_heart_ind * dy
+    draw_heart(-0.95, y, anim.bye_heart_perc)
+  end
+
 end
 
--- The purpose of this function is to notice as soon as the ball as no chance
+-- The purpose of this function is to notice as soon as the ball has no chance
 -- of hitting the player, but before the ball is considered off-screen.
 function Shield:update(dt, ball)
+
+  if self.num_hearts <= 0 then return 0 end
+
   local pl = self.player
   if ball.x < pl.x - pl.w / 2 then
+
+    anim.shield_brightness = 1
+    anim.change_to('shield_brightness', 0, {duration = 1.0})
+
+    anim.bye_heart_ind  = self.num_hearts
+    anim.bye_heart_perc = 0.0
+    anim.change_to('bye_heart_perc', 1.0, {duration = 0.5})
+
     ball:reflect_bounce(pl:bounce_pt(ball))
     self.num_hearts = self.num_hearts - 1
     print('num_hearts =', self.num_hearts)
+
+    if self.num_hearts == 0 then
+      anim.change_to('shield_level', 0, {duration = 1.0})
+    end
+
     return 1  -- 1 = one bounce.
   end
   return 0  -- 0 = no bounces.
+end
+
+
+--------------------------------------------------------------------------------
+-- Initialization.
+--------------------------------------------------------------------------------
+
+for x = 1, grid_cells_w do
+  rand_dirs[x] = {}
+  for y = 1, grid_cells_h do
+    rand_dirs[x][y] = {math.random() - 0.5, math.random() - 0.5}
+  end
 end
 
 
