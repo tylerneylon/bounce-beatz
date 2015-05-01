@@ -32,6 +32,12 @@ local grid_cells_w, grid_cells_h = 12, 12
 -- initialization.
 local rand_dirs = {}
 
+local shield_hit_num_particles = 100
+local shield_hit_dirs = {}
+local shield_hit_rndy = {}  -- Random y values, from -1 to 1.
+local shield_hit_mixp = {}  -- Mix percentages for use with rndy values.
+
+
 --------------------------------------------------------------------------------
 -- Internal functions.
 --------------------------------------------------------------------------------
@@ -96,8 +102,8 @@ local function draw_heart(grid_x, grid_y, bye_perc)
       end
 
       if do_draw then
-        draw.rect(grid_x + (x - 1) * cell_w + rand_dirs[x][y][1] * 0.5 * bye_perc,
-                  grid_y + (y - 1) * cell_h + rand_dirs[x][y][2] * 0.5 * bye_perc,
+        draw.rect(grid_x + (x - 1) * cell_w + rand_dirs[x][y][1] * 0.2 * bye_perc,
+                  grid_y + (y - 1) * cell_h + rand_dirs[x][y][2] * 0.2 * bye_perc,
                   cell_w,
                   cell_h,
                   color)
@@ -146,6 +152,23 @@ function Shield:draw()
     draw_heart(-0.95, y, anim.bye_heart_perc)
   end
 
+  -- Draw any animation of the shield having been recently hit.
+  local hit_p = anim.shield_hit_perc
+  if hit_p and hit_p < 1.0 then
+
+    -- Modify the color to fade out by the end of the animation.
+    for i = 1, 3 do color[i] = (1 - hit_p) * color[i] end
+    love.graphics.setColor(color)
+
+    local dirs = shield_hit_dirs
+    for i = 1, shield_hit_num_particles do
+      local y0 = shield_hit_rndy[i]
+      local p  = shield_hit_mixp[i]
+      local x =  anim.shield_x + dirs[i][1] * hit_p * 0.1
+      local y = (anim.shield_y + dirs[i][2] * hit_p * 0.1) * (1 - p) + y0 * p
+      draw.point(x, y)
+    end
+  end
 end
 
 -- The purpose of this function is to notice as soon as the ball has no chance
@@ -164,7 +187,12 @@ function Shield:update(dt, ball)
 
     anim.bye_heart_ind  = self.num_hearts
     anim.bye_heart_perc = 0.0
-    anim.change_to('bye_heart_perc', 1.0, {duration = 0.5})
+    anim.change_to('bye_heart_perc', 1.0, {duration = 0.8})
+
+    anim.shield_hit_perc = 0.0
+    anim.change_to('shield_hit_perc', 1.0, {duration = 0.4})
+    anim.shield_x = self.x
+    anim.shield_y = ball.y
 
     ball:reflect_bounce(pl:bounce_pt(ball))
     self.num_hearts = self.num_hearts - 1
@@ -189,6 +217,12 @@ for x = 1, grid_cells_w do
   for y = 1, grid_cells_h do
     rand_dirs[x][y] = {math.random() - 0.5, math.random() - 0.5}
   end
+end
+
+for i = 1, shield_hit_num_particles do
+  table.insert(shield_hit_dirs, {math.random() - 0.8, math.random() - 0.5})
+  table.insert(shield_hit_rndy, math.random() * 2 - 1)
+  table.insert(shield_hit_mixp, math.random() ^ 3)
 end
 
 

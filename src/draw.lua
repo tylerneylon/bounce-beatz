@@ -49,6 +49,14 @@ draw.magenta = {255,   0, 255}
 -- General drawing functions.
 --------------------------------------------------------------------------------
 
+function draw.point(x, y)
+  -- Convert coordinates.
+  local win_w, win_h = love.graphics.getDimensions()
+  x, y = (x + 1) * win_w / 2, (1 - y) * win_h / 2
+
+  love.graphics.point(x, y)
+end
+
 -- x, y is the lower-left corner of the rectangle.
 function draw.rect(x, y, w, h, color)
   -- Set the color.
