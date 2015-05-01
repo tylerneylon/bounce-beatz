@@ -19,7 +19,7 @@ local draw     = require 'draw'
 
 
 --------------------------------------------------------------------------------
--- Supporting functions.
+-- Internal functions.
 --------------------------------------------------------------------------------
 
 local function sign(x)
@@ -39,73 +39,43 @@ local function pr(...)
   print(string.format(...))
 end
 
-
---------------------------------------------------------------------------------
--- The Shield class.
---------------------------------------------------------------------------------
-
-local Shield = {}
-
-function Shield:new(player)
-  local s = {player = player, num_hearts = 3}
-  s.x = player.x - player.w * 0.4
-  return setmetatable(s, {__index = self})
-end
-
 local function draw_heart(grid_x, grid_y)
-  local grid_w, grid_h =  0.3,  0.5
+  -- The w/h ratio of 3/5 looks good.
+  local grid_w, grid_h =  0.09,  0.15
 
   local grid_cells_w, grid_cells_h = 12, 12  -- Num cells.
   local cell_w, cell_h = grid_w / grid_cells_w, grid_h / grid_cells_h
 
-  --pr('-----------------------------')
+  local floor = math.floor
+
+  -- Calculate the positional parameters for the triangle and circles.
+  local tri_top = floor(grid_cells_h * 0.6)
+  local mid_y = floor(grid_cells_h * 0.5)
+  local mid_x1 = floor(grid_cells_w * 0.25)
+  local mid_x2 = grid_cells_w - mid_x1
+  local circ_r = dist({mid_x1, mid_y}, {0, tri_top})
   
   -- These x, y coords are within the grid itself.
   for x = 1, grid_cells_w do
     for y = 1, grid_cells_h do
 
-      --pr('(x, y) = (%g, %g)', x, y)
-
       local do_draw = false
 
-      local floor = math.floor
-
-      local tri_top = floor(grid_cells_h * 0.6)
-
       if y <= tri_top then
-
         -- Draw the triangle.
         local row_width = y / tri_top * grid_cells_w
         local row_margin = floor((grid_cells_w - row_width) / 2)
-
         if x > row_margin and x < (grid_cells_w - row_margin) then
           do_draw = true
         end
       else
-
         -- Draw the circles.
-
-        -- TODO Pull these calculations out of the for loops.
-        local mid_y = floor(grid_cells_h * 0.5)
-        local mid_x1 = floor(grid_cells_w * 0.25)
-        local mid_x2 = grid_cells_w - mid_x1
-        local circ_r = dist({mid_x1, mid_y}, {0, tri_top})
-
         local d1 = dist({x, y}, {mid_x1, mid_y})
         local d2 = dist({x, y}, {mid_x2, mid_y})
         if d1 <= circ_r or d2 <= circ_r then
           do_draw = true
         end
       end
-
-      --[[
-      pr('draw.rect(%g, %g, %g, %g, <color>)',
-         grid_x + (x - 1) * cell_w,
-         grid_y + (y - 1) * cell_h,
-         cell_w * 0.9,
-         cell_h * 0.9)
-         --]]
-
 
       if do_draw then
         draw.rect(grid_x + (x - 1) * cell_w,
@@ -119,17 +89,32 @@ local function draw_heart(grid_x, grid_y)
 end
 
 
+--------------------------------------------------------------------------------
+-- The Shield class.
+--------------------------------------------------------------------------------
+
+local Shield = {}
+
+function Shield:new(player)
+  local s = {player = player, num_hearts = 3}
+  s.x = player.x - player.w * 0.4
+  return setmetatable(s, {__index = self})
+end
+
 function Shield:draw()
+
+  -- If they have no hearts, there's nothing to draw!
+  if self.num_hearts <= 0 then return end
+
   love.graphics.setColor({0, 200, 230})
   draw.line(self.x, -1, self.x, 1)
 
   -- Draw the hearts.
-
-  -- The origin of the grid, in virtual coords.
-
-  draw_heart(-0.5, -0.5)
-
+  local y  =  -0.9
+  local dy =   0.2
   for i = 1, self.num_hearts do
+    draw_heart(-0.95, y)
+    y = y + dy
   end
 end
 
