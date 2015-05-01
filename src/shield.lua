@@ -96,8 +96,8 @@ local function draw_heart(grid_x, grid_y, bye_perc)
       end
 
       if do_draw then
-        draw.rect(grid_x + (x - 1) * cell_w + rand_dirs[x][y][1] * bye_perc,
-                  grid_y + (y - 1) * cell_h + rand_dirs[x][y][2] * bye_perc,
+        draw.rect(grid_x + (x - 1) * cell_w + rand_dirs[x][y][1] * 0.5 * bye_perc,
+                  grid_y + (y - 1) * cell_h + rand_dirs[x][y][2] * 0.5 * bye_perc,
                   cell_w,
                   cell_h,
                   color)
