@@ -149,9 +149,9 @@ function Player:update(dt, ball)
 end
 
 function Player:score_up(ball)
-  -- TEMP
-  --print('Ball went off screen!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-  --print('ball.x =', ball.x)
+
+  -- In 1p mode, we don't take any action here.
+  if self.mode ~= 'default' then return end
 
   audio.point:play()
   self.score = self.score + ball:value()

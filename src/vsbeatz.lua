@@ -13,6 +13,7 @@ local vsbeatz = {}
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local audio    = require 'audio'
 local Ball     = require 'ball'
 local Bar      = require 'bar'
 local beatz    = require 'beatz.beatz'
@@ -220,6 +221,7 @@ end
 
 local function handle_game_over()
   is_game_over = true
+  audio.death:play()
 end
 
 
