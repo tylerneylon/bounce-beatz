@@ -61,7 +61,7 @@ function battle.update(dt)
   end
 
   -- Handle any scoring that may have occurred.
-  ball:handle_score_up(players)
+  ball:handle_missed_ball(players)
 end
  
 function battle.draw()

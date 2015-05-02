@@ -187,13 +187,20 @@ end
 -- This is outside of Ball:update so that balls can interact with
 -- the players (bounce) before we check for a score going up. Fast balls
 -- can appear (x-wise) to go through a player when they're really bouncing.
-function Ball:handle_score_up(players, shield)
+-- The return value is truthy iff a ball was missed.
+function Ball:handle_missed_ball(players, shield)
 
   -- Death is not possible if there's a shield with any hearts left.
   if shield and shield.num_hearts > 0 then return end
 
-  if self.x >  1 then players[1]:score_up(self) end
-  if self.x < -1 then players[2]:score_up(self) end
+  local pl_score_up = false
+
+  if self.x >  1 then pl_score_up = 1 end
+  if self.x < -1 then pl_score_up = 2 end
+
+  if pl_score_up then players[pl_score_up]:score_up(self) end
+
+  return pl_score_up
 end
 
 

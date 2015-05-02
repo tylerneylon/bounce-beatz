@@ -57,6 +57,8 @@ local next_bounce_num      = 1
 
 local ideal_beats_per_sec
 
+local is_game_over = false
+
 
 --------------------------------------------------------------------------------
 -- Debugging functions.
@@ -216,18 +218,18 @@ local function update_bounce_bars()
   end
 end
 
+local function handle_game_over()
+  is_game_over = true
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
 --------------------------------------------------------------------------------
 
--- TEMP
-local update_num = 0
-
 function vsbeatz.update(dt)
 
-  update_num = update_num + 1
-  --pr('update %d', update_num)
+  if is_game_over then return end
 
   -- Move the ball.
   ball:update(dt)
@@ -240,7 +242,11 @@ function vsbeatz.update(dt)
   handle_num_bounces(shield:update(dt, ball))
 
   -- Handle any scoring that may have occurred.
-  ball:handle_score_up(players, shield)
+  local was_ball_missed = ball:handle_missed_ball(players, shield)
+
+  if was_ball_missed then
+    handle_game_over()
+  end
 
   update_bounce_bars()
 end
@@ -268,7 +274,7 @@ function vsbeatz.draw()
     bar:draw(beat)
   end
 
-  ball:draw()
+  if not is_game_over then ball:draw() end
   draw.borders()
   end_smaller_drawing()
 end
