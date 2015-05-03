@@ -37,7 +37,7 @@ end
 -- The Player class.
 --------------------------------------------------------------------------------
 
-local Player = {w = 0.05, h = 0.4, do_draw_score = true}
+local Player = {w = 0.05, h = 0.5, do_draw_score = true}
 
 function Player:new(x, h, pl_mode)
   local p = {
@@ -165,7 +165,7 @@ end
 function Player:score_up(ball)
 
   -- In 1p mode, we don't take any action here.
-  if self.mode ~= 'default' then return end
+  if self.pl_mode ~= 'default' then return end
 
   audio.point:play()
   self.score = self.score + ball:value()
