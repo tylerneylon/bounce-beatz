@@ -13,6 +13,7 @@ local vsbeatz = {}
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local anim     = require 'anim'
 local audio    = require 'audio'
 local Ball     = require 'ball'
 local Bar      = require 'bar'
@@ -221,6 +222,8 @@ end
 
 local function handle_game_over()
   is_game_over = true
+  anim.player_exploding_perc = 0
+  anim.change_to('player_exploding_perc', 1.0, {duration = 5.0})
   audio.death:play()
 end
 

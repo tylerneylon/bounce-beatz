@@ -15,6 +15,7 @@ require 'strict'  -- Enforce careful global variable usage.
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local anim     = require 'anim'
 local Ball     = require 'ball'
 local draw     = require 'draw'
 local font     = require 'font'
@@ -51,7 +52,20 @@ end
 
 function Player:draw()
   local w, h = self.w, self.h
-  draw.rect_w_mid_pt(self.x, self.y, w, h)
+
+  local p = anim.player_exploding_perc
+  if p and p > 0 and self.pl_mode == '1p_pl' then
+    local level = (1 - p) * 255
+    local color = {level, level, level}
+    local opts = {
+      perc = p,
+      num_cells_x =  8,
+      num_cells_y = 64
+    }
+    draw.exploding_rect_w_mid_pt(self.x, self.y, w, h, color, opts)
+  else
+    draw.rect_w_mid_pt(self.x, self.y, w, h)
+  end
 
   local score_str = tostring(self.score)
   local align = sign(self.x) == 1 and 'right' or 'left'

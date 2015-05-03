@@ -46,6 +46,20 @@ draw.magenta = {255,   0, 255}
 
 
 --------------------------------------------------------------------------------
+-- Internal functions.
+--------------------------------------------------------------------------------
+
+local function make_normal_rand_pt()
+  -- This is based on the Box-Muller transform, described here:
+  -- http://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+  local u1, u2 = math.random(), math.random()
+  local r      = math.sqrt(-2 * math.log(u1))
+  local angle  = 2 * math.pi * u2
+  return { r * math.cos(angle), r * math.sin(angle) }
+end
+
+
+--------------------------------------------------------------------------------
 -- General drawing functions.
 --------------------------------------------------------------------------------
 
@@ -82,6 +96,44 @@ function draw.rect_w_mid_pt(mid_x, mid_y, w, h, color)
   local x = mid_x - w / 2
   local y = mid_y - h / 2
   draw.rect(x, y, w, h, color)
+end
+
+-- This is an upvalue just for exploding_rect_w_mid_pt.
+local exploding_dirs = {}
+
+-- The opts parameter is a table with the following values:
+--  * opts.perc        = percentage exploded, from 0 to 1,
+--  * opts.num_cells_x = number of columns in the grid,
+--  * opts.num_cells_y = number of rows in the grid.
+function draw.exploding_rect_w_mid_pt(mid_x, mid_y, w, h, color, opts)
+
+  assert(opts and opts.perc and opts.num_cells_x and opts.num_cells_y)
+
+  -- Make sure we have enough random exploding directions.
+  local num_cells = opts.num_cells_x * opts.num_cells_y
+  while #exploding_dirs < num_cells do
+    -- Using normally distributed random directions makes a nicer explosion.
+    table.insert(exploding_dirs, make_normal_rand_pt())
+  end
+
+  -- Set (x, y) to the lower-left corner of the rectangle.
+  local x0 = mid_x - w / 2
+  local y0 = mid_y - h / 2
+
+  local cell_w = w / opts.num_cells_x
+  local cell_h = h / opts.num_cells_y
+
+  local p = opts.perc
+  local dir_ind = 1
+  for grid_x = 1, opts.num_cells_x do
+    for grid_y = 1, opts.num_cells_y do
+      local dir = exploding_dirs[dir_ind]
+      local x = x0 + (grid_x - 1) * cell_w + p * dir[1]
+      local y = y0 + (grid_y - 1) * cell_h + p * dir[2]
+      draw.rect(x, y, cell_w, cell_h, color)
+      dir_ind = dir_ind + 1
+    end
+  end
 end
 
 function draw.rotated_rect(mid_x, mid_y, w, h, color, angle)
