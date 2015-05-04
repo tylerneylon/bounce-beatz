@@ -181,7 +181,7 @@ end
 
 
 --------------------------------------------------------------------------------
--- Pong-specific drawing functions.
+-- Bounce-beatz-specific drawing functions.
 --------------------------------------------------------------------------------
 
 function draw.borders()

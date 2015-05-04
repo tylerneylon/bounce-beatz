@@ -274,6 +274,12 @@ font[':'] = {{ 0, 0, 0 },
              { 0, 1, 0 },
              { 0, 0, 0 }}
 
+font[','] = {{ 0, 0, 0 },
+             { 0, 0, 0 },
+             { 0, 0, 0 },
+             { 0, 1, 0 },
+             { 1, 0, 0 }}
+
 -- Make digits visible via string keys as well.
 
 for k, v in pairs(font) do
@@ -287,6 +293,10 @@ end
 -- Font-drawing functions.
 --------------------------------------------------------------------------------
 
+-- This returns w, h, grids, which mean:
+--  * w     =  width of the string in number of grid cells,
+--  * h     = height of hte string in number of grid cells, and
+--  * grids = total number of grid cells that are filled in.
 function font.get_str_size(s)
   local w = 0
   local h = 0
