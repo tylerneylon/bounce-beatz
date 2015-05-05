@@ -50,6 +50,17 @@ function Player:new(x, h, pl_mode)
   return setmetatable(p, {__index = self})
 end
 
+-- Returns a grayscale value 0-255 of the opacity of self.
+-- When level == 0, the expected behavior is that self has vanished.
+function Player:level()
+  local level = 255
+  local end_perc = anim.ending_perc
+  if end_perc and self.pl_mode == '1p_bar' then
+    level = 255 * (1 - end_perc)
+  end
+  return level
+end
+
 function Player:draw()
   local w, h = self.w, self.h
 
@@ -64,7 +75,9 @@ function Player:draw()
     }
     draw.exploding_rect_w_mid_pt(self.x, self.y, w, h, color, opts)
   else
-    draw.rect_w_mid_pt(self.x, self.y, w, h)
+    local level = self:level()
+    local color = {level, level, level}
+    draw.rect_w_mid_pt(self.x, self.y, w, h, color)
   end
 
   local score_str = tostring(self.score)
@@ -96,6 +109,9 @@ function Player:handle_if_hit(ball)
 
   assert(ball.old_x)
   assert(ball.old_y)
+
+  -- If we've vanished, nothing can hit us.
+  if self:level() == 0 then return 0 end
 
   -- We only need to check for collisions with incoming balls.
   if sign(self.x) ~= sign(ball.dx) then return 0 end

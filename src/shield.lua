@@ -43,7 +43,8 @@ local num_dots  = 40
 local dot_y_pos = {}
 local dot_dy    = {}
 
-local init_num_hearts = 3
+-- This value is owned by dbg as it's a useful parameter to tweak for debugging.
+local init_num_hearts = dbg.init_num_hearts
 
 
 --------------------------------------------------------------------------------
@@ -233,7 +234,7 @@ function Shield:update(dt, ball)
 
     ball:reflect_bounce(pl:bounce_pt(ball))
     self.num_hearts = self.num_hearts - 1
-    print('num_hearts =', self.num_hearts)
+    --print('num_hearts =', self.num_hearts)
 
     if self.num_hearts == 0 then
       anim.change_to('shield_level', 0, {duration = 1.0})

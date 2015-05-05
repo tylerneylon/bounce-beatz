@@ -202,7 +202,11 @@ local function play_at_time(time)
     end
 
     if note_cb then
-      local action = note_cb(pb.time, pb.beat + 1, note)  -- Provide 1-indexed beats.
+      local next_note = pb.notes[pb.ind + 1]
+      if next_note then next_note = next_note[2] end
+
+      -- We provide 1-indexed beats to the user.
+      local action = note_cb(pb.time, pb.beat + 1, note, next_note)
       if action == false then
         pb.is_playing = false
         return

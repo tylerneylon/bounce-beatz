@@ -294,6 +294,40 @@ local function draw_game_over()
   draw_multiline_str_below_y(text, text_w, text_y)
 end
 
+local function note_callback(time, beat, note, next_note)
+  --[[
+  pr('note_callback(%g, %g, %s, %s)',
+     time, beat, tostring(note), tostring(next_note))
+  --]]
+  
+  if ball.num_hits == 0 then
+    return 'wait'
+  end
+
+  if num_unplayed_bounces > 0 then
+    num_unplayed_bounces = num_unplayed_bounces - 1
+
+    if next_note == false then
+      local pb = track.main_track.playback
+      anim.ending_perc = 0
+      anim.change_to('ending_perc', 1, {duration = 1 / pb.beats_per_sec})
+    end
+
+    return true
+  else
+    return 'wait'
+  end
+
+  -- TEMP
+  --[[
+  if note ~= 'a' then
+    ball:bounce(0, ball.x, false, 0)
+  end
+  --]]
+
+  return true
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -395,29 +429,6 @@ function vsbeatz.keyreleased(key)
   if sign(pl.ddy) ~= action.sign then return end
 
   pl:stop_at(pl.y)
-end
-
-function note_callback(time, beat, note)
-  --print(string.format('note_callback(%g, %g, %s)', time, beat, note))
-  if ball.num_hits == 0 then
-    return 'wait'
-  end
-
-  if num_unplayed_bounces > 0 then
-    num_unplayed_bounces = num_unplayed_bounces - 1
-    return true
-  else
-    return 'wait'
-  end
-
-  -- TEMP
-  --[[
-  if note ~= 'a' then
-    ball:bounce(0, ball.x, false, 0)
-  end
-  --]]
-
-  return true
 end
 
 function vsbeatz.did_get_control()
