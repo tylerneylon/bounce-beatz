@@ -17,6 +17,7 @@ require 'strict'  -- Enforce careful global variable usage.
 
 local anim     = require 'anim'
 local audio    = require 'audio'
+local dbg      = require 'dbg'
 local draw     = require 'draw'
 
 
@@ -41,6 +42,8 @@ local shield_hit_mixp = {}  -- Mix percentages for use with rndy values.
 local num_dots  = 40
 local dot_y_pos = {}
 local dot_dy    = {}
+
+local init_num_hearts = 3
 
 
 --------------------------------------------------------------------------------
@@ -134,7 +137,7 @@ end
 local Shield = {}
 
 function Shield:new(player)
-  local s = {player = player, num_hearts = 3}
+  local s = {player = player, num_hearts = init_num_hearts}
   s.x = player.x - player.w * 0.4
   anim.shield_brightness = 0
   anim.shield_level      = 1
@@ -262,6 +265,10 @@ end
 for i = 1, num_dots do
   table.insert(dot_y_pos, math.random() * 2)
   table.insert(dot_dy,    math.random())
+end
+
+if dbg.is_fast_1p_mode then
+  init_num_hearts = 100
 end
 
 

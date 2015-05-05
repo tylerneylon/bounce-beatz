@@ -18,6 +18,7 @@ local audio    = require 'audio'
 local Ball     = require 'ball'
 local Bar      = require 'bar'
 local beatz    = require 'beatz.beatz'
+local dbg      = require 'dbg'
 local draw     = require 'draw'
 local font     = require 'font'
 local Player   = require 'player'
@@ -429,6 +430,10 @@ function vsbeatz.did_get_control()
   local sec_per_w     = w / math.abs(ball.dx)
   ideal_beats_per_sec = 2 / sec_per_w
   local tempo         = ideal_beats_per_sec * 60
+
+  if dbg.is_fast_1p_mode then
+    tempo = tempo * 3
+  end
 
   -- Slightly speed up the tempo to help account for precision errors.
   -- It's easier for us to in-real-time-slow-down beatz than to speed it up.
