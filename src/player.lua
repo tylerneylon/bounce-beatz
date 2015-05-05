@@ -17,6 +17,7 @@ require 'strict'  -- Enforce careful global variable usage.
 
 local anim     = require 'anim'
 local Ball     = require 'ball'
+local dbg      = require 'dbg'
 local draw     = require 'draw'
 local font     = require 'font'
 local hit_test = require 'hit_test'
@@ -185,7 +186,10 @@ function Player:score_up(ball)
 
   audio.point:play()
   self.score = self.score + ball:value()
-  Ball:new(ball)
+
+  if self.score < dbg.pts_to_win then
+    Ball:new(ball)
+  end
 end
 
 

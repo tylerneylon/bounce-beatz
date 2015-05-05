@@ -171,7 +171,7 @@ function Ball:update(dt)
 end
 
 function Ball:value()
-  if self.is_1p then return 1 end
+  if self.is_1p then return 0 end
   local value = 1
   for _, threshold in ipairs(pt_thresholds) do
     if self.num_hits >= threshold then value = value + 1 end

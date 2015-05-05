@@ -63,6 +63,9 @@ end
 --------------------------------------------------------------------------------
 
 function battle.update(dt)
+  -- There's no more control after someone wins.
+  if winner ~= nil then return end
+
   -- Move the ball.
   ball:update(dt)
 
@@ -91,7 +94,9 @@ function battle.draw()
     p:draw()
   end
 
-  ball:draw()
+  if winner == nil then
+    ball:draw()
+  end
 end
 
 function battle.keypressed(key, isrepeat)
