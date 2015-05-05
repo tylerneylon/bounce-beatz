@@ -13,6 +13,7 @@ local battle = {}
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local audio    = require 'audio'
 local Ball     = require 'ball'
 local dbg      = require 'dbg'
 local draw     = require 'draw'
@@ -54,7 +55,7 @@ local function pr(...)
 end
 
 local function handle_victory()
-  pr('Player %d won!', winner)
+  audio.applause:play()
 end
 
 
