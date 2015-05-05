@@ -265,16 +265,15 @@ local function draw_multiline_str_below_y(multi_s, w, y0, do_draw)
   return y0, top_margin
 end
 
-local function draw_game_over()
+local function draw_msg(msg)
 
   local w, h        = 1.3, 0.7
   local margin      = 0.1
   local border_size = 0.05  -- The border is outside the box.
 
   -- Modify the height and find the text_y to nicely fit the text.
-  local text = 'death\nengulfs you like a warm\nblanket on a cold cold night\n'
   local text_w = w - 2 * margin
-  local text_h, text_margin = draw_multiline_str_below_y(text, text_w, 0, false)
+  local text_h, text_margin = draw_multiline_str_below_y(msg, text_w, 0, false)
   text_h = math.abs(text_h)
   h = text_h + text_margin  -- text_h already accounts for the top margin.
   -- In calculating text_y, we want it to be text_h / 2 - text_margin.
@@ -295,7 +294,15 @@ local function draw_game_over()
   end
 
   -- Draw the text.
-  draw_multiline_str_below_y(text, text_w, text_y)
+  draw_multiline_str_below_y(msg, text_w, text_y)
+end
+
+local function draw_game_over()
+  draw_msg('death\nengulfs you like a warm\nblanket on a cold cold night\n')
+end
+
+local function draw_game_won()
+  draw_msg('victory\ntastes like a juicy rainbow\nmarinated in the nectar of success\n')
 end
 
 local function note_callback(time, beat, note, next_note)
@@ -388,6 +395,8 @@ function vsbeatz.draw()
 
   if game_state == 'lost' then
     draw_game_over()
+  elseif game_state == 'won' then
+    draw_game_won()
   end
 
 end
