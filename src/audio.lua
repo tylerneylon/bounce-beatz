@@ -62,7 +62,7 @@ end
 --------------------------------------------------------------------------------
 
 -- Set up low-replayable sounds.
-local names = {'point', 'good1', 'good2', 'death'}
+local names = {'point', 'good1', 'good2', 'death', 'applause'}
 load_named_sounds(names, audio)
 
 -- Set up high-replayable sounds.

@@ -61,7 +61,9 @@ local next_bounce_num      = 1
 
 local ideal_beats_per_sec
 
-local is_game_over = false
+-- This can be 'playing', 'won', or 'lost.
+local game_state = 'playing'
+local was_last_note_played = false
 
 
 --------------------------------------------------------------------------------
@@ -151,9 +153,6 @@ local function update_bounce_bars()
     if num_bounces > 0 then
       bars[beat] = nil
     end
-
-    -- TEMP
-    --if pb.beat > beat then bars[beat] = nil end
   end
 
   -- In this code block, I'm treating virtual coords as meters (m).
@@ -223,10 +222,15 @@ local function update_bounce_bars()
 end
 
 local function handle_game_over()
-  is_game_over = true
+  game_state = 'lost'
   anim.player_exploding_perc = 0
   anim.change_to('player_exploding_perc', 1.0, {duration = 5.0})
   audio.death:play()
+end
+
+local function handle_game_won()
+  game_state = 'won'
+  audio.applause:play()
 end
 
 -- This draws string s centered, taking up width w, and on the line below the
@@ -311,19 +315,13 @@ local function note_callback(time, beat, note, next_note)
       local pb = track.main_track.playback
       anim.ending_perc = 0
       anim.change_to('ending_perc', 1, {duration = 1 / pb.beats_per_sec})
+      was_last_note_played = true
     end
 
     return true
   else
     return 'wait'
   end
-
-  -- TEMP
-  --[[
-  if note ~= 'a' then
-    ball:bounce(0, ball.x, false, 0)
-  end
-  --]]
 
   return true
 end
@@ -335,7 +333,7 @@ end
 
 function vsbeatz.update(dt)
 
-  if is_game_over then return end
+  if game_state ~= 'playing' then return end
 
   -- Move the ball.
   ball:update(dt)
@@ -354,16 +352,22 @@ function vsbeatz.update(dt)
     handle_game_over()
   end
 
+  if was_last_note_played and ball.x > 1 then
+    handle_game_won()
+  end
+
   update_bounce_bars()
 end
  
 function vsbeatz.draw()
 
+  --[[
   -- TEMP This is to help clearly see the extents of the window while
   --      developing this mode.
   local win_w, win_h = love.graphics.getDimensions()
-  --love.graphics.setColor({30, 0, 0})
-  --love.graphics.rectangle('fill', 0, 0, win_w, win_h)
+  love.graphics.setColor({30, 0, 0})
+  love.graphics.rectangle('fill', 0, 0, win_w, win_h)
+  --]]
 
   start_smaller_drawing()
   shield:draw()
@@ -380,11 +384,11 @@ function vsbeatz.draw()
     bar:draw(beat)
   end
 
-  if not is_game_over then ball:draw() end
+  if game_state == 'playing' then ball:draw() end
   draw.borders()
   end_smaller_drawing()
 
-  if is_game_over then
+  if game_state == 'lost' then
     draw_game_over()
   end
 
