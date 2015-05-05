@@ -72,31 +72,28 @@ end
 -------------------------------------------------------------------------------
 
 function anim.is_changing(name)
-  if state[name] == nil then return false end
   local s = state[name]
+  if s == nil then return false end
   if clock < s.start_time then return false end
+  if s.go_past_end then return true end
   return clock <= s.end_time
 end
 
 function anim.change_to(name, dst, opts)
+  assert(opts and opts.duration)
   -- For now I only expect opts to have opts.duration, but in the future it
   -- might have opts.end_time or opts.speed.
   local val = get_value(name)
   if val == nil then
-    print('Error: anim.change_to called on unknown name "' .. name .. '"')
-    os.exit(1)
+    error('anim.change_to called on unknown name "' .. name .. '"')
   end
-  local s = {}
-  s.start_pos = val
-  s.end_pos = dst
-  s.start_time = clock
-  if opts.start then s.start_time = opts.start end
-  s.end_time = s.start_time + opts.duration -- / 5.0
-  if opts.callback then
-    s.callback = opts.callback
-  end
+  local s       = opts
+  s.start_pos   = val
+  s.end_pos     = dst
+  s.start_time  = s.start or clock
+  s.end_time    = s.start_time + s.duration -- / 5.0
   s.is_complete = false
-  state[name] = s
+  state[name]   = s
 end
 
 function anim.change_if_new(name, dst, opts)

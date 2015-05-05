@@ -60,9 +60,14 @@ end
 
 function msg.draw(text)
 
+  local _, num_newlines = text:gsub('\n', '')
+  if num_newlines == 0 then
+    text = text .. '\n'
+  end
+
   local w, h        = 1.3, 0.7
   local margin      = 0.1
-  local border_size = 0.05  -- The border is outside the box.
+  local border_size = 0.02  -- The border is outside the box.
 
   -- Modify the height and find the text_y to nicely fit the text.
   local text_w = w - 2 * margin

@@ -225,7 +225,8 @@ end
 local function handle_game_over()
   game_state = 'lost'
   anim.player_exploding_perc = 0
-  anim.change_to('player_exploding_perc', 1.0, {duration = 5.0})
+  local opts = {duration = 5.0, go_past_end = true}
+  anim.change_to('player_exploding_perc', 1.0, opts)
   audio.death:play()
 end
 

@@ -13,10 +13,13 @@ local battle = {}
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local anim     = require 'anim'
 local audio    = require 'audio'
 local Ball     = require 'ball'
 local dbg      = require 'dbg'
 local draw     = require 'draw'
+local events   = require 'events'
+local msg      = require 'msg'
 local Player   = require 'player'
 
 
@@ -55,7 +58,13 @@ local function pr(...)
 end
 
 local function handle_victory()
-  audio.applause:play()
+  anim.player_exploding_perc = 0
+  local opts = {duration = 5.0, go_past_end = true}
+  anim.change_to('player_exploding_perc', 1.0, opts)
+  players[3 - winner].pl_mode = '1p_pl'  -- Allow the loser to explode.
+  audio.death:play()
+
+  events.add(1.0, function () audio.applause:play() end)
 end
 
 
@@ -97,6 +106,9 @@ function battle.draw()
 
   if winner == nil then
     ball:draw()
+  else
+    local text = string.format('player %d wins', winner)
+    msg.draw(text)
   end
 end
 

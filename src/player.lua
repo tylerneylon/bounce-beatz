@@ -67,13 +67,14 @@ function Player:draw()
 
   local p = anim.player_exploding_perc
   if p and p > 0 and self.pl_mode == '1p_pl' then
-    local level = (1 - p) * 255
-    local color = {level, level, level}
     local opts = {
       perc = p,
       num_cells_x =  8,
       num_cells_y = 64
     }
+    if p > 1 then p = 1 end
+    local level = (1 - p) * 215 + 40
+    local color = {level, level, level}
     draw.exploding_rect_w_mid_pt(self.x, self.y, w, h, color, opts)
   else
     local level = self:level()
