@@ -348,12 +348,10 @@ function vsbeatz.update(dt)
   -- Handle any scoring that may have occurred.
   local was_ball_missed = ball:handle_missed_ball(players, shield)
 
-  if was_ball_missed then
-    handle_game_over()
-  end
-
   if was_last_note_played and ball.x > 1 then
     handle_game_won()
+  elseif was_ball_missed then
+    handle_game_over()
   end
 
   update_bounce_bars()
