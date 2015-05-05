@@ -56,7 +56,7 @@ function Ball:new(ball, dx_sign)
 
   local dx_sign  = math.random(2) * 2 - 3  -- Randomly -1 or +1.
   local dy_sign  = math.random(2) * 2 - 3
-  local start_dx = 0.6
+  local start_dx = 0.8
   local start_dy = 0.4
 
   if dbg.is_ball_weird then

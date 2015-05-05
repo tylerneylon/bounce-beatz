@@ -14,6 +14,7 @@ local battle = {}
 --------------------------------------------------------------------------------
 
 local Ball     = require 'ball'
+local dbg      = require 'dbg'
 local draw     = require 'draw'
 local Player   = require 'player'
 
@@ -36,6 +37,8 @@ local player_dy  = 0.5  -- Previously 1.5.
 -- This is set from battle.take_over.
 local mode
 
+local winner
+
 
 --------------------------------------------------------------------------------
 -- Internal functions.
@@ -44,6 +47,14 @@ local mode
 local function sign(x)
   if x > 0 then return 1 end
   return -1
+end
+
+local function pr(...)
+  print(string.format(...))
+end
+
+local function handle_victory()
+  pr('Player %d won!', winner)
 end
 
 
@@ -62,6 +73,14 @@ function battle.update(dt)
 
   -- Handle any scoring that may have occurred.
   ball:handle_missed_ball(players)
+
+  -- Check for the victory condition.
+  for pl_ind, pl in pairs(players) do
+    if pl.score >= dbg.pts_to_win then
+      winner = pl_ind
+      handle_victory()
+    end
+  end
 end
  
 function battle.draw()
@@ -128,6 +147,7 @@ end
 
 ball    = Ball:new()
 players = {Player:new(-0.8), Player:new(0.8)}
+winner  = nil
 
 
 --------------------------------------------------------------------------------
