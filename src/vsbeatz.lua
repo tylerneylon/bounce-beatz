@@ -66,6 +66,11 @@ local ideal_beats_per_sec
 local game_state = 'playing'
 local was_last_note_played = false
 
+-- TODO Tweak this value.
+local smaller_h_scale = 0.7
+
+local bounce_bars_appear_at_beat_dist = 4
+
 
 --------------------------------------------------------------------------------
 -- Debugging functions.
@@ -87,7 +92,7 @@ end
 
 local function start_smaller_drawing()
   local win_w, win_h = love.graphics.getDimensions()
-  local h_scale = 0.9
+  local h_scale = smaller_h_scale
   love.graphics.push()
   love.graphics.scale(1.0, h_scale)
   love.graphics.translate(0, win_h / 2 * (1 / h_scale - 1))
@@ -160,7 +165,7 @@ local function update_bounce_bars()
   while next_bar_ind <= #pb.notes do
     local note = pb.notes[next_bar_ind]
     local delta_b = note[1] - pb.beat
-    if delta_b > 10 then break end
+    if delta_b > bounce_bars_appear_at_beat_dist then break end
 
     --pr('Considering a note with delta_b = %g', delta_b)
 
@@ -312,19 +317,24 @@ function vsbeatz.draw()
   love.graphics.rectangle('fill', 0, 0, win_w, win_h)
   --]]
 
+  local beat = 0
+  if track and track.main_track then
+    beat = track.main_track.playback.beat
+  end
+
+  local top_y = smaller_h_scale * (1 + draw.border_size)
+  for _, bar in pairs(bars) do
+    bar:draw_outer_parts(beat, top_y)
+  end
+
   start_smaller_drawing()
   shield:draw()
   for _, p in pairs(players) do
     p:draw()
   end
 
-  local beat = 0
-  if track and track.main_track then
-    beat = track.main_track.playback.beat
-  end
-
   for _, bar in pairs(bars) do
-    bar:draw(beat)
+    bar:draw_main_part(beat)
   end
 
   if game_state == 'playing' then ball:draw() end

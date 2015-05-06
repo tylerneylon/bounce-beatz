@@ -78,7 +78,35 @@ function Bar:update(ball, bounce_num)
   return 0  -- 0 for no bounces.
 end
 
-function Bar:draw(beat)
+-- Returns the position and width of a horizontal line drawn at the given
+-- beat_dist with perspective.
+function Bar:pos_of_beat_dist(beat_dist, top_y)
+  local y_perc = beat_dist / (beat_dist + 1)
+  local x = (1 - y_perc) * self.x
+  local y = top_y + y_perc * (1 - top_y)
+  local w = (1 - y_perc) * self.w
+  return x, y, w
+end
+
+function Bar:draw_outer_parts(beat, top_y)
+  if beat < self.beat then
+    local beat_dist = self.beat - beat
+
+    local x_hi, y_hi, w_hi = self:pos_of_beat_dist(beat_dist,       top_y)
+    local x_lo, y_lo, w_lo = self:pos_of_beat_dist(beat_dist - 0.1, top_y)
+
+    draw.polygon(x_lo - w_lo / 2, y_lo,
+                 x_hi - w_hi / 2, y_hi,
+                 x_hi + w_hi / 2, y_hi,
+                 x_lo + w_lo / 2, y_lo)
+
+  end
+end
+
+function Bar:draw_main_part(beat)
+
+  -- TEMP
+  --if true then return end
 
   if not self.do_draw then return end
 
@@ -86,7 +114,16 @@ function Bar:draw(beat)
   
   local color = draw.magenta
   if beat < self.beat then
-    local level = 255 * (1 - (self.beat - beat) / 10)
+
+    local level
+    local beat_delta = self.beat - beat
+    if beat_delta < 1 then
+      level = 255
+    else
+      level = 50
+    end
+
+    --local level = 255 * (1 - (self.beat - beat) / 10)
     color = {level, level, level}
   end
 

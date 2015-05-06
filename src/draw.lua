@@ -58,10 +58,28 @@ local function make_normal_rand_pt()
   return { r * math.cos(angle), r * math.sin(angle) }
 end
 
+local function virt_to_scrn(x, y)
+  local win_w, win_h = love.graphics.getDimensions()
+  return (x + 1) * win_w / 2, (1 - y) * win_h / 2
+end
+
 
 --------------------------------------------------------------------------------
 -- General drawing functions.
 --------------------------------------------------------------------------------
+
+function draw.polygon(...)
+  local virt_pts = {...}
+  local pts = {}
+
+  for i = 1, #virt_pts - 1, 2 do
+    local x, y = virt_pts[i], virt_pts[i + 1]
+    x, y = virt_to_scrn(x, y)
+    pts[#pts + 1] = x
+    pts[#pts + 1] = y
+  end
+  love.graphics.polygon('fill', pts)
+end
 
 function draw.point(x, y)
   -- Convert coordinates.
