@@ -324,7 +324,10 @@ function vsbeatz.draw()
 
   local top_y = smaller_h_scale * (1 + draw.border_size)
   for _, bar in pairs(bars) do
-    bar:draw_outer_parts(beat, top_y)
+    bar:draw_outer_parts(beat, top_y, 'bg')
+  end
+  for _, bar in pairs(bars) do
+    bar:draw_outer_parts(beat, top_y, 'fg')
   end
 
   start_smaller_drawing()
@@ -334,7 +337,10 @@ function vsbeatz.draw()
   end
 
   for _, bar in pairs(bars) do
-    bar:draw_main_part(beat)
+    bar:draw_main_part(beat, 'bg')
+  end
+  for _, bar in pairs(bars) do
+    bar:draw_main_part(beat, 'fg')
   end
 
   if game_state == 'playing' then ball:draw() end

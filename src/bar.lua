@@ -15,6 +15,7 @@ require 'strict'  -- Enforce careful global variable usage.
 -- Require modules.
 --------------------------------------------------------------------------------
 
+local dbg  = require 'dbg'
 local draw = require 'draw'
 
 
@@ -81,6 +82,7 @@ end
 -- Returns the position and width of a horizontal line drawn at the given
 -- beat_dist with perspective.
 function Bar:pos_of_beat_dist(beat_dist, top_y)
+  if beat_dist < 0 then beat_dist = 0 end
   local y_perc = beat_dist / (beat_dist + 1)
   local x = (1 - y_perc) * self.x
   local y = top_y + y_perc * (1 - top_y)
@@ -92,8 +94,10 @@ function Bar:draw_outer_parts(beat, top_y)
   if beat < self.beat then
     local beat_dist = self.beat - beat
 
-    local x_hi, y_hi, w_hi = self:pos_of_beat_dist(beat_dist,       top_y)
-    local x_lo, y_lo, w_lo = self:pos_of_beat_dist(beat_dist - 0.1, top_y)
+    local b = dbg.beats_early_bar_visible
+
+    local x_hi, y_hi, w_hi = self:pos_of_beat_dist(beat_dist,     top_y)
+    local x_lo, y_lo, w_lo = self:pos_of_beat_dist(beat_dist - b, top_y)
 
     draw.polygon(x_lo - w_lo / 2, y_lo,
                  x_hi - w_hi / 2, y_hi,
@@ -103,12 +107,14 @@ function Bar:draw_outer_parts(beat, top_y)
   end
 end
 
-function Bar:draw_main_part(beat)
+function Bar:draw_main_part(beat, fg_or_bg)
 
   -- TEMP
   --if true then return end
 
   if not self.do_draw then return end
+
+  local do_draw = true
 
   --pr('From Bar:draw, self.x = %g', self.x)
   
@@ -117,19 +123,23 @@ function Bar:draw_main_part(beat)
 
     local level
     local beat_delta = self.beat - beat
-    if beat_delta < 1 then
+    if beat_delta < dbg.beats_early_bar_visible then
       level = 255
+      do_draw = (fg_or_bg == 'fg')
     else
       level = 50
+      do_draw = (fg_or_bg == 'bg')
     end
 
     --local level = 255 * (1 - (self.beat - beat) / 10)
     color = {level, level, level}
   end
 
-  draw.rect_w_mid_pt(self.x, 0,  -- x, y
-                     self.w, 2,  -- w, h
-                     color)
+  if do_draw then
+    draw.rect_w_mid_pt(self.x, 0,  -- x, y
+                       self.w, 2,  -- w, h
+                       color)
+  end
 end
 
 
