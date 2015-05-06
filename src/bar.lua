@@ -45,6 +45,12 @@ local function sign(x)
   return -1
 end
 
+local function clamp01(x)
+  if x < 0 then return 0 end
+  if x > 1 then return 1 end
+  return x
+end
+
 
 --------------------------------------------------------------------------------
 -- The Bar class.
@@ -65,8 +71,8 @@ end
 
 function Bar:update(ball, bounce_num)
 
-  -- Avoid bounces that are definitely too early for this bar's note.
-  if bounce_num < self.bounce_num then return 0 end
+  -- Avoid all bounces except for the properly-indexed one for this bar's note.
+  if bounce_num ~= self.bounce_num then return 0 end
 
   local num_hits = 0
 
@@ -92,7 +98,7 @@ function Bar:bg_level(beat)
     local start_beat = self.beat - dbg.bars_appear_at_beat_dist
     local beats_in = beat - start_beat
     if beats_in < fade_beats then
-      return bg_level * beats_in / fade_beats
+      return bg_level * clamp01(beats_in / fade_beats)
     else
       return bg_level
     end
@@ -100,7 +106,7 @@ function Bar:bg_level(beat)
     local end_beat = self.beat + dbg.bars_appear_at_beat_dist
     local beats_from_end = end_beat - beat
     if beats_from_end < fade_beats then
-      return bg_level * beats_from_end / fade_beats
+      return bg_level * clamp01(beats_from_end / fade_beats)
     else
       return bg_level
     end
@@ -113,7 +119,7 @@ function Bar:pos_of_beat_dist(beat_dist, top_y)
   if beat_dist < 0 then beat_dist = 0 end
   local y_perc = beat_dist / (beat_dist + 1)
   local x = (1 - y_perc) * self.x
-  local y = top_y + y_perc * (1.2 - top_y)
+  local y = top_y + y_perc * (1.1 - top_y)
   local w = (1 - y_perc) * self.w
   return x, y, w
 end
@@ -137,31 +143,20 @@ end
 
 function Bar:draw_main_part(beat, fg_or_bg)
 
-  -- TEMP
-  --if true then return end
-
   if not self.do_draw then return end
 
   local do_draw = true
 
-  --pr('From Bar:draw, self.x = %g', self.x)
-  
-  local color = draw.magenta
-  if beat < self.beat then
-
-    local level
-    local beat_delta = self.beat - beat
-    if beat_delta < dbg.beats_early_bar_visible then
-      level = 255
-      do_draw = (fg_or_bg == 'fg')
-    else
-      level = self:bg_level(beat)
-      do_draw = (fg_or_bg == 'bg')
-    end
-
-    --local level = 255 * (1 - (self.beat - beat) / 10)
-    color = {level, level, level}
+  local level
+  local beat_delta = self.beat - beat
+  if beat_delta >= 0 and beat_delta < dbg.beats_early_bar_visible then
+    level = 255
+    do_draw = (fg_or_bg == 'fg')
+  else
+    level = self:bg_level(beat)
+    do_draw = (fg_or_bg == 'bg')
   end
+  local color = {level, level, level}
 
   if do_draw then
     draw.rect_w_mid_pt(self.x, 0,  -- x, y

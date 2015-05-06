@@ -154,7 +154,8 @@ local function update_bounce_bars()
     local bar = bars[i]
     local num_bounces = bar:update(ball, next_bounce_num)
     handle_num_bounces(num_bounces)
-    if num_bounces > 0 then
+
+    if pb.beat - bar.beat > dbg.bars_appear_at_beat_dist then
       table.remove(bars, i)
     else
       i = i + 1
