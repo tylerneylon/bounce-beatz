@@ -65,7 +65,6 @@ function Bar:new(b, hit_x, ball_dx_at_hit, ball)
 
   b.x = hit_x + (self.w + ball.w) / 2 * sign(ball_dx_at_hit)
 
-  --print('Set b.x to ', b.x) -- TEMP
   return setmetatable(b, {__index = self})
 end
 
@@ -85,8 +84,6 @@ function Bar:update(ball, bounce_num)
      (ball.old_x >  hi_x and ball.x < low_x) then
 
     local bounce_pt = self.x - w * sign(ball.dx)
-    -- TEMP
-    --print('Bar-triggered bounce!')
     ball:reflect_bounce(bounce_pt)
     return 1  -- 1 for 1 bounce.
   end
@@ -115,38 +112,59 @@ end
 
 -- Returns the position and width of a horizontal line drawn at the given
 -- beat_dist with perspective.
-function Bar:pos_of_beat_dist(beat_dist, top_y)
+function Bar:pos_of_beat_dist(beat_dist, top_y, y_perc)
   if beat_dist < 0 then beat_dist = 0 end
-  local y_perc = beat_dist / (beat_dist + 1)
+  y_perc = y_perc or beat_dist / (beat_dist + 1)
   local x = (1 - y_perc) * self.x
   local y = top_y + y_perc * (1.1 - top_y)
   local w = (1 - y_perc) * self.w
   return x, y, w
 end
 
-function Bar:draw_outer_parts(beat, top_y)
-  if beat < self.beat then
-    local beat_dist = self.beat - beat
+function Bar:draw_outer_parts(beat, top_y, fg_or_bg)
+
+  if fg_or_bg == 'fg' and beat >= self.beat then return end
+
+  local hi_beat_dist, lo_beat_dist, hi_y_perc
+
+  if fg_or_bg == 'bg' then
+    local level = self:bg_level(beat)
+    love.graphics.setColor({level, level, level})
+
+    hi_beat_dist = math.huge
+    lo_beat_dist = 0
+    hi_y_perc = 1
+
+  elseif beat < self.beat then
+
+    love.graphics.setColor(draw.white)
 
     local b = dbg.beats_early_bar_visible
-
-    local x_hi, y_hi, w_hi = self:pos_of_beat_dist(beat_dist,     top_y)
-    local x_lo, y_lo, w_lo = self:pos_of_beat_dist(beat_dist - b, top_y)
-
-    draw.polygon(x_lo - w_lo / 2, y_lo,
-                 x_hi - w_hi / 2, y_hi,
-                 x_hi + w_hi / 2, y_hi,
-                 x_lo + w_lo / 2, y_lo)
+    hi_beat_dist = self.beat - beat
+    lo_beat_dist = hi_beat_dist - b
 
   end
+
+  local x_hi, y_hi, w_hi = self:pos_of_beat_dist(hi_beat_dist, top_y, hi_y_perc)
+  local x_lo, y_lo, w_lo = self:pos_of_beat_dist(lo_beat_dist, top_y)
+
+  --[[
+  if fg_or_bg == 'bg' then
+    pr('x_hi, y_hi, w_hi = %g, %g, %g', x_hi, y_hi, w_hi)
+    pr('x_lo, y_lo, w_lo = %g, %g, %g', x_lo, y_lo, w_lo)
+  end
+  --]]
+
+  draw.polygon(x_lo - w_lo / 2, y_lo,
+               x_hi - w_hi / 2, y_hi,
+               x_hi + w_hi / 2, y_hi,
+               x_lo + w_lo / 2, y_lo)
 end
 
 function Bar:draw_main_part(beat, fg_or_bg)
-
   if not self.do_draw then return end
 
-  local do_draw = true
-
+  local do_draw = true  -- This helps us work with the fg_or_bg parameter.
   local level
   local beat_delta = self.beat - beat
   if beat_delta >= 0 and beat_delta < dbg.beats_early_bar_visible then
@@ -157,7 +175,6 @@ function Bar:draw_main_part(beat, fg_or_bg)
     do_draw = (fg_or_bg == 'bg')
   end
   local color = {level, level, level}
-
   if do_draw then
     draw.rect_w_mid_pt(self.x, 0,  -- x, y
                        self.w, 2,  -- w, h
