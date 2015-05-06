@@ -66,7 +66,7 @@ local game_state = 'playing'
 local was_last_note_played = false
 
 -- TODO Tweak this value.
-local smaller_h_scale = 0.7
+local smaller_h_scale = 0.8
 
 
 --------------------------------------------------------------------------------

@@ -24,7 +24,7 @@ local draw = require 'draw'
 --------------------------------------------------------------------------------
 
 local fade_beats = 0.5
-local bg_level   = 50
+local bg_level   = 25
 
 
 --------------------------------------------------------------------------------
@@ -123,9 +123,9 @@ end
 
 function Bar:draw_outer_parts(beat, top_y, fg_or_bg)
 
-  if fg_or_bg == 'fg' and beat >= self.beat then return end
-
   local hi_beat_dist, lo_beat_dist, hi_y_perc
+  local y_mults = {1}
+  if fg_or_bg == 'bg' then y_mults = {-1, 1} end
 
   if fg_or_bg == 'bg' then
     local level = self:bg_level(beat)
@@ -137,11 +137,23 @@ function Bar:draw_outer_parts(beat, top_y, fg_or_bg)
 
   elseif beat < self.beat then
 
+    -- Draw fg bars coming in.
     love.graphics.setColor(draw.white)
 
     local b = dbg.beats_early_bar_visible
     hi_beat_dist = self.beat - beat
     lo_beat_dist = hi_beat_dist - b
+
+  else
+
+    -- Draw fg bars going away.
+    love.graphics.setColor(draw.white)
+
+    local b = dbg.beats_early_bar_visible
+    hi_beat_dist = beat - self.beat
+    lo_beat_dist = hi_beat_dist - b
+
+    y_mults = {-1}
 
   end
 
@@ -155,10 +167,12 @@ function Bar:draw_outer_parts(beat, top_y, fg_or_bg)
   end
   --]]
 
-  draw.polygon(x_lo - w_lo / 2, y_lo,
-               x_hi - w_hi / 2, y_hi,
-               x_hi + w_hi / 2, y_hi,
-               x_lo + w_lo / 2, y_lo)
+  for _, m in pairs(y_mults) do
+    draw.polygon(x_lo - w_lo / 2, m * y_lo,
+                 x_hi - w_hi / 2, m * y_hi,
+                 x_hi + w_hi / 2, m * y_hi,
+                 x_lo + w_lo / 2, m * y_lo)
+  end
 end
 
 function Bar:draw_main_part(beat, fg_or_bg)
