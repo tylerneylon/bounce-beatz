@@ -135,25 +135,17 @@ function Bar:draw_outer_parts(beat, top_y, fg_or_bg)
     lo_beat_dist = 0
     hi_y_perc = 1
 
-  elseif beat < self.beat then
-
-    -- Draw fg bars coming in.
-    love.graphics.setColor(draw.white)
-
-    local b = dbg.beats_early_bar_visible
-    hi_beat_dist = self.beat - beat
-    lo_beat_dist = hi_beat_dist - b
-
   else
 
-    -- Draw fg bars going away.
+    -- Draw bars either coming in or going out.
     love.graphics.setColor(draw.white)
 
     local b = dbg.beats_early_bar_visible
-    hi_beat_dist = beat - self.beat
+    hi_beat_dist = math.abs(self.beat - beat)
     lo_beat_dist = hi_beat_dist - b
 
-    y_mults = {-1}
+    -- Draw this is a going-away party if our note's been played.
+    if beat >= self.beat then y_mults = {-1} end
 
   end
 
