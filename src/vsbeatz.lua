@@ -48,8 +48,7 @@ local mode
 local track
 local next_bar_ind = 2
 
--- This is a map: <beat> -> <bar>, where <beat> is the beat number on which the
--- corresponding note is expected to play.
+-- This is an array of Bar instances.
 local bars = {}
 
 local last_planned_hit_beat
@@ -68,8 +67,6 @@ local was_last_note_played = false
 
 -- TODO Tweak this value.
 local smaller_h_scale = 0.7
-
-local bounce_bars_appear_at_beat_dist = 4
 
 
 --------------------------------------------------------------------------------
@@ -152,12 +149,15 @@ local function update_bounce_bars()
   if not pb.is_playing then return end
 
   -- Check for any ball/bar hits and remove old bars.
-  for beat, bar in pairs(bars) do
+  local i = 1
+  while i <= #bars do
+    local bar = bars[i]
     local num_bounces = bar:update(ball, next_bounce_num)
     handle_num_bounces(num_bounces)
-
     if num_bounces > 0 then
-      bars[beat] = nil
+      table.remove(bars, i)
+    else
+      i = i + 1
     end
   end
 
@@ -165,7 +165,7 @@ local function update_bounce_bars()
   while next_bar_ind <= #pb.notes do
     local note = pb.notes[next_bar_ind]
     local delta_b = note[1] - pb.beat
-    if delta_b > bounce_bars_appear_at_beat_dist then break end
+    if delta_b > dbg.bars_appear_at_beat_dist then break end
 
     --pr('Considering a note with delta_b = %g', delta_b)
 
@@ -213,7 +213,7 @@ local function update_bounce_bars()
         bounce_num = last_planned_bounce_num + 1
       }
       local bar = Bar:new(bar_info, hit_x, last_planned_hit_dx, ball)
-      bars[note[1]] = bar
+      bars[#bars + 1] = bar
     else
       --pr('Skipping adding a bar as it\'s either the player or end-wall')
     end
@@ -306,6 +306,13 @@ function vsbeatz.update(dt)
 
   update_bounce_bars()
 end
+
+-- TODO Move to the right place.
+local function sort_bars(beat)
+  table.sort(bars, function (bar1, bar2)
+    return bar1:bg_level(beat) < bar2:bg_level(beat)
+  end)
+end
  
 function vsbeatz.draw()
 
@@ -322,11 +329,13 @@ function vsbeatz.draw()
     beat = track.main_track.playback.beat
   end
 
+  sort_bars(beat)
+
   local top_y = smaller_h_scale * (1 + draw.border_size)
-  for _, bar in pairs(bars) do
+  for _, bar in ipairs(bars) do
     bar:draw_outer_parts(beat, top_y, 'bg')
   end
-  for _, bar in pairs(bars) do
+  for _, bar in ipairs(bars) do
     bar:draw_outer_parts(beat, top_y, 'fg')
   end
 
@@ -336,10 +345,10 @@ function vsbeatz.draw()
     p:draw()
   end
 
-  for _, bar in pairs(bars) do
+  for _, bar in ipairs(bars) do
     bar:draw_main_part(beat, 'bg')
   end
-  for _, bar in pairs(bars) do
+  for _, bar in ipairs(bars) do
     bar:draw_main_part(beat, 'fg')
   end
 

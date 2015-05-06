@@ -20,6 +20,14 @@ local draw = require 'draw'
 
 
 --------------------------------------------------------------------------------
+-- Internal globals.
+--------------------------------------------------------------------------------
+
+local fade_beats = 0.5
+local bg_level   = 50
+
+
+--------------------------------------------------------------------------------
 -- Debugging functions.
 --------------------------------------------------------------------------------
 
@@ -79,13 +87,33 @@ function Bar:update(ball, bounce_num)
   return 0  -- 0 for no bounces.
 end
 
+function Bar:bg_level(beat)
+  if beat < self.beat then
+    local start_beat = self.beat - dbg.bars_appear_at_beat_dist
+    local beats_in = beat - start_beat
+    if beats_in < fade_beats then
+      return bg_level * beats_in / fade_beats
+    else
+      return bg_level
+    end
+  else
+    local end_beat = self.beat + dbg.bars_appear_at_beat_dist
+    local beats_from_end = end_beat - beat
+    if beats_from_end < fade_beats then
+      return bg_level * beats_from_end / fade_beats
+    else
+      return bg_level
+    end
+  end
+end
+
 -- Returns the position and width of a horizontal line drawn at the given
 -- beat_dist with perspective.
 function Bar:pos_of_beat_dist(beat_dist, top_y)
   if beat_dist < 0 then beat_dist = 0 end
   local y_perc = beat_dist / (beat_dist + 1)
   local x = (1 - y_perc) * self.x
-  local y = top_y + y_perc * (1 - top_y)
+  local y = top_y + y_perc * (1.2 - top_y)
   local w = (1 - y_perc) * self.w
   return x, y, w
 end
@@ -127,7 +155,7 @@ function Bar:draw_main_part(beat, fg_or_bg)
       level = 255
       do_draw = (fg_or_bg == 'fg')
     else
-      level = 50
+      level = self:bg_level(beat)
       do_draw = (fg_or_bg == 'bg')
     end
 
