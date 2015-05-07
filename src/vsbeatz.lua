@@ -283,6 +283,53 @@ local function sort_bars(beat)
   end)
 end
  
+local function start_new_game()
+  next_bar_ind = 2
+  num_unplayed_bounces = 0
+  next_bounce_num = 1
+  was_last_note_played = false
+
+  ball    = Ball:new({is_1p = true})
+  players = {Player:new(-0.8, 0.6, '1p_pl'), Player:new(1.0, 2.0, '1p_bar')}
+  shield = Shield:new(players[1])
+  for i = 1, 2 do
+    players[i].do_draw_score = false
+  end
+
+  last_planned_hit_beat   = 0
+  last_planned_hit_x      = players[1]:bounce_pt(ball)
+  last_planned_hit_dx     = math.abs(ball.dx)
+  last_planned_bounce_num = 1
+  
+  -- Calculate the tempo we'll play at. Our goal is exactly one bar = 4 beats
+  -- between two consecutive player hits for the main player. This is the same
+  -- as two beats per screen width.
+  
+  local w = players[2]:bounce_pt(ball) - players[1]:bounce_pt(ball)
+  local sec_per_w     = w / math.abs(ball.dx)
+  ideal_beats_per_sec = 2 / sec_per_w
+  local tempo         = ideal_beats_per_sec * 60
+
+  if dbg.is_fast_1p_mode then
+    tempo = tempo * 3
+  end
+
+  -- Slightly speed up the tempo to help account for precision errors.
+  -- It's easier for us to in-real-time-slow-down beatz than to speed it up.
+  tempo = tempo * 1.1
+
+  beatz.set_note_callback(note_callback)
+  track = beatz.load('beatz/b.beatz')
+  track:set_tempo(tempo)
+  track:play()
+
+  anim.player_exploding_perc = 0
+  -- Cancel any ongoing animation of this value.
+  anim.change_to('player_exploding_perc', 0, {duration = 0})
+
+  game_state = 'playing'
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -369,6 +416,10 @@ function vsbeatz.keypressed(key, isrepeat)
   -- We don't care about auto-repeat key siganls.
   if isrepeat then return end
 
+  if game_state ~= 'playing' and key == 'r' then
+    start_new_game()
+  end
+
   -- The controls are: [QA for player 1] [PL for player 2].
   local actions = {
     q = {p = players[1], sign =  1},
@@ -407,28 +458,7 @@ function vsbeatz.keyreleased(key)
 end
 
 function vsbeatz.did_get_control()
-
-  -- Calculate the tempo we'll play at. Our goal is exactly one bar = 4 beats
-  -- between two consecutive player hits for the main player. This is the same
-  -- as two beats per screen width.
-  
-  local w = players[2]:bounce_pt(ball) - players[1]:bounce_pt(ball)
-  local sec_per_w     = w / math.abs(ball.dx)
-  ideal_beats_per_sec = 2 / sec_per_w
-  local tempo         = ideal_beats_per_sec * 60
-
-  if dbg.is_fast_1p_mode then
-    tempo = tempo * 3
-  end
-
-  -- Slightly speed up the tempo to help account for precision errors.
-  -- It's easier for us to in-real-time-slow-down beatz than to speed it up.
-  tempo = tempo * 1.1
-
-  beatz.set_note_callback(note_callback)
-  track = beatz.load('beatz/b.beatz')
-  track:set_tempo(tempo)
-  track:play()
+  start_new_game()
 end
 
 -- TODO remove; and the mode variable
@@ -443,7 +473,6 @@ end
 --------------------------------------------------------------------------------
 
 ball    = Ball:new({is_1p = true})
-local is_1p = true
 -- The 1.2 value here is temporary for debugging. Normally we leave that
 -- parameter blank so Player will use the default height.
 players = {Player:new(-0.8, 0.6, '1p_pl'), Player:new(1.0, 2.0, '1p_bar')}
