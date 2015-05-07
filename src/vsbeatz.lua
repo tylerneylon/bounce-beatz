@@ -68,6 +68,10 @@ local was_last_note_played = false
 -- TODO Tweak this value.
 local smaller_h_scale = 0.8
 
+-- This value is used to make a good guess as to when the tutorial is no longer
+-- needed.
+local num_moves_made = 0  -- Does *not* reset with each new game.
+
 
 --------------------------------------------------------------------------------
 -- Debugging functions.
@@ -328,9 +332,15 @@ local function start_new_game()
   -- Cancel any ongoing animation of this value.
   anim.change_to('player_exploding_perc', 0, {duration = 0})
 
-  anim.tutorial_opacity = 1
-  local opts = {duration = 2.0, start = anim.clock + 4}
-  anim.change_to('tutorial_opacity', 0, opts)
+  if num_moves_made < 25 then
+    anim.tutorial_opacity = 1
+    local opts = {duration = 2.0, start = anim.clock + 4}
+    anim.change_to('tutorial_opacity', 0, opts)
+  else
+    anim.tutorial_opacity = 0
+    -- Cancel any ongoing animation of this value.
+    anim.change_to('tutorial_opacity', 0, {duration = 0})
+  end
 
   game_state = 'playing'
 end
@@ -452,6 +462,7 @@ function vsbeatz.keypressed(key, isrepeat)
 
   local action = actions[key]
   if not action then return end
+  num_moves_made = num_moves_made + 1
 
   local pl = action.p
   pl.ddy = action.sign * player_ddy
