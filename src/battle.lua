@@ -153,6 +153,11 @@ function battle.keyreleased(key)
   pl:stop_at(pl.y)
 end
 
+function battle.did_get_control()
+  audio.vs_bkg:setLooping(true)
+  audio.vs_bkg:play()
+end
+
 function battle.take_over(mode_name)
   mode = mode_name
   love.give_control_to(battle)

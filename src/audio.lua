@@ -43,6 +43,12 @@ function ReplayableSource:stop()
   end
 end
 
+function ReplayableSource:setLooping(looping)
+  for i = 1, #self.raw_sources do
+    self.raw_sources[i]:setLooping(looping)
+  end
+end
+
 
 --------------------------------------------------------------------------------
 -- Supporting functions.
@@ -75,7 +81,7 @@ load_named_sounds(names, audio, 10)
 load_named_sounds({'spark'}, audio, 3, '.mp3')
 
 -- Set up songs.
-local names = {'beatz01'}
+local names = {'beatz01', 'vs_bkg'}
 load_named_sounds(names, audio, 1, '.mp3')
 
 
