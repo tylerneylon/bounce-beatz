@@ -334,7 +334,7 @@ local function start_new_game()
 
   if num_moves_made < 25 then
     anim.tutorial_opacity = 1
-    local opts = {duration = 2.0, start = anim.clock + 4}
+    local opts = {duration = 2.0, start = anim.clock + 5}
     anim.change_to('tutorial_opacity', 0, opts)
   else
     anim.tutorial_opacity = 0

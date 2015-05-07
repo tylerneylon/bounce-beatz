@@ -19,6 +19,7 @@ local Ball     = require 'ball'
 local dbg      = require 'dbg'
 local draw     = require 'draw'
 local events   = require 'events'
+local font     = require 'font'
 local msg      = require 'msg'
 local Player   = require 'player'
 
@@ -42,7 +43,6 @@ local player_dy  = 0.5  -- Previously 1.5.
 local mode
 
 local winner
-local clock
 
 
 --------------------------------------------------------------------------------
@@ -76,13 +76,28 @@ local function start_new_game()
   ball    = Ball:new()
   players = {Player:new(-0.8), Player:new(0.8)}
   winner  = nil
-  clock   = 0
+
+  anim.tutorial_opacity = 1
+  local opts = {duration = 2.0, start = anim.clock + 5}
+  anim.change_to('tutorial_opacity', 0, opts)
+end
+
+local function draw_some_keys(t, x, up_key, down_key)
+  local color = {t * 30, t * 40, t * 50}
+  msg.draw_key(x,  0.25,   up_key, color)
+  msg.draw_key(x, -0.25, down_key, color)
+
+  local opts = {block_size = 0.015}
+  font.draw_str('^', x,  0.45, 0.5, 0, color, opts)
+  font.draw_str('%', x, -0.46, 0.5, 1, color, opts)
 end
 
 local function draw_tutorial()
-  pr('draw tutorial')
-  msg.draw_key(-0.2,  0.2, 'q')
-  msg.draw_key(-0.2, -0.2, 'q')
+  local t = anim.tutorial_opacity
+  if t == nil or t == 0 then return end
+
+  draw_some_keys(t, -0.58, 'q', 's')
+  draw_some_keys(t,  0.58, 'p', 'l')
 end
 
 
@@ -91,8 +106,6 @@ end
 --------------------------------------------------------------------------------
 
 function battle.update(dt)
-  clock = clock + dt
-
   -- There's no more control after someone wins.
   if winner ~= nil then return end
 
@@ -120,7 +133,9 @@ function battle.draw()
   draw.borders()
   draw.center_line()
 
-  draw_tutorial()
+  if winner == nil then
+    draw_tutorial()
+  end
   
   for _, p in pairs(players) do
     p:draw()
@@ -183,21 +198,13 @@ end
 function battle.did_get_control()
   audio.vs_bkg:setLooping(true)
   audio.vs_bkg:play()
+  start_new_game()
 end
 
 function battle.take_over(mode_name)
   mode = mode_name
   love.give_control_to(battle)
 end
-
-
---------------------------------------------------------------------------------
--- Initialization.
---------------------------------------------------------------------------------
-
-ball    = Ball:new()
-players = {Player:new(-0.8), Player:new(0.8)}
-winner  = nil
 
 
 --------------------------------------------------------------------------------
