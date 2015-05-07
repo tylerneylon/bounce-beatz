@@ -67,6 +67,16 @@ local function handle_victory()
   events.add(1.0, function () audio.applause:play() end)
 end
 
+local function start_new_game()
+  anim.player_exploding_perc = 0
+  -- Cancel any ongoing animation of this value.
+  anim.change_to('player_exploding_perc', 0, {duration = 0})
+
+  ball    = Ball:new()
+  players = {Player:new(-0.8), Player:new(0.8)}
+  winner  = nil
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -109,12 +119,17 @@ function battle.draw()
   else
     local text = string.format('player %d wins', winner)
     msg.draw(text)
+    msg.draw_at_bottom('press r to play again')
   end
 end
 
 function battle.keypressed(key, isrepeat)
   -- We don't care about auto-repeat key siganls.
   if isrepeat then return end
+
+  if winner ~= nil and key == 'r' then
+    start_new_game()
+  end
 
   -- The controls are: [QA for player 1] [PL for player 2].
   local actions = {

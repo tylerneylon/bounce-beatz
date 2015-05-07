@@ -22,7 +22,7 @@ dbg.is_fast_1p_mode = false
 -- This value is only used outside of is_fast_1p_mode.
 dbg.init_num_hearts = 3  -- This is normally 3.
 
-dbg.pts_to_win = 7
+dbg.pts_to_win = 7  -- This is normally 7.
 
 dbg.beats_early_bar_visible = 0.5
 dbg.bars_appear_at_beat_dist = 6
