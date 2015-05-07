@@ -44,6 +44,10 @@ local mode
 
 local winner
 
+-- This does *not* reset with each new game, and is used to know whether or not
+-- we want to show the tutorial again.
+local moves_made = {0, 0}
+
 
 --------------------------------------------------------------------------------
 -- Internal functions.
@@ -52,6 +56,15 @@ local winner
 local function sign(x)
   if x > 0 then return 1 end
   return -1
+end
+
+local function min(...)
+  local t = {...}
+  local val = t[1]
+  for i = 2, #t do
+    if t[i] < val then val = t[i] end
+  end
+  return val
 end
 
 local function pr(...)
@@ -77,9 +90,15 @@ local function start_new_game()
   players = {Player:new(-0.8), Player:new(0.8)}
   winner  = nil
 
-  anim.tutorial_opacity = 1
-  local opts = {duration = 2.0, start = anim.clock + 5}
-  anim.change_to('tutorial_opacity', 0, opts)
+  if min(moves_made[1], moves_made[2]) < 25 then
+    anim.tutorial_opacity = 1
+    local opts = {duration = 2.0, start = anim.clock + 5}
+    anim.change_to('tutorial_opacity', 0, opts)
+  else
+    anim.tutorial_opacity = 0
+    -- Cancel any ongoing animation of this value.
+    anim.change_to('tutorial_opacity', 0, {duration = 0})
+  end
 end
 
 local function draw_some_keys(t, x, up_key, down_key)
@@ -160,10 +179,10 @@ function battle.keypressed(key, isrepeat)
 
   -- The controls are: [QA for player 1] [PL for player 2].
   local actions = {
-    q = {p = players[1], sign =  1},
-    a = {p = players[1], sign = -1},
-    p = {p = players[2], sign =  1},
-    l = {p = players[2], sign = -1}
+    q = {pl = 1, p = players[1], sign =  1},
+    a = {pl = 1, p = players[1], sign = -1},
+    p = {pl = 2, p = players[2], sign =  1},
+    l = {pl = 2, p = players[2], sign = -1}
   }
   actions.s = actions.a
 
@@ -173,6 +192,7 @@ function battle.keypressed(key, isrepeat)
   local pl = action.p
   pl.ddy = action.sign * player_ddy
   pl.dy  = action.sign * player_dy
+  moves_made[action.pl] = moves_made[action.pl] + 1
 end
 
 function battle.keyreleased(key)
