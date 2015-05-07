@@ -53,6 +53,23 @@ local function draw_multiline_str_below_y(multi_s, w, y0, do_draw)
   return y0, top_margin
 end
 
+-- Draws a black background with an outside-the-box white border.
+-- (x, y) is the center point; w, h give the size.
+local function draw_frame(x, y, w, h, border_size)
+  draw.rect_w_mid_pt(x, y, w, h, draw.black)
+  local bord_w, bord_h = w + border_size, h + border_size
+  local corner = {(w + border_size) / 2, (h + border_size) / 2}
+  local dir = {1, 0}
+  for i = 1, 4 do
+    draw.rect_w_mid_pt(x + dir[1] * corner[1],
+                       y + dir[2] * corner[2], 
+                       math.abs(dir[2]) * bord_w + border_size,
+                       math.abs(dir[1]) * bord_h + border_size,
+                       draw.white)
+    dir[1], dir[2] = -dir[2], dir[1]
+  end
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -78,21 +95,28 @@ function msg.draw(text)
   local text_y = h / 2
 
   -- Draw a black background with a white border.
-  draw.rect_w_mid_pt(0, 0, w, h, draw.black)
-  local bord_w, bord_h = w + border_size, h + border_size
-  local corner = {(w + border_size) / 2, (h + border_size) / 2}
-  local dir = {1, 0}
-  for i = 1, 4 do
-    draw.rect_w_mid_pt(dir[1] * corner[1],
-                       dir[2] * corner[2], 
-                       math.abs(dir[2]) * bord_w + border_size,
-                       math.abs(dir[1]) * bord_h + border_size,
-                       draw.white)
-    dir[1], dir[2] = -dir[2], dir[1]
-  end
+  draw_frame(0, 0, w, h, border_size)
 
   -- Draw the text.
   draw_multiline_str_below_y(text, text_w, text_y)
+end
+
+function msg.draw_at_bottom(text)
+  local w           = 0.8
+  local margin      = 0.1
+  local border_size = 0.01
+
+  local text_w = w - 2 * margin
+  local text_h, text_margin = draw_str_below_y(text, text_w, 0, false)
+  text_h = math.abs(text_h)
+  local h = text_h + text_margin  -- text_h already accounts for the top margin.
+
+  local text_y = -1 + text_h
+
+  -- The + 0.01 is to avoid the bottom of the frame from appearing at all.
+  draw_frame(0, h / 2 - 1, w, h + 0.01, border_size)
+
+  draw_str_below_y(text, text_w, text_y)
 end
 
 

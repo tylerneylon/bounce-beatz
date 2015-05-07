@@ -243,6 +243,7 @@ end
 
 local function draw_game_over()
   msg.draw('death\nengulfs you like a warm\nblanket on a cold cold night\n')
+  msg.draw_at_bottom('press r to restart')
 end
 
 local function draw_game_won()
