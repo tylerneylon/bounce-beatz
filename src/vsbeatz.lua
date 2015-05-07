@@ -277,6 +277,12 @@ local function note_callback(time, beat, note, next_note)
   return true
 end
 
+local function sort_bars(beat)
+  table.sort(bars, function (bar1, bar2)
+    return bar1:bg_level(beat) < bar2:bg_level(beat)
+  end)
+end
+ 
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -308,13 +314,6 @@ function vsbeatz.update(dt)
   update_bounce_bars()
 end
 
--- TODO Move to the right place.
-local function sort_bars(beat)
-  table.sort(bars, function (bar1, bar2)
-    return bar1:bg_level(beat) < bar2:bg_level(beat)
-  end)
-end
- 
 function vsbeatz.draw()
 
   local win_w, win_h = love.graphics.getDimensions()
@@ -336,9 +335,7 @@ function vsbeatz.draw()
     bar:draw_outer_parts(beat, top_y, 'fg')
   end
 
-
   --== Begin drawing main board. ==--
-
   start_smaller_drawing()
   -- It has a black background.
   love.graphics.setColor({0, 0, 0})
@@ -358,9 +355,7 @@ function vsbeatz.draw()
   if game_state == 'playing' then ball:draw() end
   draw.borders()
   end_smaller_drawing()
-
   --== End drawing main board. ==--
-
 
   if game_state == 'lost' then
     draw_game_over()
