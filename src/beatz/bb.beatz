@@ -1,0 +1,146 @@
+A = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a                               '
+      'x                               '
+]]
+}
+
+  B = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a               b               '
+      'b               d               '
+      'c                               '
+      'x               y               '
+]]
+}
+
+C = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a       b   c   d   c   b       '
+      'b       c       e       c       '
+      '                        a       '
+      'x                               '
+]]
+}
+
+D = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a       b   c   d     c   b     '
+      'x                               '
+]]
+}
+
+E = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a           b   c   d           '
+      'b               a               '
+      'e                               '
+      'x                               '
+]]
+}
+
+F = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a     e   f         d           '
+      'e                   e           '
+      'x                               '
+]]
+}
+
+G = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 6;
+  ----|1                       |
+  ----|1  +  2  +  3  +  4  +  |
+[[
+      'a     b  c  d b c db    '
+      'x                               '
+]]
+}
+
+H = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a       e       b       f       '
+      'b               d               '
+      'x               x               '
+]]
+}
+
+I = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a       b       a   b c d b c   '
+      'x               x               '
+]]
+}
+
+J = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a   b c d b c   a       b       '
+      'x               x               '
+]]
+}
+
+K = new_track {
+  instrument = 'human_drumkit';
+  chars_per_beat = 8;
+  ----|1                               |
+  ----|1   +   2   +   3   +   4   +   |
+[[
+      'a                               '
+      'b                               '
+      'c                               '
+      'd                               '
+      'e                               '
+      'f                               '
+      'x                               '
+]]
+}
+
+--main_track = {B, B, B, C, B, C, B, B, E, B, E, B, F}
+--main_track = {B, B, E, B, C, B, B, C, F, C, B}
+
+--main_track = {B, C, F, C, B, C, F, C, B, C, H, C, B, H, H, C, H, C, H, C, H, B, B, A}
+
+main_track = {
+
+  tempo = 220;
+  
+  B, B, B, C, B, C, B, B, E, B, C, B, B, C, F, C, B, C, F,
+  C, B, C, H, C, B, H, H, C, H, C, H, C, H, B, B, K
+}

@@ -324,7 +324,7 @@ local function start_new_game()
   tempo = tempo * 1.1
 
   beatz.set_note_callback(note_callback)
-  track = beatz.load('beatz/b.beatz')
+  track = beatz.load('beatz/bb.beatz')
   track:set_tempo(tempo)
   track:play()
 
