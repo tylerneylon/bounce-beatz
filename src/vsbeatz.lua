@@ -317,13 +317,9 @@ end
  
 function vsbeatz.draw()
 
-  --[[
-  -- TEMP This is to help clearly see the extents of the window while
-  --      developing this mode.
   local win_w, win_h = love.graphics.getDimensions()
-  love.graphics.setColor({30, 0, 0})
+  love.graphics.setColor({10, 10, 20})
   love.graphics.rectangle('fill', 0, 0, win_w, win_h)
-  --]]
 
   local beat = 0
   if track and track.main_track then
@@ -340,7 +336,13 @@ function vsbeatz.draw()
     bar:draw_outer_parts(beat, top_y, 'fg')
   end
 
+
+  --== Begin drawing main board. ==--
+
   start_smaller_drawing()
+  -- It has a black background.
+  love.graphics.setColor({0, 0, 0})
+  love.graphics.rectangle('fill', 0, 0, win_w, win_h)
   shield:draw()
   for _, p in pairs(players) do
     p:draw()
@@ -356,6 +358,9 @@ function vsbeatz.draw()
   if game_state == 'playing' then ball:draw() end
   draw.borders()
   end_smaller_drawing()
+
+  --== End drawing main board. ==--
+
 
   if game_state == 'lost' then
     draw_game_over()
