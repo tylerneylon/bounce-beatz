@@ -328,12 +328,20 @@ local function start_new_game()
   -- Cancel any ongoing animation of this value.
   anim.change_to('player_exploding_perc', 0, {duration = 0})
 
+  anim.tutorial_opacity = 1
+  local opts = {duration = 2.0, start = anim.clock + 4}
+  anim.change_to('tutorial_opacity', 0, opts)
+
   game_state = 'playing'
 end
 
 local function draw_tutorial()
   local x = -0.58
-  local color = {30, 40, 50}
+  local t = anim.tutorial_opacity
+
+  if t == nil or t == 0 then return end
+
+  local color = {t * 30, t * 40, t * 50}
   msg.draw_key(x,  0.25, 'q', color)
   msg.draw_key(x, -0.25, 's', color)
 

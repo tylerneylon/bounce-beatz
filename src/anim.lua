@@ -7,9 +7,7 @@ Meant to be used as:
   anim.change_to('my_value', 2.0, {duration = 1.0})
   if anim.is_changing('my_value') then whatever() end
 
-This module expects there to be a global called clock
-which is updated as below.
-It's also important to call anim.update from love.update:
+It's important to call anim.update from love.update:
 
   function love.update(dt)
     anim.update(dt)
@@ -24,14 +22,13 @@ anim.update before events.update.
 require 'strict'  -- enforce careful global variable usage.
 
 
-local anim = {}
+local anim = {clock = 0}
 
 
 -------------------------------------------------------------------------------
 -- Internal state and functions.
 -------------------------------------------------------------------------------
 
-local clock = 0
 local state = {}
 
 local function dot_split(s)
@@ -74,9 +71,9 @@ end
 function anim.is_changing(name)
   local s = state[name]
   if s == nil then return false end
-  if clock < s.start_time then return false end
+  if anim.clock < s.start_time then return false end
   if s.go_past_end then return true end
-  return clock <= s.end_time
+  return anim.clock <= s.end_time
 end
 
 function anim.change_to(name, dst, opts)
@@ -90,7 +87,7 @@ function anim.change_to(name, dst, opts)
   local s       = opts
   s.start_pos   = val
   s.end_pos     = dst
-  s.start_time  = s.start or clock
+  s.start_time  = s.start or anim.clock
   s.end_time    = s.start_time + s.duration -- / 5.0
   s.is_complete = false
   state[name]   = s
@@ -109,17 +106,17 @@ function anim.change_if_new(name, dst, opts)
 end
 
 function anim.update(dt)
-  clock = clock + dt
+  anim.clock = anim.clock + dt
   for name, s in pairs(state) do
     if anim.is_changing(name) then
       if s.start_time == s.end_time then
         set_value(name, s.end_pos)
       else
-        local perc_done = (clock - s.start_time) / (s.end_time - s.start_time)
+        local perc_done = (anim.clock - s.start_time) / (s.end_time - s.start_time)
         set_value(name, s.start_pos + perc_done * (s.end_pos - s.start_pos))
       end
     else
-      if clock > s.end_time and not s.is_complete then
+      if anim.clock > s.end_time and not s.is_complete then
         set_value(name, s.end_pos)
         s.is_complete = true
         if s.callback then s.callback() end
