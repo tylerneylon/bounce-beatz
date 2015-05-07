@@ -42,6 +42,7 @@ local player_dy  = 0.5  -- Previously 1.5.
 local mode
 
 local winner
+local clock
 
 
 --------------------------------------------------------------------------------
@@ -75,6 +76,13 @@ local function start_new_game()
   ball    = Ball:new()
   players = {Player:new(-0.8), Player:new(0.8)}
   winner  = nil
+  clock   = 0
+end
+
+local function draw_tutorial()
+  pr('draw tutorial')
+  msg.draw_key(-0.2,  0.2, 'q')
+  msg.draw_key(-0.2, -0.2, 'q')
 end
 
 
@@ -83,6 +91,8 @@ end
 --------------------------------------------------------------------------------
 
 function battle.update(dt)
+  clock = clock + dt
+
   -- There's no more control after someone wins.
   if winner ~= nil then return end
 
@@ -109,6 +119,8 @@ end
 function battle.draw()
   draw.borders()
   draw.center_line()
+
+  draw_tutorial()
   
   for _, p in pairs(players) do
     p:draw()

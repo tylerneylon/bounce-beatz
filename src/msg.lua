@@ -21,11 +21,17 @@ local font     = require 'font'
 -- Internal functions.
 --------------------------------------------------------------------------------
 
+local function pr(...)
+  print(string.format(...))
+end
+
 -- This draws string s centered, taking up width w, and on the line below the
 -- line whose bottom is y0. The return value is the y value of the new line's
 -- baseline. Also returns the size of the top margin.
-local function draw_str_below_y(s, w, y0, do_draw)
+local function draw_str_below_y(s, w, y0, do_draw, x, color)
   if do_draw == nil then do_draw = true end
+  x = x or 0
+  color = color or draw.white
   local s_w, s_h   = font.get_str_size(s)
   local block_size = w / s_w
   local opts       = {block_size = block_size}
@@ -33,9 +39,9 @@ local function draw_str_below_y(s, w, y0, do_draw)
   local y0 =    y0 - s_h * block_size * 1.3
   if do_draw then
     font.draw_str(s,
-                  0, y0,   -- anchor point
+                  x, y0,   -- anchor point
                   0.5, 0,  -- x-centered, y-bottom
-                  draw.white, opts)
+                  color, opts)
   end
   return y0, top_margin
 end
@@ -55,9 +61,11 @@ end
 
 -- Draws a black background with an outside-the-box white border.
 -- (x, y) is the center point; w, h give the size.
-local function draw_frame(x, y, w, h, border_size)
+local function draw_frame(x, y, w, h, border_size, is_rounded, color)
+  color = color or draw.white
+  local r = is_rounded and -1 or 1  -- r = 1 normally; -1 for is_rounded.
   draw.rect_w_mid_pt(x, y, w, h, draw.black)
-  local bord_w, bord_h = w + border_size, h + border_size
+  local bord_w, bord_h = w + r * border_size, h + r * border_size
   local corner = {(w + border_size) / 2, (h + border_size) / 2}
   local dir = {1, 0}
   for i = 1, 4 do
@@ -65,7 +73,7 @@ local function draw_frame(x, y, w, h, border_size)
                        y + dir[2] * corner[2], 
                        math.abs(dir[2]) * bord_w + border_size,
                        math.abs(dir[1]) * bord_h + border_size,
-                       draw.white)
+                       color)
     dir[1], dir[2] = -dir[2], dir[1]
   end
 end
@@ -119,10 +127,30 @@ function msg.draw_at_bottom(text)
   draw_str_below_y(text, text_w, text_y)
 end
 
+function msg.draw_key(x, y, key, color)
+  color = color or {60, 60, 60}
+
+  local w           = 0.15
+  local margin      = 0.03
+  local border_size = 0.01
+
+  local text_w = w - 2 * margin
+  local text_h, text_margin = draw_str_below_y(key, text_w, 0, false)
+  text_h = math.abs(text_h)
+  local h = text_h + text_margin  -- text_h already accounts for the top margin.
+
+  local is_rounded = true
+  draw_frame(x, y - 0.1 * h, w * 1.1, h * 1.1, border_size, is_rounded, color)
+  draw_frame(x, y, w, h, border_size, is_rounded, color)
+
+  local text_y = y + h / 2
+  local do_draw = true
+  draw_str_below_y(key, text_w, text_y, do_draw, x, color)
+end
+
 
 --------------------------------------------------------------------------------
 -- Return.
 --------------------------------------------------------------------------------
 
 return msg
-

@@ -331,6 +331,17 @@ local function start_new_game()
   game_state = 'playing'
 end
 
+local function draw_tutorial()
+  local x = -0.58
+  local color = {30, 40, 50}
+  msg.draw_key(x,  0.25, 'q', color)
+  msg.draw_key(x, -0.25, 's', color)
+
+  local opts = {block_size = 0.015}
+  font.draw_str('^', x,  0.45, 0.5, 0, color, opts)
+  font.draw_str('%', x, -0.46, 0.5, 1, color, opts)
+end
+
 
 --------------------------------------------------------------------------------
 -- Public functions.
@@ -389,16 +400,17 @@ function vsbeatz.draw()
   love.graphics.setColor({0, 0, 0})
   love.graphics.rectangle('fill', 0, 0, win_w, win_h)
   shield:draw()
+  for _, bar in ipairs(bars) do
+    bar:draw_main_part(beat, 'bg')
+  end
+  if game_state == 'playing' then draw_tutorial() end
+  for _, bar in ipairs(bars) do
+    bar:draw_main_part(beat, 'fg')
+  end
   for _, p in pairs(players) do
     p:draw()
   end
 
-  for _, bar in ipairs(bars) do
-    bar:draw_main_part(beat, 'bg')
-  end
-  for _, bar in ipairs(bars) do
-    bar:draw_main_part(beat, 'fg')
-  end
 
   if game_state == 'playing' then ball:draw() end
   draw.borders()
