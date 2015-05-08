@@ -135,6 +135,9 @@ function Player:handle_if_hit(ball)
   
   -- hit_pt is in the range [-1, 1]
   local hit_pt = (ball.y - self.y) / ((self.h + ball.h) / 2)
+  if self.pl_mode == '1p_pl' then
+    hit_pt = hit_pt * 1.2
+  end
   local bounce_pt = self:bounce_pt(ball)
 
   -- Check for edge hits; this is when the ball hits the smaller player edge.
