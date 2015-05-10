@@ -12,7 +12,7 @@ function love.conf(t)
   t.identity      = 'bounce-beatz'
 
   t.window.width  = 1024
-  t.window.height = 768
+  t.window.height = 724
 
   -- Enable this to work with a smaller screen.
   --[[

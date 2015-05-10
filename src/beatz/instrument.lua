@@ -7,15 +7,15 @@ A class to capture a single instrument.
 On disk, an instrument is a set of sound files kept together in a single subdir
 of the instruments dir.
 
-TODO Clarify actual usage.
+Sample usage:
 
-Projected usage:
-
-  -- This is to load audio files in the dir instruments/my_drumkit.
   instrument = require 'instrument'
-  drums = instrument.load('my_drumkit')
-  drums:play('a')
 
+  -- This loads all wav files in the dir instruments/my_drumkit.
+  drums = instrument.load('my_drumkit')
+  drums:play('a')         -- Play the sound from the file 'a.wav'.
+  drums:play({'a', 'b'})  -- Play two sounds simultaneously.
+  
 --]]
 
 require 'beatz.strict'  -- Enforce careful global variable usage.
@@ -25,15 +25,6 @@ local rsounds = require 'beatz.rsounds'
 
 
 local instrument = {}
-
-
--------------------------------------------------------------------------------
--- Debugging functions.
--------------------------------------------------------------------------------
-
-local function pr(...)
-  print(string.format(...))
-end
 
 
 -------------------------------------------------------------------------------
@@ -78,5 +69,9 @@ function instrument.load(inst_name)
   return inst
 end
 
+
+-------------------------------------------------------------------------------
+-- Return.
+-------------------------------------------------------------------------------
 
 return instrument
