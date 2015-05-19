@@ -4,8 +4,14 @@ https://github.com/tylerneylon/beatz
 
 This is a command-line audio track playing and editing module.
 
-It is designed to work as both a stand-alone app and to
-provide a programmatic interface to working with tracks and loops.
+It's designed to be used in three ways:
+ * as a stand-alone music app that plays files using the bplay script,
+ * as a Lua library providing interactive music playback, or
+ * as a library to be used with a love2d (game engine) game.
+
+When used as a stand-alone app or as a general Lua library, it currently only
+works with LuaJIT running on a mac. Love2d provides some cross-platform tools
+that allow it to work on any platform as part of a game.
 
 A *note* is a single sound.  A *loop* is a finite set of notes, along
 with rhythmic data; musically, this is a finite set of measures.
@@ -14,9 +20,7 @@ is meant to be used to play it.
 A *track* is a collection of loops, along with optional instrumentation
 and repeating data.
 
-TODO Finalize this usage comment.
-
-Projected usage:
+Sample usage:
   local beatz = require 'beatz'
 
   beatz.play('my_file.beatz')
@@ -25,6 +29,11 @@ Projected usage:
   
   my_track = beatz.load('my_file.beatz')
   my_track:play()
+
+Much more sophisticated usage is possible. For example, you can set up your own
+run loop that programmatically generates and plays music in real-time using the
+Instrument class, or you can use a note callback function to synchronize
+individual notes of a particular song with the rest of an application.
 
 --]]
 
