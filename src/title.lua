@@ -135,19 +135,20 @@ local function setup_grid_map_of_len(len)
 end
 
 local function color_clamp(val)
-  if val <   0 then return   0 end
-  if val > 255 then return 255 end
+  if val < 0 then return 0 end
+  if val > 1 then return 1 end
   return val
 end
 
 local function setup_grid_colors(len)
   grid_colors = {}
-  local base_color = {0, 200, 230}
+  local base_color = {0, 0.78, 0.90}
   local max_offset = 90
   for i = 1, len do
     local c = {}
     for j = 1, 3 do
-      c[j] = color_clamp(base_color[j] + math.random(-max_offset, max_offset))
+      local offset = math.random(-max_offset, max_offset) / 255
+      c[j] = color_clamp(base_color[j] + offset)
     end
     grid_colors[i] = c
   end
@@ -184,7 +185,7 @@ local function title_color(let, num_let, grid, num_grid)
   if tick_of_grid <= num_eighths then
     return grid_colors[grid]
   end
-  local level = max(anim.row_levels[1], 110)
+  local level = max(anim.row_levels[1], 0.43)
   return {level, level, level}
 end
 
@@ -194,10 +195,10 @@ local function draw_menu()
   local y_off = -0.6  -- The y offset of the menu's center.
 
   -- Determine the color.
-  local level = math.floor((255 - anim.row_levels[5]) * 0.5)
+  local level = (1 - anim.row_levels[5]) * 0.5
   local color = {level, level, level}
 
-  is_menu_visible = (level >= 64)
+  is_menu_visible = (level >= .25)
 
   -- Determine the widest menu line width to help size the border and
   -- position the lines.
@@ -260,7 +261,7 @@ function title.draw()
   local row_height = 2 / num_rows
   for i = 1, (num_rows / 2) do
     -- We'll draw so that i = 1 is for the middle two rows.
-    local level = math.floor(anim.row_levels[i])
+    local level = anim.row_levels[i]
     local c = {level, level, level, level}
     draw.rect_w_mid_pt(0,  (i - 0.5) * row_height, 2, row_height, c)
     draw.rect_w_mid_pt(0, -(i - 0.5) * row_height, 2, row_height, c)
@@ -279,7 +280,7 @@ function title.draw()
   font.draw_str('bounce-beatz', 0, 0, 0.5, 0.5, title_color, opts)
 end
 
-function title.keypressed(key, isrepeat)
+function title.keypressed(key, scancode, isrepeat)
 
   if not is_menu_visible then
     did_skip_anim = true
@@ -317,7 +318,7 @@ events.add_repeating(sec_per_eighth, metronome_tick)
 
 anim.row_levels = {}
 for i = 1, (num_rows / 2) do
-  anim.row_levels[i] = 255
+  anim.row_levels[i] = 1
 end
 
 

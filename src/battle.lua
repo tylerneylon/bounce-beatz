@@ -102,7 +102,7 @@ local function start_new_game()
 end
 
 local function draw_some_keys(t, x, up_key, down_key)
-  local color = {t * 30, t * 40, t * 50}
+  local color = {t * 30 / 255, t * 40 / 255, t * 50 / 255}
   msg.draw_key(x,  0.25,   up_key, color)
   msg.draw_key(x, -0.25, down_key, color)
 
@@ -169,7 +169,7 @@ function battle.draw()
   end
 end
 
-function battle.keypressed(key, isrepeat)
+function battle.keypressed(key, scancode, isrepeat)
   -- We don't care about auto-repeat key siganls.
   if isrepeat then return end
 

@@ -51,13 +51,13 @@ function Player:new(x, h, pl_mode)
   return setmetatable(p, {__index = self})
 end
 
--- Returns a grayscale value 0-255 of the opacity of self.
+-- Returns a grayscale value 0-1 of the opacity of self.
 -- When level == 0, the expected behavior is that self has vanished.
 function Player:level()
-  local level = 255
+  local level = 1
   local end_perc = anim.ending_perc
   if end_perc and self.pl_mode == '1p_bar' then
-    level = 255 * (1 - end_perc)
+    level = 1 - end_perc
   end
   return level
 end

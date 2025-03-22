@@ -37,12 +37,12 @@ draw.border_size = 0.025
 --------------------------------------------------------------------------------
 
 draw.black   = {  0,   0,   0}
-draw.cyan    = {  0, 255, 255}
-draw.gray    = {120, 120, 120}
-draw.green   = {  0, 210,   0}
-draw.white   = {255, 255, 255}
-draw.yellow  = {210, 150,   0}
-draw.magenta = {255,   0, 255}
+draw.cyan    = {  0,   1,   1}
+draw.gray    = {.47, .47, .47}
+draw.green   = {  0, .82,   0}
+draw.white   = {  1,   1,   1}
+draw.yellow  = {.82, .59,   0}
+draw.magenta = {  1,   0,   1}
 
 
 --------------------------------------------------------------------------------
@@ -86,13 +86,13 @@ function draw.point(x, y)
   local win_w, win_h = love.graphics.getDimensions()
   x, y = (x + 1) * win_w / 2, (1 - y) * win_h / 2
 
-  love.graphics.point(x, y)
+  love.graphics.points(x, y)
 end
 
 -- x, y is the lower-left corner of the rectangle.
 function draw.rect(x, y, w, h, color)
   -- Set the color.
-  color = color or {255, 255, 255}
+  color = color or {1, 1, 1}
   love.graphics.setColor(color)
 
   -- Convert coordinates.
@@ -156,7 +156,7 @@ end
 
 function draw.rotated_rect(mid_x, mid_y, w, h, color, angle)
   -- Set the color.
-  color = color or {255, 255, 255}
+  color = color or {1, 1, 1}
   love.graphics.setColor(color)
 
   -- Convert coordinates.

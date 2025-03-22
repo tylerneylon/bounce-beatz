@@ -1,6 +1,7 @@
 --[[ bounce-beatz/src/vsbeatz.lua
 
-Main interactions for the 1p vs beatz mode.
+Main interactions for the 1p mode.
+It's called 'vsbeats' because the player is playing against 'beatz'.
 
 --]]
 
@@ -351,7 +352,7 @@ local function draw_tutorial()
 
   if t == nil or t == 0 then return end
 
-  local color = {t * 30, t * 40, t * 50}
+  local color = {t * 30 / 255, t * 40 / 255, t * 50 / 255}
   msg.draw_key(x,  0.25, 'q', color)
   msg.draw_key(x, -0.25, 's', color)
 
@@ -394,7 +395,7 @@ end
 function vsbeatz.draw()
 
   local win_w, win_h = love.graphics.getDimensions()
-  love.graphics.setColor({10, 10, 20})
+  love.graphics.setColor({10 / 255, 10 / 255, 20 / 255})
   love.graphics.rectangle('fill', 0, 0, win_w, win_h)
 
   local beat = 0
@@ -443,7 +444,7 @@ function vsbeatz.draw()
 
 end
 
-function vsbeatz.keypressed(key, isrepeat)
+function vsbeatz.keypressed(key, scancode, isrepeat)
   -- We don't care about auto-repeat key siganls.
   if isrepeat then return end
 

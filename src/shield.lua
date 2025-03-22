@@ -85,7 +85,7 @@ local function draw_heart(grid_x, grid_y, bye_perc)
   local cell_w, cell_h = grid_w / grid_cells_w, grid_h / grid_cells_h
 
   bye_perc = bye_perc or 0
-  local col_level = 255 * (1 - bye_perc)
+  local col_level = 1 - bye_perc
   local color = {col_level, col_level, col_level}
 
 
@@ -150,9 +150,9 @@ function Shield:draw()
   local b   = anim.shield_brightness  -- Between 0 and 1.
   local lev = anim.shield_level       -- Between 0 and 1.
   local color = {
-      0 * lev * (1 - b) + 255 * b,
-    200 * lev * (1 - b) + 255 * b,
-    230 * lev * (1 - b) + 255 * b}
+      0 * lev * (1 - b) + b,
+    .78 * lev * (1 - b) + b,
+    .90 * lev * (1 - b) + b}
 
   local s_color = {}
   for i = 1, 3 do

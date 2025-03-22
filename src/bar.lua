@@ -24,7 +24,7 @@ local draw = require 'draw'
 --------------------------------------------------------------------------------
 
 local fade_beats = 0.5
-local bg_level   = 25
+local bg_level   = 25 / 255
 
 
 --------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ function Bar:draw_main_part(beat, fg_or_bg)
   local level
   local beat_delta = self.beat - beat
   if beat_delta >= 0 and beat_delta < dbg.beats_early_bar_visible then
-    level = 255
+    level = 1
     do_draw = (fg_or_bg == 'fg')
   else
     level = self:bg_level(beat)
